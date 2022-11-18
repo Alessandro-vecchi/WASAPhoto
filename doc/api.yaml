@@ -262,7 +262,7 @@ components:
           
 paths:
   /session/:
-    #leaving post for generality purposes, even though put would be better in this specific case.
+    # leaving post for generality purposes, even though put would be better in this specific case.
     post: 
       tags: 
         - Login
@@ -310,8 +310,8 @@ paths:
             application/json:
               schema:
                   $ref: '#/components/schemas/Profile'
-        '400':
-          description: Invalid username value
+        "400": { description: Invalid username supplied }
+        "404": { description: User not found }
 
   /user/{userID}:
     parameters:
@@ -354,6 +354,7 @@ paths:
                 $ref: '#/components/schemas/Username'
         "204":
           description: No content. Update occured but didn't send back any representation or description.
+        "400": { description: Invalid username supplied }
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         "409":
@@ -368,10 +369,11 @@ paths:
       description: This can only be done by the logged in user.
       operationId: deleteUsername
       responses:
-        "204": { description: Username deleted successfully }
+        "204": { description: User deleted successfully }
+        "400": { description: Invalid username supplied }
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-        "404": { description: Username not found }
+        "404": { description: User not found }
       security:
         - bearerAuth: []
   
@@ -675,7 +677,7 @@ paths:
         "204":
           description: No content
         "400":
-          description: Bad request. Invalid input data
+          description: Bad request. Invalid input data.
         '401':
           $ref: '#/components/responses/UnauthorizedError'
       security:
@@ -689,9 +691,9 @@ paths:
       operationId: removeCommentsPhoto
       responses:
         "204":
-          description: No content
+          description: No content. Comment deleted succesfully.
         "400":
-          description: Not Found
+          description: Comment not Found
         '401':
           $ref: '#/components/responses/UnauthorizedError'
       security:
@@ -755,7 +757,7 @@ paths:
         "204":
           description: No content
         "400":
-          description: Not Found
+          description: Comment not Found
         '401':
           $ref: '#/components/responses/UnauthorizedError'
       security:
