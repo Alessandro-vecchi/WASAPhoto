@@ -86,16 +86,16 @@ tags:
 components:
   parameters:
     userID:
+      description: User whose profile belongs to. 
       name: userID
       in: path
       required: true
-      description: User whose profile belongs to. 
       schema: { $ref: "#/components/schemas/UserID" }
     photoID:
+      description: ID of the picture considered
       name: photoID
       in: path
       required: true
-      description: ID of the picture considered
       schema: 
         description: Unique photo identifier
         type: integer
@@ -153,12 +153,12 @@ components:
             The simplified login tell us that, since there is no password, the username must be unique among the application. 
             Logging in with an existing name will grant access to that user information. 
             Hence it would make sense to use the username as ID since we don't have to represent real people but virtual people, namely usernames, by simplifying in this way the ReST OpenAPI. 
-            However, since it's not applicable in a real life scenario, I will use a userID that's different from the username. Thus, I'm choosing 10 chars long strings because they can store billion of billions of information(64^10, since the alphabet is "[a-z][A-Z][0-9]-_", 26+26+10+2=64), they are nicer to read then integers since they are shorter and almost equally fast to compute.
+            However, since it's not applicable in a real life scenario, I will use a userID that's different from the username. Thus, I'm choosing 20 chars long strings because they can store several billions of information(64^20, since the alphabet is "[a-z][A-Z][0-9]-_", 26+26+10+2=64), they are nicer to read then integers since they are shorter and almost equally fast to compute.
           type: string
           format: byte #base64 encoded character
-          minLength: 10
-          maxLength: 10
-          example: "ah-CJY0z9_"
+          minLength: 1
+          maxLength: 20
+          example: "U3dhZ2dlciByb2Nrcw"
           
     Comment:
       type: object
@@ -179,13 +179,13 @@ components:
             id:
               type: string
               format: byte #base64 encoded character
-              minLength: 10
-              maxLength: 10
-              example: "ah-CJY0z9_"
+              minLength: 1
+              maxLength: 20
+              example: "U3dhZ2dlciByb2Nrcw"
             username:
               description: Author of the comment just written
               type: string
-              pattern: 'ˆ.*?$'
+              pattern: '[a-z][A-Z][0-9]-_'
               minLength: 3
               maxLength: 16
               example: "MartinaLove04"
@@ -203,14 +203,7 @@ components:
           type: boolean
           default: false
           example: true
-    
-    Like:
-      type: object
-      properties:
-        user: #
-          description: User who put the like
-          type: string
-          example: "AleVecchi01"
+
 
     Username:
       type: object
@@ -218,7 +211,7 @@ components:
         username:
           type: string
           example: LeoMessi88
-          pattern: 'ˆ.*?$'
+          pattern: '[a-z][A-Z][0-9]-_'
           minLength: 3
           maxLength: 16
           
@@ -227,13 +220,16 @@ components:
       properties:
         username:
           type: string
+          pattern: '[a-z][A-Z][0-9]-_'
           minLength: 3
           maxLength: 16
           example: "JohnCena89"
         pictures_count:
+          description: Number of photos in the profile of the user
           type: integer
           example: 169
         followers_count:
+          description: Number of users that follow the profile
           type: integer
           example: 2567
         follows_count:
@@ -248,6 +244,7 @@ components:
           description: Biography of the profile
           type: string
           example: "Discover what's next on WASAPhoto"
+
   responses:
     BadRequest: 
         description: |-
@@ -288,12 +285,13 @@ paths:
                 $ref: '#/components/schemas/UserID'
   
   
-  /user/:
+  /users/:
     get:
       tags:
         - User
       summary: Find user by username
-      description: ''
+      description: |
+        The profile of an user contains the username, the number of photos it has, the number of follows/followers, a bio and a profile picture.
       operationId: getUserProfileByName
       parameters:
         - name: username
@@ -305,7 +303,7 @@ paths:
               $ref: '#/components/schemas/Username'
       responses:
         '200':
-          description: successful operation
+          description: Successful operation. User profile given in the response body.
           content:
             application/json:
               schema:
@@ -313,7 +311,7 @@ paths:
         "400": { description: Invalid username supplied }
         "404": { description: User not found }
 
-  /user/{userID}:
+  /users/{userID}:
     parameters:
       - $ref: "#/components/parameters/userID"
 
@@ -377,10 +375,37 @@ paths:
       security:
         - bearerAuth: []
   
-  /user/{userID}/follow/:
+  /users/{userID}/follows/:
     parameters:
       - $ref: "#/components/parameters/userID"
-    
+    get:
+      tags:
+        - User
+      summary: See followers
+      description: |
+         List of users that follow this profile
+      operationId: getFollowers
+      responses:
+        "200":
+          description: List of followers
+          content:
+            application/json:
+              schema:
+                type: array
+                minItems: 0
+                maxItems: 1000000000000
+                items:
+                  $ref: '#/components/schemas/UserID'
+
+  /follows/{followsID}:
+    parameters:
+      - name: followsID
+        in: path
+        required: true
+        description: User who is following
+        schema:
+          { $ref: "#/components/schemas/UserID" }
+
     put:
       tags:
         - User
@@ -392,10 +417,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Username'
+              $ref: '#/components/schemas/UserID'
       responses:
         "201":
           description: Follow created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserID'
+        "204":
+          description: Already following current user.
         '401':
           $ref: '#/components/responses/UnauthorizedError'
       security:
@@ -429,13 +460,46 @@ paths:
             application/json: 
               schema:
                 type: array
-                items: { $ref: "#/components/schemas/Photo" }
+                items: 
+                  $ref: "#/components/schemas/Photo"
+                minItems: 0
+                maxItems: 100000
+                uniqueItems: true
         "204": { description: No content. User still doesn't follow any user.}
 
-  /user/{userID}/ban/:
+  /user/{userID}/bans/:
     parameters:
       - $ref: "#/components/parameters/userID"
     
+    get:
+      tags:
+        - User
+      summary: See banned users
+      description: |
+         List of users that has been banned from this profile
+      operationId: getBannedUsers
+      responses:
+        "200":
+          description: List of banned users. At most 5% of the user's followers can be banned.
+          content:
+            application/json:
+              schema:
+                type: array
+                minItems: 0
+                maxItems: 100000
+                uniqueItems: true
+                items:
+                  $ref: '#/components/schemas/UserID'
+
+  /bans/{banID}:
+    parameters:
+      - name: banID
+        in: path
+        required: true
+        description: User who is banning
+        schema:
+          { $ref: "#/components/schemas/UserID" }
+
     put:
       tags:
         - User
@@ -447,10 +511,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Username'
+              $ref: '#/components/schemas/UserID'
       responses:
         "201":
           description: Ban created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserID"
+        "204": {description: User already banned.}
         '401':
           $ref: '#/components/responses/UnauthorizedError'
       security:
@@ -469,7 +538,7 @@ paths:
       security:
         - bearerAuth: []
 
-  /user/{userID}/photo/:
+  /user/{userID}/photos/:
     parameters:
       - $ref: "#/components/parameters/userID"
     
@@ -505,6 +574,8 @@ paths:
             application/json: 
               schema:
                 type: array
+                minItems: 0
+                maxItems: 100000
                 items: { $ref: "#/components/schemas/Photo" } 
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/InternalServerError" }
@@ -526,14 +597,13 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Photo" } 
         "400": { $ref: "#/components/responses/BadRequest" }
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
+        '401': {$ref: '#/components/responses/UnauthorizedError'}
         "500": { $ref: "#/components/responses/InternalServerError" }
       security:
         - bearerAuth: []
         
       
-  /photo/{photoID}:
+  /photos/{photoID}:
     description: >
       This resource represents an individual photo in the system belonging to the user user-ID.
       Each photo is identified by a numeric `ID`.
@@ -572,7 +642,7 @@ paths:
       security:
           - bearerAuth: []
   
-  /photo/{photoID}/like/:
+  /photos/{photoID}/likes/:
     parameters:
       - $ref: '#/components/parameters/photoID'
     get:
@@ -588,21 +658,20 @@ paths:
             application/json: 
               schema:
                 type: array
-                items: { $ref: "#/components/schemas/Like" }
-        "204": { description: No content}
+                items: { $ref: "#/components/schemas/UserID" }
         '401':
           $ref: '#/components/responses/UnauthorizedError'
           
-      
-  /like/{likeID}:
+
+  /likes/{likeID}:
     parameters:
       - name: likeID
         in: path
         required: true
         description: User who is liking the photo
         schema:
-          { $ref: "#/components/schemas/Like" }
-          
+          { $ref: "#/components/schemas/UserID" }
+    
     put:
       tags:
         - Likes
@@ -613,15 +682,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Like'
+              $ref: '#/components/schemas/UserID'
       responses:
         "201":
           description: Like created.
+          content:
+            application/json: 
+              schema:
+                { $ref: "#/components/schemas/UserID" }
         "204":
           description: No content. Like already inserted.
       security:
         - bearerAuth: []
-    
+
+
     delete:
       tags:
         - Likes
@@ -636,7 +710,7 @@ paths:
       security:
         - bearerAuth: []
       
-  /photo/{photoID}/comments/:
+  /photos/{photoID}/comments/:
     parameters:
       - $ref: "#/components/parameters/photoID"
       
@@ -653,6 +727,8 @@ paths:
             application/json: 
               schema:
                 type: array
+                minItems: 0
+                maxItems: 100000
                 items: { $ref: "#/components/schemas/Comment" }
       
         
@@ -722,7 +798,11 @@ paths:
               $ref: '#/components/schemas/Comment'
       responses:
         "200":
-          description: Comment updated successfully
+          description: Comment updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
         "201": 
           description: Comment created
           content:
@@ -762,4 +842,3 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
       security:
         - bearerAuth: []
-      
