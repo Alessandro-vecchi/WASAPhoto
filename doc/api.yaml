@@ -148,7 +148,7 @@ components:
       description: Attributes of a photo
       type: object
       properties:
-        id:
+        photoId:
           description: Unique photo identifier
           type: integer
           format: int64
@@ -200,7 +200,7 @@ components:
           description: Uniquely identifies the author of a comment
           type: object
           properties:
-            id:
+            userId:
               description: User ID of the commenter represented with base64 encoded characters
               type: string
               format: byte
@@ -233,7 +233,7 @@ components:
       description: User identifier.
       type: object 
       properties:
-        identifier:
+        userId:
           description: |
             The simplified login tell us that, since there is no password, the username must be unique among the application. 
             Logging in with an existing name will grant access to that user information. 
@@ -411,7 +411,7 @@ paths:
 
   /follows/{followID}:
     parameters:
-      - name: followsID
+      - name: followID
         in: path
         required: true
         description: User who is following
@@ -460,7 +460,7 @@ paths:
   /user/{userID}/stream/:
     parameters:
       - $ref: "#/components/parameters/userID"
-      
+
     get:
       tags:
       - Stream
@@ -674,6 +674,8 @@ paths:
             application/json: 
               schema:
                 type: array
+                minItems: 0
+                maxItems: 100000000
                 items: { $ref: "#/components/schemas/UserID" }
         '401':
           $ref: '#/components/responses/UnauthorizedError'
