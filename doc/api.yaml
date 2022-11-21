@@ -106,10 +106,11 @@ components:
   # 1) Define the security scheme type (HTTP bearer)
   securitySchemes:
     bearerAuth:
-      in: header
       type: http
       scheme: bearer
-      name : UserIDtoken
+      bearerFormat: JWT
+      # in: header
+      # name : UserIDtoken
           
   schemas:
     Profile:
