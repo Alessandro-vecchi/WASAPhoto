@@ -457,7 +457,10 @@ paths:
       security:
         - bearerAuth: []
 
-  /stream/:
+  /user/{userID}/stream/:
+    parameters:
+      - $ref: "#/components/parameters/userID"
+      
     get:
       tags:
       - Stream
@@ -565,6 +568,7 @@ paths:
         - in: query
           name: sort_by
           schema:
+            description: Allowing sorting by date
             type: string
             format: date-time
           description: Sorting in [reverse] chronological order by date
