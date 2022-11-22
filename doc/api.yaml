@@ -159,7 +159,7 @@ components:
           example: 2385678
           readOnly: true
         timestamp:
-          description: Date and time of creation following RFC3339 
+          description: Date and time of creation following RFC3339
           type: string
           format: date-time
           example: 2022-11-04T16:35:22-04:00
@@ -419,11 +419,12 @@ paths:
                 type: array
                 minItems: 0
                 maxItems: 1000000000000
-                items:
-                  $ref: '#/components/schemas/UserID'
+                items: {$ref: '#/components/schemas/UserID'}
 
-  /follows/{followID}:
+
+  /users/{userID}/follows/{followID}:
     parameters:
+      - $ref: "#/components/parameters/userID"
       - name: followID
         in: path
         required: true
@@ -519,8 +520,9 @@ paths:
                 items:
                   $ref: '#/components/schemas/UserID'
 
-  /bans/{banID}:
+  /users/{userID}/bans/{banID}:
     parameters:
+      - $ref: "#/components/parameters/userID"
       - name: banID
         in: path
         required: true
@@ -688,14 +690,15 @@ paths:
               schema:
                 type: array
                 minItems: 0
-                maxItems: 100000000
+                maxItems: 10000000
                 items: { $ref: "#/components/schemas/UserID" }
         '401':
           $ref: '#/components/responses/UnauthorizedError'
           
 
-  /likes/{likeID}:
+  /users/{userID}/likes/{likeID}:
     parameters:
+      - $ref: "#/components/parameters/userID"
       - name: likeID
         in: path
         required: true
