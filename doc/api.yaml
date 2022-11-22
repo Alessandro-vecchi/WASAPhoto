@@ -257,6 +257,7 @@ components:
           minLength: 1
           maxLength: 20
           example: "U3dhZ2dlciByb2Nrcw"
+          readOnly: true
           
     Username:
       description: It represents the name of the user in WASA Photo
@@ -437,7 +438,7 @@ paths:
         - User
       summary: Follow user
       description: >
-        Following an user imply incrementing his followers count by one, our follows count by one and to add his profile in our stream
+        Following an user imply incrementing his followers count by one, our follows count by one and to add his profile in our stream. I'm using PUT for its idempotency.
       operationId: followUser
       requestBody:
         content:
@@ -535,7 +536,7 @@ paths:
         - User
       summary: Ban user
       description: >
-        If Alice bans Bob, Bob won't be able to see any information about Alice. Alice can decide to remove the ban at any moment.
+        If Alice bans Bob, Bob won't be able to see any information about Alice. Alice can decide to remove the ban at any moment. I'm using PUT for its idempotency.
       operationId: banUser
       requestBody:
         content:
@@ -710,7 +711,7 @@ paths:
       tags:
         - Likes
       summary: Like a photo
-      description: Add a like on a photo. I'm using put for its idempotency.
+      description: Add a like on a photo. I'm using PUT for its idempotency.
       operationId: likePhoto
       requestBody:
         content:
@@ -809,14 +810,20 @@ paths:
       security:
         - bearerAuth: []
   
-  /comments/{commentID}:
+  /photos/{photoID}/comments/{commentID}:
     parameters:
+      - $ref: "#/components/parameters/photoID"
       - name: commentID
         in: path
-        description: ID of the comment
-        required: true
+        description: Unique comment identifier
         schema:
           type: string
+          pattern: '^[a-zA-Z0-9-_]*$'
+          example: "CksvyZXtXRE"
+          minLength: 3
+          maxLength: 20
+          readOnly: true
+        required: true
     
     put:
       tags:
