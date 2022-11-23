@@ -500,7 +500,7 @@ paths:
       security:
         - bearerAuth: []
 
-  /user/{userID}/stream/:
+  /users/{userID}/stream/:
     parameters:
       - $ref: "#/components/parameters/userID"
 
@@ -528,7 +528,7 @@ paths:
       security:
         - bearerAuth: []
 
-  /user/{userID}/bans/:
+  /users/{userID}/bans/:
     parameters:
       - $ref: "#/components/parameters/userID"
     
@@ -603,7 +603,7 @@ paths:
       security:
         - bearerAuth: []
 
-  /user/{userID}/photos/:
+  /users/{userID}/photos/:
     parameters:
       - $ref: "#/components/parameters/userID"
     
