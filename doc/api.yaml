@@ -111,8 +111,6 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      # in: header
-      # name : UserIDtoken
           
   schemas:
     Profile:
@@ -139,10 +137,12 @@ components:
           type: integer
           example: 689
         profile_picture_url:
-          description: URL of the profile picture
+          description: URL of the profile picture. Accepting only http/https URIs and .png/.jpg/.jpeg extensions.
           type: string
-          format: uri
+          pattern: '^(https?:\/\/.*\.(?:png|jpg|jpeg))$'
           example: "http://gamificationlab.uniroma1.it/images/gamificationlab-logo-transparent.png"
+          minLength: 0
+          maxLength: 150
         bio:
           description: Biography of the profile
           type: string
@@ -166,6 +166,8 @@ components:
           type: string
           format: date-time
           example: 2022-11-04T16:35:22-04:00
+          minLength: 20
+          maxLength: 25
         likes_count:
           description: Number of likes
           type: integer
@@ -175,10 +177,12 @@ components:
           type: integer
           example: 15
         image:
-          description: URL of the image
+          description: URL of the image just uploaded. Accepting only http/https URIs and .png/.jpg/.jpeg extensions.
           type: string
-          format: uri
+          pattern: '^(https?:\/\/.*\.(?:png|jpg|jpeg))$'
           example: "http://gamificationlab.uniroma1.it/images/gamificationlab-logo-transparent.png"
+          minLength: 0
+          maxLength: 150
         caption:
           description: A written description or explanation about a photo to provide more context
           type: string
@@ -210,6 +214,8 @@ components:
           type: string
           format: date-time
           example: 2022-11-04T16:35:22-04:00
+          minLength: 20
+          maxLength: 25
         author:
           description: Uniquely identifies the author of a comment
           type: object
@@ -220,7 +226,7 @@ components:
               format: byte
               minLength: 1
               maxLength: 20
-              example: "U3dhZ2dlciByb2Nrcw"
+              example: "U3dhZ2dlciByb2Nr=="
             username:
               description: Author of the comment just written
               type: string
@@ -239,6 +245,8 @@ components:
           type: string
           format: date-time
           example: 2022-11-04T19:35:22-04:00
+          minLength: 20
+          maxLength: 25
         is_reply_comment:
           description: States id the comment is a reply or not
           type: boolean
@@ -407,6 +415,7 @@ paths:
   /users/{userID}/follows/:
     parameters:
       - $ref: "#/components/parameters/userID"
+      
     get:
       tags:
         - User
@@ -420,6 +429,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Represents the users that follow the profile.
                 type: array
                 minItems: 0
                 maxItems: 1000000000000
@@ -492,6 +502,7 @@ paths:
           content:
             application/json: 
               schema:
+                description: Represents the stream of photos in the user's homepage.
                 type: array
                 items: 
                   $ref: "#/components/schemas/Photo"
@@ -519,6 +530,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Represents the users that are banned from the profile.
                 type: array
                 minItems: 0
                 maxItems: 100000
@@ -612,9 +624,10 @@ paths:
           content:
             application/json: 
               schema:
+                description: Represents the photos that we can see in the profile of a user.
                 type: array
                 minItems: 0
-                maxItems: 100000
+                maxItems: 10000
                 items: { $ref: "#/components/schemas/Photo" } 
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/InternalServerError" }
@@ -696,6 +709,7 @@ paths:
           content:
             application/json: 
               schema:
+                description: Represents the list of users that put like on a photo.
                 type: array
                 minItems: 0
                 maxItems: 10000000
@@ -768,6 +782,7 @@ paths:
           content:
             application/json: 
               schema:
+                description: Represents the comments under a photo added by the users.
                 type: array
                 minItems: 0
                 maxItems: 100000
@@ -874,16 +889,9 @@ paths:
       description: |
         The Author and the Owner of the profile can delete a specific comment under a specific photo.
       operationId: uncommentPhoto
-      #parameters:
-       # - name: authorization_header
-        #  in: header
-         # description: API key of either the Author or the Owner
-          #required: true
-        #  schema:
-         #   type: string
       responses:
         "204":
-          description: No content
+          description: No content. Comment deleted.
         "400":
           description: Comment not Found
         '401':
