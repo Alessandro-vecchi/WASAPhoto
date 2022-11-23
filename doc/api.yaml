@@ -99,6 +99,12 @@ components:
       in: path
       required: true
       schema: { $ref: "#/components/schemas/PhotoID" }
+    commentID:
+      description: Unique comment identifier
+      name: commentID
+      in: path
+      schema: { $ref: "#/components/schemas/CommentID" }
+      required: true
         
   # 1) Define the security scheme type (HTTP bearer)
   securitySchemes:
@@ -272,6 +278,15 @@ components:
       example: 2385678
       readOnly: true
           
+    CommentID:
+      description: Unique comment identifier.
+      type: string
+      pattern: '^[a-zA-Z0-9-_]*$'
+      example: "CksvyZXtXRE"
+      minLength: 3
+      maxLength: 20
+      readOnly: true
+      
     Username:
       description: It represents the name of the user in WASA Photo
       type: string
@@ -604,13 +619,16 @@ paths:
             description: Allowing sorting by date
             type: string
             format: date-time
+            minLength: 20
+            maxLength: 25
+            example: 2022-11-04T16:35:22-04:00
           description: Sorting in [reverse] chronological order by date
           explode: true
         - in: query
           name: order
           schema:
-            type: string
             description: Sorting order
+            type: string
             enum:
               - asc
               - desc
@@ -833,17 +851,7 @@ paths:
   /photos/{photoID}/comments/{commentID}:
     parameters:
       - $ref: "#/components/parameters/photoID"
-      - name: commentID
-        in: path
-        description: Unique comment identifier
-        schema:
-          type: string
-          pattern: '^[a-zA-Z0-9-_]*$'
-          example: "CksvyZXtXRE"
-          minLength: 3
-          maxLength: 20
-          readOnly: true
-        required: true
+      - $ref: "#/components/parameters/commentID"
     
     put:
       tags:
