@@ -82,6 +82,8 @@ tags:
     description: Commenting
   - name: Login
     description: Simplified login
+  - name: Stream
+    description: Stream of photos in the homepage
     
 components:
   parameters:
@@ -144,6 +146,7 @@ components:
         bio:
           description: Biography of the profile
           type: string
+          pattern: ""
           example: "Discover what's next on WASAPhoto"
           minLength: 0
           maxLength: 300
@@ -389,7 +392,7 @@ paths:
     delete:
       tags:
         - User
-      summary: Delete username
+      summary: Delete my profile
       description: This can only be done by the logged in user.
       operationId: deleteUsername
       responses:
@@ -496,6 +499,8 @@ paths:
                 maxItems: 100000
                 uniqueItems: true
         "204": { description: No content. User still doesn't follow any user.}
+      security:
+        - bearerAuth: []
 
   /user/{userID}/bans/:
     parameters:
@@ -520,6 +525,8 @@ paths:
                 uniqueItems: true
                 items:
                   $ref: '#/components/schemas/UserID'
+      security:
+          - bearerAuth: []
 
   /users/{userID}/bans/{banID}:
     parameters:
@@ -697,9 +704,9 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
           
 
-  /users/{userID}/likes/{likeID}:
+  /photos/{photoID}/likes/{likeID}:
     parameters:
-      - $ref: "#/components/parameters/userID"
+      - $ref: "#/components/parameters/photoID"
       - name: likeID
         in: path
         required: true
