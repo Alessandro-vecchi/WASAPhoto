@@ -420,8 +420,7 @@ paths:
       responses:
         "204": { description: User deleted successfully }
         "400": { description: Invalid username supplied }
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
+        '401': { $ref: '#/components/responses/UnauthorizedError'}
         "404": { description: User not found }
       security:
         - bearerAuth: []
@@ -448,6 +447,8 @@ paths:
                 minItems: 0
                 maxItems: 1000000000000
                 items: {$ref: '#/components/schemas/UserID'}
+      security:
+          - bearerAuth: []
 
 
   /users/{userID}/follows/{followID}:
