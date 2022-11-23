@@ -137,19 +137,20 @@ components:
           type: integer
           example: 689
         profile_picture_url:
-          description: URL of the profile picture. Accepting only http/https URIs and .png/.jpg/.jpeg extensions.
+          description: URL of the profile picture. Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
           type: string
           pattern: '^(https?:\/\/.*\.(?:png|jpg|jpeg))$'
           example: "http://gamificationlab.uniroma1.it/images/gamificationlab-logo-transparent.png"
           minLength: 0
           maxLength: 150
         bio:
-          description: Biography of the profile
+          description: Biography of the profile. |
+            I'm keeping the pattern simple. Not doing crazy things. Just allowing alphanumeric characters and basic punctuation.
           type: string
-          pattern: ""
+          pattern: ^[a-zA-Z0-9,.-_:;?!\' ]+$
           example: "Discover what's next on WASAPhoto"
           minLength: 0
-          maxLength: 300
+          maxLength: 150
 
     Photo:
       description: Attributes of a photo
@@ -177,7 +178,7 @@ components:
           type: integer
           example: 15
         image:
-          description: URL of the image just uploaded. Accepting only http/https URIs and .png/.jpg/.jpeg extensions.
+          description: URL of the image just uploaded. Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
           type: string
           pattern: '^(https?:\/\/.*\.(?:png|jpg|jpeg))$'
           example: "http://gamificationlab.uniroma1.it/images/gamificationlab-logo-transparent.png"
@@ -186,7 +187,8 @@ components:
         caption:
           description: A written description or explanation about a photo to provide more context
           type: string
-          example: "Vodka may not be the answer but it’s worth a shot"
+          pattern: ^[a-zA-Z0-9,.-_:;?!\' ]+$
+          example: "Vodka may not be the answer but it’s worth a shot."
           minLength: 0
           maxLength: 100
         username: #owner
@@ -235,10 +237,11 @@ components:
               maxLength: 16
               example: "MartinaLove04"
         body:
-          description: Text of the comment written
+          description: Text of the comment written. Preventing empty comments.
           type: string
+          pattern: ^[a-zA-Z0-9,.-_:;?!\' ]+$
           minLength: 1
-          maxLength: 500
+          maxLength: 300
           example: "No vabbè amo sei bellissima"
         modified_in:
           description: When the comment was modified
