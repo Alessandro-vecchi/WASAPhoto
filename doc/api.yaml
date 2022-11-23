@@ -148,7 +148,7 @@ components:
           description: Biography of the profile. |
             I'm keeping the pattern simple. Not doing crazy things. Just allowing alphanumeric characters and basic punctuation.
           type: string
-          pattern: ^[a-zA-Z0-9,.-_:;?!\' ]+$
+          pattern: '^[a-zA-Z0-9,.-_:;?!\x27 ]*$'
           example: "Discover what's next on WASAPhoto"
           minLength: 0
           maxLength: 150
@@ -189,7 +189,7 @@ components:
         caption:
           description: A written description or explanation about a photo to provide more context
           type: string
-          pattern: ^[a-zA-Z0-9,.-_:;?!\' ]+$
+          pattern: '^[a-zA-Z0-9,.-_:;?!\x27 ]*$'
           example: "Vodka may not be the answer but it’s worth a shot."
           minLength: 0
           maxLength: 100
@@ -225,12 +225,13 @@ components:
           type: object
           properties:
             userId:
-              description: User ID of the commenter represented with base64 encoded characters
+              description: User ID of the commenter represented with base64 encoded characters.
               type: string
-              format: byte
+              pattern: '^[a-zA-Z0-9-_]*$'
               minLength: 1
               maxLength: 20
-              example: "U3dhZ2dlciByb2Nr=="
+              example: "U3dhZ2dlciByb2Nrcw"
+              readOnly: true
             username:
               description: Author of the comment just written
               type: string
