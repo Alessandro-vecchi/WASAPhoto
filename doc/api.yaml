@@ -98,12 +98,7 @@ components:
       name: photoID
       in: path
       required: true
-      schema: 
-        description: Unique photo identifier
-        type: integer
-        format: int64
-        example: 2385678
-        readOnly: true
+      schema: { $ref: "#/components/schemas/PhotoID" }
         
   # 1) Define the security scheme type (HTTP bearer)
   securitySchemes:
@@ -178,7 +173,8 @@ components:
           type: integer
           example: 15
         image:
-          description: URL of the image just uploaded. Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
+          description: URL of the image just uploaded. |
+            Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
           type: string
           pattern: '^(https?:\/\/.*\.(?:png|jpg|jpeg))$'
           example: "http://gamificationlab.uniroma1.it/images/gamificationlab-logo-transparent.png"
@@ -257,33 +253,32 @@ components:
           example: true
 
     UserID:
-      description: User identifier.
-      type: object 
-      properties:
-        userId:
-          description: |
-            The simplified login tell us that, since there is no password, the username must be unique among the application. 
-            Logging in with an existing name will grant access to that user information. 
-            Hence it would make sense to use the username as ID since we don't have to represent real people but virtual people, namely usernames, by simplifying in this way the ReST OpenAPI. 
-            However, since it's not applicable in a real life scenario, I will use a userID that's different from the username. Thus, I'm choosing 20 chars long strings because they can store several billions of information(64^20, since the alphabet is "[a-z][A-Z][0-9]-_", 26+26+10+2=64), they are nicer to read then integers since they are shorter and almost equally fast to compute.
-          type: string
-          format: byte # base64 encoded character
-          minLength: 1
-          maxLength: 20
-          example: "U3dhZ2dlciByb2Nrcw"
-          readOnly: true
+      description: |
+        The simplified login tell us that, since there is no password, the username must be unique among the application. 
+        Logging in with an existing name will grant access to that user information. 
+        Hence it would make sense to use the username as ID since we don't have to represent real people but virtual people, namely usernames, by simplifying in this way the ReST OpenAPI. 
+        However, since it's not applicable in a real life scenario, I will use a userID that's different from the username. Thus, I'm choosing 20 chars long strings because they can store several billions of information(64^20, since the alphabet is "[a-z][A-Z][0-9]-_", 26+26+10+2=64), they are nicer to read then integers since they are shorter and almost equally fast to compute.
+      type: string
+      pattern: '^[a-zA-Z0-9-_]*$'
+      minLength: 1
+      maxLength: 20
+      example: "U3dhZ2dlciByb2Nrcw"
+      readOnly: true
+          
+    PhotoID:
+      description: Unique photo identifier
+      type: integer
+      format: int64
+      example: 2385678
+      readOnly: true
           
     Username:
       description: It represents the name of the user in WASA Photo
-      type: object
-      properties:
-        username:
-          description: Name of the user
-          type: string
-          example: LeoMessi88
-          pattern: '^[a-zA-Z0-9-_]*$'
-          minLength: 3
-          maxLength: 16
+      type: string
+      example: LeoMessi88
+      pattern: '^[a-zA-Z0-9-_]*$'
+      minLength: 3
+      maxLength: 16
 
   responses:
     BadRequest: 
