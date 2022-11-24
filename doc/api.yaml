@@ -142,7 +142,7 @@ components:
           description: Biography of the profile. |
             I'm keeping the pattern simple. Not doing crazy things. Just allowing alphanumeric characters and basic punctuation.
           type: string
-          pattern: '^[a-zA-Z0-9,.-_:;?!\x27 ]*$'
+          pattern: '^[a-zA-Z0-9,._:;?!\x27\- ]*$'
           example: "Discover what's next on WASAPhoto"
           minLength: 0
           maxLength: 150
@@ -176,7 +176,7 @@ components:
         caption:
           description: A written description or explanation about a photo to provide more context
           type: string
-          pattern: '^[a-zA-Z0-9,.-_:;?!\x27 ]*$'
+          pattern: '^[a-zA-Z0-9,._:;?!\x27\- ]*$'
           example: "Vodka may not be the answer but it’s worth a shot."
           minLength: 0
           maxLength: 100
@@ -321,6 +321,8 @@ paths:
                   $ref: '#/components/schemas/Profile'
         "400": { description: Invalid username supplied }
         "404": { description: User not found }
+      security:
+        - bearerAuth: []
 
   /users/{userID}:
     parameters:
@@ -341,6 +343,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Profile"
         "500": { $ref: "#/components/responses/InternalServerError" }
+      security:
+        - bearerAuth: []
       
     
     patch:
@@ -615,6 +619,8 @@ paths:
                 items: { $ref: "#/components/schemas/Photo" } 
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/InternalServerError" }
+      security:
+        - bearerAuth: []
         
     post:
       tags:
@@ -662,6 +668,8 @@ paths:
                 { $ref: "#/components/schemas/Photo" }
         "204": { description: No content}
         "404": { description: Not found }
+      security:
+        - bearerAuth: []
       
     delete:
       tags:
@@ -702,6 +710,8 @@ paths:
                 items: { $ref: "#/components/schemas/UserID" }
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - bearerAuth: []
           
 
   /photos/{photoID}/likes/{likeID}:
@@ -775,6 +785,8 @@ paths:
                 minItems: 0
                 maxItems: 50
                 items: { $ref: "#/components/schemas/Comment" }
+      security:
+        - bearerAuth: []
       
         
     post:
