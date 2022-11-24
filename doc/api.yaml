@@ -118,13 +118,7 @@ components:
       description: Represents the information seen in the Profile Page of a user
       type: object
       properties:
-        username:
-          description: Name of the user
-          type: string
-          pattern: '^[a-zA-Z0-9-_]*$'
-          minLength: 3
-          maxLength: 16
-          example: "JohnCena89"
+        username: {$ref: "#/components/schemas/Username"}
         pictures_count:
           description: Number of photos in the profile of the user
           type: integer
@@ -157,19 +151,12 @@ components:
       description: Attributes of a photo
       type: object
       properties:
-        photoId:
-          description: Unique photo identifier
-          type: integer
-          format: int64
-          example: 2385678
-          readOnly: true
+        photoId: {$ref: "#/components/schemas/PhotoID"}
         timestamp:
           description: Date and time of creation following RFC3339
           type: string
           format: date-time
           example: 2022-11-04T16:35:22-04:00
-          minLength: 20
-          maxLength: 25
         likes_count:
           description: Number of likes
           type: integer
@@ -193,54 +180,27 @@ components:
           example: "Vodka may not be the answer but it’s worth a shot."
           minLength: 0
           maxLength: 100
-        username: #owner
-          description: Username of the owner of the picture.
-          type: string
-          pattern: '^[a-zA-Z0-9-_]*$'
-          minLength: 3
-          maxLength: 16
-          example: "ChiaraFerragni69"
+        username: {$ref: "#/components/schemas/Username"}
           
     Comment:
       description: It represents a comment object
       type: object
       properties:
-        commentId:
-          description: Unique comment identifier
-          type: string
-          pattern: '^[a-zA-Z0-9-_]*$'
-          example: "CksvyZXtXRE"
-          minLength: 3
-          maxLength: 20
-          readOnly: true
+        commentId: {$ref: "#/components/schemas/CommentID"}
         created_in:
           description: When the comment was written
           type: string
           format: date-time
           example: 2022-11-04T16:35:22-04:00
-          minLength: 20
-          maxLength: 25
         author:
           description: Uniquely identifies the author of a comment
           type: object
           properties:
-            userId:
-              description: User ID of the commenter represented with base64 encoded characters.
-              type: string
-              pattern: '^[a-zA-Z0-9-_]*$'
-              minLength: 1
-              maxLength: 20
-              example: "U3dhZ2dlciByb2Nrcw"
-              readOnly: true
-            username:
-              description: Author of the comment just written
-              type: string
-              pattern: '^[a-zA-Z0-9-_]*$'
-              minLength: 3
-              maxLength: 16
-              example: "MartinaLove04"
+            userId: {$ref: "#/components/schemas/UserID"}
+            username: {$ref: "#/components/schemas/Username"}
         body:
-          description: Text of the comment written. Preventing empty comments.
+          description: |
+            Text of the comment written. Preventing empty comments.
           type: string
           pattern: ^[a-zA-Z0-9,.-_:;?!\' ]+$
           minLength: 1
@@ -442,10 +402,12 @@ paths:
           content:
             application/json:
               schema:
-                description: Represents the users that follow the profile.
+                description: |
+                  Represents the users that follow the profile.
+                  Users can see followers in batches of 100.
                 type: array
                 minItems: 0
-                maxItems: 1000000000000
+                maxItems: 100
                 items: {$ref: '#/components/schemas/UserID'}
       security:
           - bearerAuth: []
@@ -517,12 +479,14 @@ paths:
           content:
             application/json: 
               schema:
-                description: Represents the stream of photos in the user's homepage.
+                description: |
+                  Represents the stream of photos in the user's homepage.
+                  Users can see comments in batches of 20.
                 type: array
                 items: 
                   $ref: "#/components/schemas/Photo"
                 minItems: 0
-                maxItems: 100000
+                maxItems: 20
                 uniqueItems: true
         "204": { description: No content. User still doesn't follow any user.}
       security:
@@ -541,14 +505,17 @@ paths:
       operationId: getBannedUsers
       responses:
         "200":
-          description: List of banned users. At most 5% of the user's followers can be banned.
+          description: |
+            List of banned users. At most 5% of the user's followers can be banned.
           content:
             application/json:
               schema:
-                description: Represents the users that are banned from the profile.
+                description: |
+                  Represents the users that are banned from the profile.
+                  Users can see banned users in batches of 50.
                 type: array
                 minItems: 0
-                maxItems: 100000
+                maxItems: 50
                 uniqueItems: true
                 items:
                   $ref: '#/components/schemas/UserID'
@@ -621,8 +588,6 @@ paths:
             description: Allowing sorting by date
             type: string
             format: date-time
-            minLength: 20
-            maxLength: 25
             example: 2022-11-04T16:35:22-04:00
           description: Sorting in [reverse] chronological order by date
           explode: true
@@ -642,10 +607,11 @@ paths:
           content:
             application/json: 
               schema:
-                description: Represents the photos that we can see in the profile of a user.
+                description: |
+                  Represents the photos that we can see in the profile of a user. Users can see photos in batches of 50.
                 type: array
                 minItems: 0
-                maxItems: 10000
+                maxItems: 100
                 items: { $ref: "#/components/schemas/Photo" } 
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/InternalServerError" }
@@ -727,10 +693,12 @@ paths:
           content:
             application/json: 
               schema:
-                description: Represents the list of users that put like on a photo.
+                description: |
+                  Represents the list of users that put like on a photo.
+                  Users can see likers in batches of 100.
                 type: array
                 minItems: 0
-                maxItems: 10000000
+                maxItems: 100
                 items: { $ref: "#/components/schemas/UserID" }
         '401':
           $ref: '#/components/responses/UnauthorizedError'
@@ -800,10 +768,12 @@ paths:
           content:
             application/json: 
               schema:
-                description: Represents the comments under a photo added by the users.
+                description: |
+                  Represents the comments under a photo added by the users.
+                  Users can see comments in batches of 50.
                 type: array
                 minItems: 0
-                maxItems: 100000
+                maxItems: 50
                 items: { $ref: "#/components/schemas/Comment" }
       
         
@@ -829,22 +799,6 @@ paths:
           description: No content
         "400":
           description: Bad request. Invalid input data.
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-      security:
-        - bearerAuth: []
-      
-    delete:
-      tags:
-        - Comments
-      summary: Delete all comments
-      description: the Author can delete delete all comments under a photo.
-      operationId: removeCommentsPhoto
-      responses:
-        "204":
-          description: No content. Comment deleted succesfully.
-        "400":
-          description: Comment not Found
         '401':
           $ref: '#/components/responses/UnauthorizedError'
       security:
