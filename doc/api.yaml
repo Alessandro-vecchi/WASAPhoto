@@ -157,6 +157,8 @@ components:
           type: string
           format: date-time
           example: 2022-11-04T16:35:22-04:00
+          minLength: 20
+          maxLength: 24
         likes_count:
           description: Number of likes
           type: integer
@@ -192,6 +194,8 @@ components:
           type: string
           format: date-time
           example: 2022-11-04T16:35:22-04:00
+          minLength: 20
+          maxLength: 24
         author:
           description: Uniquely identifies the author of a comment
           type: object
@@ -202,17 +206,17 @@ components:
           description: |
             Text of the comment written. Preventing empty comments.
           type: string
-          pattern: ^[a-zA-Z0-9,.-_:;?!\' ]+$
+          pattern: '^[a-zA-Z0-9,._:;?!\x27\- ]*$'
           minLength: 1
           maxLength: 300
-          example: "No vabbè amo sei bellissima"
+          example: "Buongiornissimo Beppe!"
         modified_in:
           description: When the comment was modified
           type: string
           format: date-time
           example: 2022-11-04T19:35:22-04:00
           minLength: 20
-          maxLength: 25
+          maxLength: 24
         is_reply_comment:
           description: States id the comment is a reply or not
           type: boolean
@@ -593,6 +597,8 @@ paths:
             type: string
             format: date-time
             example: 2022-11-04T16:35:22-04:00
+            minLength: 20
+            maxLength: 24
           description: Sorting in [reverse] chronological order by date
           explode: true
         - in: query
@@ -603,6 +609,8 @@ paths:
             enum:
               - asc
               - desc
+            minLength: 3
+            maxLength: 4
           explode: true
               
       responses: 
