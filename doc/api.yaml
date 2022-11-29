@@ -118,6 +118,7 @@ components:
       description: Represents the information seen in the Profile Page of a user
       type: object
       properties:
+        userId: {$ref: "#/components/schemas/UserID"}
         username: {$ref: "#/components/schemas/Username"}
         pictures_count:
           description: Number of photos in the profile of the user
@@ -135,7 +136,7 @@ components:
           description: URL of the profile picture. Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
           type: string
           pattern: '^(https?:\/\/.*\.(?:png|jpg|jpeg))$'
-          example: "http://gamificationlab.uniroma1.it/images/gamificationlab-logo-transparent.png"
+          example: "http://images/lab.png"
           minLength: 0
           maxLength: 150
         bio:
@@ -172,14 +173,15 @@ components:
             Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
           type: string
           pattern: '^(https?:\/\/.*\.(?:png|jpg|jpeg))$'
-          example: "http://gamificationlab.uniroma1.it/images/gamificationlab-logo-transparent.png"
+          example: "http://lab.uniroma1.it/logo.png"
           minLength: 0
           maxLength: 150
         caption:
           description: A written description or explanation about a photo to provide more context
           type: string
           pattern: '^[a-zA-Z0-9,._:;?!\x27\- ]*$'
-          example: "Vodka may not be the answer but it’s worth a shot."
+          example: "A Roma"
+          #example: "Vodka may not be the answer but it's worth a shot."
           minLength: 0
           maxLength: 100
         username: {$ref: "#/components/schemas/Username"}
