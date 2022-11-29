@@ -144,7 +144,7 @@ components:
             I'm keeping the pattern simple. Not doing crazy things. Just allowing alphanumeric characters and basic punctuation.
           type: string
           pattern: '^[a-zA-Z0-9,._:;?!\x27\- ]*$'
-          example: "Discover what's next on WASAPhoto"
+          example: "Discover what's next" # on WASAPhoto
           minLength: 0
           maxLength: 150
 
@@ -173,7 +173,7 @@ components:
             Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
           type: string
           pattern: '^(https?:\/\/.*\.(?:png|jpg|jpeg))$'
-          example: "http://lab.uniroma1.it/logo.png"
+          example: "http://lab.it/logo.png"
           minLength: 0
           maxLength: 150
         caption:
