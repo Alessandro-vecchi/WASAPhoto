@@ -144,7 +144,8 @@ components:
             I'm keeping the pattern simple. Not doing crazy things. Just allowing alphanumeric characters and basic punctuation.
           type: string
           pattern: '^[a-zA-Z0-9,._:;?!\x27\- ]*$'
-          example: "Discover what's next" # on WASAPhoto
+          example: "Discover what's next"
+          # on WASAPhoto
           minLength: 0
           maxLength: 150
 
@@ -159,7 +160,7 @@ components:
           format: date-time
           example: 2022-11-04T16:35:22-04:00
           minLength: 20
-          maxLength: 24
+          maxLength: 25
         likes_count:
           description: Number of likes
           type: integer
@@ -169,7 +170,8 @@ components:
           type: integer
           example: 15
         image:
-          description: URL of the image just uploaded. |
+          description: |
+            URL of the image just uploaded.
             Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
           type: string
           pattern: '^(https?:\/\/.*\.(?:png|jpg|jpeg))$'
@@ -180,8 +182,7 @@ components:
           description: A written description or explanation about a photo to provide more context
           type: string
           pattern: '^[a-zA-Z0-9,._:;?!\x27\- ]*$'
-          example: "A Roma"
-          #example: "Vodka may not be the answer but it's worth a shot."
+          example: "Vodka may not be the answer but it's worth a shot."
           minLength: 0
           maxLength: 100
         username: {$ref: "#/components/schemas/Username"}
@@ -197,7 +198,7 @@ components:
           format: date-time
           example: 2022-11-04T16:35:22-04:00
           minLength: 20
-          maxLength: 24
+          maxLength: 25
         author:
           description: Uniquely identifies the author of a comment
           type: object
@@ -211,14 +212,14 @@ components:
           pattern: '^[a-zA-Z0-9,._:;?!\x27\- ]*$'
           minLength: 1
           maxLength: 300
-          example: "Buongiornissimo Beppe!"
+          example: "Buongiorno Beppe!"
         modified_in:
           description: When the comment was modified
           type: string
           format: date-time
           example: 2022-11-04T19:35:22-04:00
           minLength: 20
-          maxLength: 24
+          maxLength: 25
         is_reply_comment:
           description: States id the comment is a reply or not
           type: boolean
@@ -600,7 +601,7 @@ paths:
             format: date-time
             example: 2022-11-04T16:35:22-04:00
             minLength: 20
-            maxLength: 24
+            maxLength: 25
           description: Sorting in [reverse] chronological order by date
           explode: true
         - in: query
