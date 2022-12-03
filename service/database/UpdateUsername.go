@@ -1,26 +1,20 @@
 package database
 
-func (db *appdbimpl) UpdateUsername(studentId int, firstName string, lastName string, email string, repoURL string, publicKey string, privateKey string) error {
-	tx, err := db.c.Begin()
+import "fmt"
+
+func (db *appdbimpl) UpdateUsername(p DProfile) (DProfile, error) {
+	var p_empty DProfile
+	res, err := db.c.Exec(`UPDATE Profile SET username =? WHERE user_id=?`, p.Username, p.ID)
+	fmt.Println(res)
 	if err != nil {
-		return err
+		return p_empty, err
 	}
 
-	var cnt int
-	err = tx.QueryRow(`SELECT COUNT(*) FROM students WHERE id=?`, studentId).Scan(&cnt)
+	rowsAffected, err := res.RowsAffected()
 	if err != nil {
-		_ = tx.Rollback()
-		return err
-	} else if cnt > 0 {
-		_ = tx.Rollback()
-		return ErrUserNotExists
+		return p_empty, err
+	} else if rowsAffected == 0 {
+		return p_empty, ErrUserNotExists
 	}
-
-	_, err = tx.Exec(`INSERT INTO students (id, first_name, last_name, email, repo_url, public_key, private_key) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		studentId, firstName, lastName, email, repoURL, publicKey, privateKey)
-	if err != nil {
-		_ = tx.Rollback()
-		return err
-	}
-	return tx.Commit()
+	return p, nil
 }

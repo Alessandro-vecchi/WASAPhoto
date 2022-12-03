@@ -41,7 +41,7 @@ var (
 )
 
 // Represents the information seen in the Profile Page of a user
-type Profile struct {
+type DProfile struct {
 
 	// ID of the user
 	ID string `json:"userID,omitempty"`
@@ -64,13 +64,13 @@ type AppDatabase interface {
 	// CreateUserProfile creates a new user if he/she doesn't exist
 
 	// Get the user's profile by username
-	GetUserProfileByUsername(username string) (Profile, error)
+	GetUserProfileByUsername(username string) (DProfile, error)
 
 	// Get the user's profile by ID
 	//GetUserProfileByID(ID string) (Profile, error)
 
 	// Update username of the user
-	//UpdateUsername(username string) (Profile, error)
+	UpdateUsername(p DProfile) (DProfile, error)
 
 	//
 }

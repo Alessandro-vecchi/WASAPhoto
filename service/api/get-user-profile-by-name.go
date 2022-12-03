@@ -13,7 +13,7 @@ import (
 func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	var err error
-	var profile database.Profile
+	var profile database.DProfile
 	if r.URL.Query().Has("username") {
 		name := r.URL.Query().Get("username")
 		profile, err = rt.db.GetUserProfileByUsername(name)

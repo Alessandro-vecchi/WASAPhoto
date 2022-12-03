@@ -15,6 +15,8 @@ var (
 // Represents the information seen in the Profile Page of a user
 type Profile struct {
 
+	// ID of the user
+	ID string `json:"userID,omitempty"`
 	// Name of the user
 	Username string `json:"username,omitempty"`
 	// Number of photos in the profile of the user
@@ -37,7 +39,8 @@ type Profile struct {
 // structure is different from the structure of the REST API.
 // Also, in this way the database package is freely usable by other packages without the assumption that structs from
 // the database should somehow be JSON-serializable (or, in general, serializable).
-func (p *Profile) FromDatabase(profile database.Profile) {
+func (p *Profile) FromDatabase(profile database.DProfile) {
+	p.ID = profile.ID
 	p.Username = profile.Username
 	p.PicturesCount = profile.PicturesCount
 	p.FollowersCount = profile.FollowersCount
@@ -46,9 +49,10 @@ func (p *Profile) FromDatabase(profile database.Profile) {
 	p.Bio = profile.Bio
 }
 
-// ToDatabase returns the fountain in a database-compatible representation
-func (profile *Profile) ToDatabase() database.Profile {
-	return database.Profile{
+// ToDatabase returns the profile in a database-compatible representation
+func (profile *Profile) ToDatabase() database.DProfile {
+	return database.DProfile{
+		ID:                profile.ID,
 		Username:          profile.Username,
 		PicturesCount:     profile.PicturesCount,
 		FollowersCount:    profile.FollowersCount,
@@ -62,7 +66,8 @@ func (profile *Profile) ToDatabase() database.Profile {
 // status should be either FountainStatusGood or FountainStatusFaulty. Note that the ID is not checked, as fountains
 // read from requests have zero IDs as the user won't send us the ID in that way.
 func (p *Profile) isValid() bool {
-	return len(p.Username) >= 3 && len(p.Username) <= 16 && usernameRx.MatchString(p.Username) &&
+	return len(p.ID) >= 1 && len(p.ID) <= 20 && usernameRx.MatchString(p.ID) &&
+		len(p.Username) >= 3 && len(p.Username) <= 16 && usernameRx.MatchString(p.Username) &&
 		p.PicturesCount >= 0 &&
 		p.FollowersCount >= 0 &&
 		p.FollowsCount >= 0 &&
