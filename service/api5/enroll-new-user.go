@@ -1,5 +1,6 @@
 package api
 
+/*
 import (
 	"encoding/json"
 	"errors"
@@ -49,3 +50,4 @@ func (rt *_router) enrollNewUser(w http.ResponseWriter, r *http.Request, ps http
 	w.Header().Set("content-type", "application/json")
 	_ = json.NewEncoder(w).Encode(response)
 }
+*/

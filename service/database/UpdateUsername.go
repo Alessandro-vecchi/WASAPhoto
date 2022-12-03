@@ -1,6 +1,6 @@
 package database
 
-func (db *appdbimpl) CreateStudent(studentId int, firstName string, lastName string, email string, repoURL string, publicKey string, privateKey string) error {
+func (db *appdbimpl) UpdateUsername(studentId int, firstName string, lastName string, email string, repoURL string, publicKey string, privateKey string) error {
 	tx, err := db.c.Begin()
 	if err != nil {
 		return err
@@ -13,7 +13,7 @@ func (db *appdbimpl) CreateStudent(studentId int, firstName string, lastName str
 		return err
 	} else if cnt > 0 {
 		_ = tx.Rollback()
-		return ErrUserExists
+		return ErrUserNotExists
 	}
 
 	_, err = tx.Exec(`INSERT INTO students (id, first_name, last_name, email, repo_url, public_key, private_key) VALUES (?, ?, ?, ?, ?, ?, ?)`,

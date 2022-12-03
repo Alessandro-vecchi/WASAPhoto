@@ -1,4 +1,4 @@
-module git.sapienzaapps.it/gamificationlab/wasa-homework-enroll
+module github.com/Alessandro-vecchi/WASAPhoto
 
 go 1.17
 

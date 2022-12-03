@@ -38,11 +38,10 @@ package api
 
 import (
 	"errors"
-	"net/http"
-
-	"github.com/Alessandro-vecchi/WASAPhoto/service/database"
+	"git.sapienzaapps.it/gamificationlab/wasa-homework-enroll/service/database"
 	"github.com/julienschmidt/httprouter"
 	"github.com/sirupsen/logrus"
+	"net/http"
 )
 
 // Config is used to provide dependencies and configuration to the New function.
