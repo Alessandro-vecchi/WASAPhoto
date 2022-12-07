@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
@@ -15,7 +14,6 @@ func (rt *_router) updateUsername(w http.ResponseWriter, r *http.Request, ps htt
 	// The User ID in the path is a string
 	user_id := ps.ByName("user_id")
 	if user_id == "" {
-		fmt.Println("siiiii")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -34,7 +32,7 @@ func (rt *_router) updateUsername(w http.ResponseWriter, r *http.Request, ps htt
 	// The client is not supposed to send us the ID in the body, as the fountain ID is already specified in the path,
 	// and it's immutable. So, here we overwrite the ID in the JSON with the `id` variable (that comes from the URL).
 	p.ID = user_id
-	up, err := rt.db.UpdateUsername(p.ToDatabase())
+	up, err := rt.db.SetMyUserName(p.ToDatabase())
 	var pp Profile
 	pp.FromDatabase(up)
 	if errors.Is(err, database.ErrUserNotExists) {

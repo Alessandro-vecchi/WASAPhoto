@@ -37,11 +37,13 @@ import (
 )
 
 var (
+	// ErrDatabaseNotInitialized is returned when the database is not initialized.
 	ErrUserNotExists = errors.New("user does not exists")
+	ErrUserExists    = errors.New("user already exists")
 )
 
 // Represents the information seen in the Profile Page of a user
-type DProfile struct {
+type Profile_db struct {
 
 	// ID of the user
 	ID string `json:"userID,omitempty"`
@@ -64,15 +66,20 @@ type AppDatabase interface {
 	// CreateUserProfile creates a new user if he/she doesn't exist
 
 	// Get the user's profile by username
-	GetUserProfileByUsername(username string) (DProfile, error)
+	GetUserProfileByUsername(username string) (Profile_db, error)
 
 	// Get the user's profile by ID
 	//GetUserProfileByID(ID string) (Profile, error)
 
-	// Update username of the user
-	UpdateUsername(p DProfile) (DProfile, error)
+	// if the user does not exist, it will be created and an identifier will be returned.
+	// If it does exist, the user identifier will be returned.
+	DoLogin(username string) (string, error)
 
-	//
+	// Update username of the user
+	SetMyUserName(p Profile_db) (Profile_db, error)
+
+	// check availability
+	Ping() error
 }
 
 type appdbimpl struct {
@@ -91,13 +98,13 @@ func New(db *sql.DB) (AppDatabase, error) {
 	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='profile';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 		sqlStmt := `CREATE TABLE profile (
-    id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
     username TEXT NOT NULL,
-    picturesCount INTEGER NOT NULL,
-    followersCount INTEGER NOT NULL,
-	followsCount INTEGER NOT NULL,
+    picturesCount INTEGER NULL,
+    followersCount INTEGER NULL,
+	followsCount INTEGER NULL,
     profilePictureUrl TEXT  NULL,
-    bio TEXT NULL, PRIMARY KEY(id));`
+    bio TEXT NULL, PRIMARY KEY(user_id)), PRIMARY KEY(username));`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
