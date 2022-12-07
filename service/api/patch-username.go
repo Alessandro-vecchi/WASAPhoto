@@ -1,5 +1,6 @@
 package api
 
+/*
 import (
 	"encoding/json"
 	"fmt"
@@ -32,3 +33,4 @@ func (rt *_router) patchUsername(w http.ResponseWriter, r *http.Request, ps http
 	w.Write(modified)
 	w.Header().Set("Content-Type", "application/json")
 }
+*/

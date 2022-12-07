@@ -78,6 +78,9 @@ type AppDatabase interface {
 	// Update username of the user
 	SetMyUserName(p Profile_db) (Profile_db, error)
 
+	// Delete user profile
+	DeleteUserProfile(userID string) error
+
 	// check availability
 	Ping() error
 }
@@ -95,16 +98,16 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	// Check if table exists. If not, the database is empty, and we need to create the structure
 	var tableName string
-	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='profile';`).Scan(&tableName)
+	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='profiles';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
-		sqlStmt := `CREATE TABLE profile (
+		sqlStmt := `CREATE TABLE profiles (
     user_id TEXT NOT NULL,
     username TEXT NOT NULL,
     picturesCount INTEGER NULL,
     followersCount INTEGER NULL,
 	followsCount INTEGER NULL,
     profilePictureUrl TEXT  NULL,
-    bio TEXT NULL, PRIMARY KEY(user_id)), PRIMARY KEY(username));`
+    bio TEXT NULL, PRIMARY KEY(user_id));`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)

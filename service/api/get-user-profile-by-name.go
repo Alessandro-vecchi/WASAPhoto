@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/database"
 	"github.com/julienschmidt/httprouter"
@@ -14,6 +15,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	var err error
 	var profile database.Profile_db
+	var p models.Profile
 	if r.URL.Query().Has("username") {
 		name := r.URL.Query().Get("username")
 		profile, err = rt.db.GetUserProfileByUsername(name)
@@ -30,5 +32,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	}
 	// Send the user profile to the user
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(profile)
+	// translating from database to api
+	p.FromDatabase(profile)
+	_ = json.NewEncoder(w).Encode(p)
 }

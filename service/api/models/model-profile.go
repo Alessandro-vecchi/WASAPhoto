@@ -1,4 +1,4 @@
-package api
+package models
 
 import (
 	"regexp"
@@ -16,9 +16,9 @@ var (
 type Profile struct {
 
 	// ID of the user
-	ID string `json:"userID,omitempty"`
+	ID string `json:"userID"`
 	// Name of the user
-	Username string `json:"username,omitempty"`
+	Username string `json:"username"`
 	// Number of photos in the profile of the user
 	PicturesCount int32 `json:"pictures_count,omitempty"`
 	// Number of users that follow the profile
@@ -65,7 +65,7 @@ func (profile *Profile) ToDatabase() database.Profile_db {
 // IsValid checks the validity of the content. In particular, coordinates should be in their range of validity, and the
 // status should be either FountainStatusGood or FountainStatusFaulty. Note that the ID is not checked, as fountains
 // read from requests have zero IDs as the user won't send us the ID in that way.
-func (p *Profile) isValid() bool {
+func (p *Profile) IsValid() bool {
 	return len(p.ID) >= 1 && len(p.ID) <= 20 && usernameRx.MatchString(p.ID) &&
 		len(p.Username) >= 3 && len(p.Username) <= 16 && usernameRx.MatchString(p.Username) &&
 		p.PicturesCount >= 0 &&
