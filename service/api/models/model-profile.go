@@ -8,7 +8,7 @@ import (
 
 var (
 	usernameRx = regexp.MustCompile(`^[a-zA-Z0-9-_]*$`)
-	ppURLRx    = regexp.MustCompile(`^(https?:\/\/.*\.(?:png|jpg|jpeg))$`)
+	ppURLRx    = regexp.MustCompile(`^(https?:\/\/.*\.(?:png|jpg|jpeg))?$`)
 	bioRx      = regexp.MustCompile(`^[a-zA-Z0-9,._:;?!\x27\- ]*$`)
 )
 
@@ -20,15 +20,15 @@ type Profile struct {
 	// Name of the user
 	Username string `json:"username"`
 	// Number of photos in the profile of the user
-	PicturesCount int32 `json:"pictures_count,omitempty"`
+	PicturesCount *uint32 `json:"pictures_count,omitempty"`
 	// Number of users that follow the profile
-	FollowersCount int32 `json:"followers_count,omitempty"`
+	FollowersCount *uint32 `json:"followers_count,omitempty"`
 	// number of users that the user follows
-	FollowsCount int32 `json:"follows_count,omitempty"`
+	FollowsCount *uint32 `json:"follows_count,omitempty"`
 	// URL of the profile picture. Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
-	ProfilePictureUrl string `json:"profile_picture_url,omitempty"`
+	ProfilePictureUrl *string `json:"profile_picture_url,omitempty"`
 	// Biography of the profile. Just allowing alphanumeric characters and basic punctuation.
-	Bio string `json:"bio,omitempty"`
+	Bio *string `json:"bio,omitempty"`
 }
 
 // FromDatabase populates the struct with data from the database, overwriting all values.
@@ -66,12 +66,28 @@ func (profile *Profile) ToDatabase() database.Profile_db {
 // status should be either FountainStatusGood or FountainStatusFaulty. Note that the ID is not checked, as fountains
 // read from requests have zero IDs as the user won't send us the ID in that way.
 func (p *Profile) IsValid() bool {
-	return len(p.ID) >= 1 && len(p.ID) <= 20 && usernameRx.MatchString(p.ID) &&
-		len(p.Username) >= 3 && len(p.Username) <= 16 && usernameRx.MatchString(p.Username) &&
-		p.PicturesCount >= 0 &&
-		p.FollowersCount >= 0 &&
-		p.FollowsCount >= 0 &&
-		len(p.ProfilePictureUrl) >= 0 && len(p.ProfilePictureUrl) <= 150 && ppURLRx.MatchString(p.ProfilePictureUrl) &&
-		len(p.Bio) >= 0 && len(p.Bio) <= 150 && bioRx.MatchString(p.Bio)
+	if p.ProfilePictureUrl == nil {
+		p.ProfilePictureUrl = new(string)
+	}
+	if p.Bio == nil {
+		p.Bio = new(string)
+	}
+	if p.PicturesCount == nil {
+		p.PicturesCount = new(uint32)
+	}
+	if p.FollowersCount == nil {
+		p.FollowersCount = new(uint32)
+	}
+	if p.FollowsCount == nil {
+		p.FollowsCount = new(uint32)
+	}
+	//fmt.Println(p.ID, len(p.ID) >= 1, len(p.ID) <= 32, usernameRx.MatchString(p.ID), len(p.Username) >= 3, len(p.Username) <= 16, usernameRx.MatchString(p.Username), len(*p.ProfilePictureUrl) <= 150, ppURLRx.MatchString(*p.ProfilePictureUrl), len(*p.Bio) <= 150, bioRx.MatchString(*p.Bio))
+	//len(p.ID) >= 1 && len(p.ID) <= 32 && usernameRx.MatchString(p.ID) &&
+	return len(p.Username) >= 3 && len(p.Username) <= 16 && usernameRx.MatchString(p.Username) &&
+		//p.PicturesCount >= 0 &&
+		//p.FollowersCount >= 0 &&
+		//p.FollowsCount >= 0 &&
+		len(*p.ProfilePictureUrl) <= 150 && ppURLRx.MatchString(*p.ProfilePictureUrl) &&
+		len(*p.Bio) <= 150 && bioRx.MatchString(*p.Bio)
 
 }

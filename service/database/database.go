@@ -50,15 +50,15 @@ type Profile_db struct {
 	// Name of the user
 	Username string `json:"username,omitempty"`
 	// Number of photos in the profile of the user
-	PicturesCount int32 `json:"pictures_count,omitempty"`
+	PicturesCount *uint32 `json:"pictures_count,omitempty"`
 	// Number of users that follow the profile
-	FollowersCount int32 `json:"followers_count,omitempty"`
+	FollowersCount *uint32 `json:"followers_count,omitempty"`
 	// number of users that the user follows
-	FollowsCount int32 `json:"follows_count,omitempty"`
+	FollowsCount *uint32 `json:"follows_count,omitempty"`
 	// URL of the profile picture. Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
-	ProfilePictureUrl string `json:"profile_picture_url,omitempty"`
+	ProfilePictureUrl *string `json:"profile_picture_url,omitempty"`
 	// Biography of the profile. Just allowing alphanumeric characters and basic punctuation.
-	Bio string `json:"bio,omitempty"`
+	Bio *string `json:"bio,omitempty"`
 }
 
 // AppDatabase is the high level interface for the DB
@@ -98,16 +98,18 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	// Check if table exists. If not, the database is empty, and we need to create the structure
 	var tableName string
-	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='profiles';`).Scan(&tableName)
+	//f, _ := db.Exec(`DROP TABLE IF EXISTS profile;`)
+	//fmt.Println(f)
+	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='profile';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
-		sqlStmt := `CREATE TABLE profiles (
-    user_id TEXT NOT NULL,
+		sqlStmt := `CREATE TABLE profile (
+    user_id TEXT NOT NULL PRIMARY KEY,
     username TEXT NOT NULL,
     picturesCount INTEGER NULL,
     followersCount INTEGER NULL,
 	followsCount INTEGER NULL,
-    profilePictureUrl TEXT  NULL,
-    bio TEXT NULL, PRIMARY KEY(user_id));`
+    profilePictureUrl TEXT NULL,
+    bio TEXT NULL);`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
