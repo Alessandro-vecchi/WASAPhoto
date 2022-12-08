@@ -46,19 +46,19 @@ var (
 type Profile_db struct {
 
 	// ID of the user
-	ID string `json:"userID,omitempty"`
+	ID string
 	// Name of the user
-	Username string `json:"username,omitempty"`
+	Username string
 	// Number of photos in the profile of the user
-	PicturesCount *uint32 `json:"pictures_count,omitempty"`
+	PicturesCount uint32
 	// Number of users that follow the profile
-	FollowersCount *uint32 `json:"followers_count,omitempty"`
+	FollowersCount uint32
 	// number of users that the user follows
-	FollowsCount *uint32 `json:"follows_count,omitempty"`
+	FollowsCount uint32
 	// URL of the profile picture. Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
-	ProfilePictureUrl *string `json:"profile_picture_url,omitempty"`
+	ProfilePictureUrl string
 	// Biography of the profile. Just allowing alphanumeric characters and basic punctuation.
-	Bio *string `json:"bio,omitempty"`
+	Bio string
 }
 
 // AppDatabase is the high level interface for the DB
@@ -75,12 +75,14 @@ type AppDatabase interface {
 	// If it does exist, the user identifier will be returned.
 	DoLogin(username string) (string, error)
 
-	// Update username of the user
-	SetMyUserName(p Profile_db) (Profile_db, error)
+	// Update profile of the user
+	UpdateUserProfile(p Profile_db) (Profile_db, error)
 
 	// Delete user profile
 	DeleteUserProfile(userID string) error
 
+	// Convert id and name
+	GetNameById(userId string) (string, error)
 	// check availability
 	Ping() error
 }
@@ -105,11 +107,11 @@ func New(db *sql.DB) (AppDatabase, error) {
 		sqlStmt := `CREATE TABLE profile (
     user_id TEXT NOT NULL PRIMARY KEY,
     username TEXT NOT NULL,
-    picturesCount INTEGER NULL,
-    followersCount INTEGER NULL,
-	followsCount INTEGER NULL,
-    profilePictureUrl TEXT NULL,
-    bio TEXT NULL);`
+    picturesCount INTEGER DEFAULT 0 NOT NULL,
+    followersCount INTEGER DEFAULT 0 NOT NULL,
+	followsCount INTEGER DEFAULT 0 NOT NULL,
+    profilePictureUrl TEXT DEFAULT "" NOT NULL,
+    bio TEXT DEFAULT "" NOT NULL);`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)

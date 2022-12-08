@@ -1,20 +1,19 @@
 package database
 
-func (db *appdbimpl) SetMyUserName(p Profile_db) (Profile_db, error) {
+func (db *appdbimpl) UpdateUserProfile(p Profile_db) (Profile_db, error) {
 	id := p.ID
 	const query = `
 SELECT username, picturesCount, followersCount, followsCount, profilePictureUrl, bio
 FROM profile
-WHERE uuid = ?`
+WHERE user_id = ?`
 	var old Profile_db
-	user, _ := db.c.Query(query, id)
-	defer func() { _ = user.Close() }()
+	user := db.c.QueryRow(query, id)
 
 	err := user.Scan(&old.Username, &old.PicturesCount, &old.FollowersCount, &old.FollowsCount, &old.ProfilePictureUrl, &old.Bio)
 	if err != nil {
 		return Profile_db{}, err
 	}
-	_, err = db.c.Exec(`UPDATE Profile SET username =? WHERE user_id=?`, p.Username, p.ID)
+	_, err = db.c.Exec(`UPDATE profile SET username =? WHERE user_id=?`, p.Username, p.ID)
 
 	if err != nil {
 		return old, err

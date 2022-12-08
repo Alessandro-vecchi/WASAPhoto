@@ -14,10 +14,10 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/users/", rt.wrap(rt.getUserProfile))
 
 	// Update username
-	//rt.router.PATCH("/users/:user_id/", rt.wrap(rt.patchUsername))
+	rt.router.PATCH("/users/:user_id/", rt.wrap(rt.setMyUserName))
 
 	// Update username
-	rt.router.PUT("/users/:user_id/", rt.wrap(rt.setMyUserName))
+	rt.router.PUT("/users/:user_id/", rt.wrap(rt.updateProfile))
 
 	// Delete user profile
 	rt.router.DELETE("/users/:user_id/", rt.wrap(rt.deleteUserProfile))

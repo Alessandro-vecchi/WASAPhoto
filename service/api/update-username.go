@@ -11,7 +11,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// The User ID in the path is a string
 	user_id := ps.ByName("user_id")
 	if user_id == "" {
@@ -33,7 +33,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	// The client is not supposed to send us the ID in the body, as the fountain ID is already specified in the path,
 	// and it's immutable. So, here we overwrite the ID in the JSON with the `id` variable (that comes from the URL).
 	p.ID = user_id
-	_, err := rt.db.SetMyUserName(p.ToDatabase())
+	_, err := rt.db.UpdateUserProfile(p.ToDatabase())
 
 	if errors.Is(err, database.ErrUserNotExists) {
 		w.WriteHeader(http.StatusNotFound)
