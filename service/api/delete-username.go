@@ -2,7 +2,9 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/database"
@@ -11,9 +13,10 @@ import (
 
 func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// The user ID in the path is a string. Let's parse it.
-	user_id := ps.ByName("id")
+	user_id := ps.ByName("user_id")
+	user_id = strings.TrimPrefix(user_id, ":user_id=")
+	fmt.Println(user_id)
 	if user_id == "" {
-		// The value was not string, reject the action indicating an error on the client side.
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

@@ -38,8 +38,9 @@ import (
 
 var (
 	// ErrDatabaseNotInitialized is returned when the database is not initialized.
-	ErrUserNotExists = errors.New("user does not exists")
-	ErrUserExists    = errors.New("user already exists")
+	ErrUserNotExists  = errors.New("user does not exist")
+	ErrUserExists     = errors.New("user already exists")
+	ErrPhotoNotExists = errors.New("photo does not exist")
 )
 
 // Represents the information seen in the Profile Page of a user
@@ -59,6 +60,23 @@ type Profile_db struct {
 	ProfilePictureUrl string
 	// Biography of the profile. Just allowing alphanumeric characters and basic punctuation.
 	Bio string
+}
+
+// Attributes of a photo
+type Photo_db struct {
+	PhotoId string
+	// Date and time of creation following RFC3339
+	Timestamp string
+	// Number of likes
+	LikesCount uint32
+	// Number of comments
+	CommentsCount uint32
+	// URL of the image just uploaded. | Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
+	Image string
+	// A written description or explanation about a photo to provide more context
+	Caption string
+
+	UserId string
 }
 
 // AppDatabase is the high level interface for the DB
@@ -83,6 +101,19 @@ type AppDatabase interface {
 
 	// Convert id and name
 	GetNameById(userId string) (string, error)
+
+	// Retrieve collection of photos resources of a certain user
+	GetListUserPhotos(userId string) ([]Photo_db, error)
+
+	// Upload a photo on the profile of a specific user
+	UploadPhoto(userId string, p Photo_db) (Photo_db, error)
+
+	// Get a single photo from the profile of a user
+	GetUserPhoto(userId string, photoId string) (Photo_db, error)
+
+	// Delete photo from the profile of a specific user. It also removes likes and comments
+	DeletePhoto(photoIs string) error
+
 	// check availability
 	Ping() error
 }
@@ -99,12 +130,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}
 
 	// Check if table exists. If not, the database is empty, and we need to create the structure
-	var tableName string
-	//f, _ := db.Exec(`DROP TABLE IF EXISTS profile;`)
-	//fmt.Println(f)
-	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='profile';`).Scan(&tableName)
-	if errors.Is(err, sql.ErrNoRows) {
-		sqlStmt := `CREATE TABLE profile (
+	var tableName string = "profile"
+	sqlStmt := `CREATE TABLE profile (
     user_id TEXT NOT NULL PRIMARY KEY,
     username TEXT NOT NULL,
     picturesCount INTEGER DEFAULT 0 NOT NULL,
@@ -112,15 +139,42 @@ func New(db *sql.DB) (AppDatabase, error) {
 	followsCount INTEGER DEFAULT 0 NOT NULL,
     profilePictureUrl TEXT DEFAULT "" NOT NULL,
     bio TEXT DEFAULT "" NOT NULL);`
-		_, err = db.Exec(sqlStmt)
-		if err != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err)
-		}
-	}
 
+	err := createTables(tableName, sqlStmt, db)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database structure: %w", err)
+	}
+	tableName = "photos"
+	sqlStmt = `CREATE TABLE photos (
+    user_id TEXT NOT NULL,
+    photoId TEXT NOT NULL PRIMARY KEY,
+	timestamp TEXT DEFAULT "" NOT NULL,
+    likesCount INTEGER DEFAULT 0 NOT NULL,
+    commentsCount INTEGER DEFAULT 0 NOT NULL,
+    caption TEXT DEFAULT "" NOT NULL,
+    image TEXT DEFAULT "" NOT NULL);`
+
+	err = createTables(tableName, sqlStmt, db)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database structure: %w", err)
+	}
 	return &appdbimpl{
 		c: db,
 	}, nil
+}
+
+func createTables(tableName string, sqlStmt string, db *sql.DB) error {
+	var table string
+	//f, _ := db.Exec(`DROP TABLE IF EXISTS profile;`)
+	//fmt.Println(f)
+	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='` + tableName + `';`).Scan(&table)
+	if errors.Is(err, sql.ErrNoRows) {
+		_, err = db.Exec(sqlStmt)
+		if err != nil {
+			return fmt.Errorf("error creating database structure: %w", err)
+		}
+	}
+	return err
 }
 
 func (db *appdbimpl) Ping() error {

@@ -5,7 +5,7 @@ import "fmt"
 func (db *appdbimpl) GetUserProfileByUsername(username string) (Profile_db, error) {
 
 	const query = `
-SELECT user_id, username, picturesCount, followersCount, followsCount, profilePictureUrl, bio
+SELECT *
 FROM profile
 WHERE username = ?`
 

@@ -87,3 +87,10 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(jsonProfile)
 }
+
+/*
+curl -X PATCH http://localhost:3001/users/:user_id=2Idw46q6s1oYd9xk8Uy0iB9bc8g -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"username":"paola"}'
+curl -X POST "http://localhost:3001/session/" -H 'Content-Type: application/json' -d '{"username":"gianni"}'
+curl "http://localhost:3001/users/?username=loredana"
+curl -X POST "http://localhost:3001/users/:user_id=2IdzRfVifWvS1US33tMpnPZUWun/photos/" -H 'Content-Type: application/json' -d '{"caption":"Vodka may not be the answer but it's worth a shot", "image":"http://lab.it/logo.png"}'
+*/
