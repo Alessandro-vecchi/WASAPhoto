@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -11,19 +10,18 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// The user ID in the path is a string. Let's parse it.
-	user_id := ps.ByName("user_id")
-	user_id = strings.TrimPrefix(user_id, ":user_id=")
-	fmt.Println(user_id)
-	if user_id == "" {
+	photo_id := ps.ByName("photo_id")
+	photo_id = strings.TrimPrefix(photo_id, ":photo_id=")
+	if photo_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err := rt.db.DeleteUserProfile(user_id)
-	if errors.Is(err, database.ErrUserNotExists) {
-		// The user (indicated by `id`) does not exist, reject the action indicating an error on the client side.
+	err := rt.db.DeletePhoto(photo_id)
+	if errors.Is(err, database.ErrPhotoNotExists) {
+		// The photo (indicated by `id`) does not exist, reject the action indicating an error on the client side.
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {
@@ -31,7 +29,7 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
 		// Note (2): we are adding the error and an additional field (`id`) to the log entry, so that we will receive
 		// the identifier of the fountain that triggered the error.
-		ctx.Logger.WithError(err).WithField("id", user_id).Error("can't delete the profile")
+		ctx.Logger.WithError(err).WithField("id", photo_id).Error("can't delete the photo")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

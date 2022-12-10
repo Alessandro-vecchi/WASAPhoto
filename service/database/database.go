@@ -79,15 +79,28 @@ type Photo_db struct {
 	UserId string
 }
 
+// Attributes of a comment
+type Comment_db struct {
+	CommentId string
+	// Date and time of creation of the comment following RFC3339
+	Created_in string
+	// Content of the comment
+	Body string
+	// Id of the photo under which the comments are being written
+	PhotoId string
+	// Date and time of when the comment was modified following RFC3339
+	// If it wasn't modified, it coincides with the created_in date
+	Modified_in string
+	// States if a comment is a reply to another comment or not
+	IsReplyComment bool
+}
+
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
 	// CreateUserProfile creates a new user if he/she doesn't exist
 
 	// Get the user's profile by username
 	GetUserProfileByUsername(username string) (Profile_db, error)
-
-	// Get the user's profile by ID
-	//GetUserProfileByID(ID string) (Profile, error)
 
 	// if the user does not exist, it will be created and an identifier will be returned.
 	// If it does exist, the user identifier will be returned.
@@ -109,10 +122,13 @@ type AppDatabase interface {
 	UploadPhoto(userId string, p Photo_db) (Photo_db, error)
 
 	// Get a single photo from the profile of a user
-	GetUserPhoto(userId string, photoId string) (Photo_db, error)
+	GetUserPhoto(photoId string) (Photo_db, error)
 
 	// Delete photo from the profile of a specific user. It also removes likes and comments
-	DeletePhoto(photoIs string) error
+	DeletePhoto(photoId string) error
+
+	// Comment a photo
+	CommentPhoto(photoId string, c Comment_db) (Comment_db, error)
 
 	// check availability
 	Ping() error
@@ -153,6 +169,22 @@ func New(db *sql.DB) (AppDatabase, error) {
     commentsCount INTEGER DEFAULT 0 NOT NULL,
     caption TEXT DEFAULT "" NOT NULL,
     image TEXT DEFAULT "" NOT NULL);`
+
+	err = createTables(tableName, sqlStmt, db)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database structure: %w", err)
+	}
+	tableName = "comments"
+	// SQLite does not have a separate Boolean storage class.
+	// Instead, Boolean values are stored as integers 0 (false) and 1 (true).
+
+	sqlStmt = `CREATE TABLE comments (
+    comment_id TEXT NOT NULL PRIMARY KEY,
+	created_in TEXT DEFAULT "" NOT NULL,
+	body TEXT DEFAULT "" NOT NULL,
+	photo_id TEXT NOT NULL,
+    modified_in TEXT DEFAULT "" NOT NULL,
+    is_reply_comment INTEGER DEFAULT 0 NOT NULL);`
 
 	err = createTables(tableName, sqlStmt, db)
 	if err != nil {

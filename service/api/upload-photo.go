@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -16,7 +15,6 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// The User ID in the path is a string
 	user_id := ps.ByName("user_id")
 	user_id = strings.TrimPrefix(user_id, ":user_id=")
-	fmt.Println(user_id)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

@@ -48,10 +48,11 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 	var listPhotosAPI []models.Photo
 	for _, element := range listPhotos {
 		var m models.Photo
-		m.FromDatabase(element)
+		m.FromDatabase(element, rt.db)
+
+		fmt.Println(m.Username)
 		listPhotosAPI = append(listPhotosAPI, m)
 	}
-	fmt.Println(listPhotosAPI)
 	// Send the list to the user.
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(listPhotosAPI)

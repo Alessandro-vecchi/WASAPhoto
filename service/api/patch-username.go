@@ -91,6 +91,10 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 /*
 curl -X PATCH http://localhost:3001/users/:user_id=2Idw46q6s1oYd9xk8Uy0iB9bc8g -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"username":"paola"}'
 curl -X POST "http://localhost:3001/session/" -H 'Content-Type: application/json' -d '{"username":"gianni"}'
-curl "http://localhost:3001/users/?username=loredana"
-curl -X POST "http://localhost:3001/users/:user_id=2IdzRfVifWvS1US33tMpnPZUWun/photos/" -H 'Content-Type: application/json' -d '{"caption":"Vodka may not be the answer but it's worth a shot", "image":"http://lab.it/logo.png"}'
+curl "http://localhost:3001/users/?username=michi"
+curl -X DELETE "http://localhost:3001/users/:user_id=5e9b1511-f78c-4163-a436-9e19fed724ad"
+curl -X POST "http://localhost:3001/users/:user_id=5e9b1511-f78c-4163-a436-9e19fed724ad/photos/" -H 'Content-Type: application/json' -d '{"caption":"bella raga", "image":"https://www.sono_scema.it/michi.png"}'
+curl "http://localhost:3001/users/:user_id=5e9b1511-f78c-4163-a436-9e19fed724ad/photos/"
+curl -X DELETE "http://localhost:3001/photos/:photo_id=ef08d077-070f-435f-b4ae-b3929e759543"
+curl -X GET "http://localhost:3001/photos/:photo_id=ef08d077-070f-435f-b4ae-b3929e759543"
 */

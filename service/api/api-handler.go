@@ -28,6 +28,18 @@ func (rt *_router) Handler() http.Handler {
 	// Retrieve collection of photos of a user
 	rt.router.GET("/users/:user_id/photos/", rt.wrap(rt.getUserPhotos))
 
+	// Get a single user photo
+	rt.router.GET("/photos/:photo_id", rt.wrap(rt.getUserPhoto))
+
+	// Delete a single user photo
+	rt.router.DELETE("/photos/:photo_id", rt.wrap(rt.deletePhoto))
+
+	// Upload a comment
+	rt.router.POST("/photos/:photo_id/comments/", rt.wrap(rt.commentPhoto))
+
+	// Upload a comment
+	rt.router.DELETE("/comments/:comments_id", rt.wrap(rt.uncommentPhoto))
+
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)
 

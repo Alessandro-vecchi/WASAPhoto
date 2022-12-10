@@ -1,7 +1,5 @@
 package database
 
-import "fmt"
-
 func (db *appdbimpl) GetListUserPhotos(user_id string) ([]Photo_db, error) {
 	// Here we need to get all fountains inside a given range. One simple solution is to rely on GIS/Spatial functions
 	// from the DB itself. GIS/Spatial functions are those dedicated to geometry/geography/space computation.
@@ -25,14 +23,12 @@ WHERE user_id =?`
 	// Issue the query, using the bounding box as filter
 	rows, err := db.c.Query(query,
 		user_id)
-	fmt.Println("1", rows)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = rows.Close() }()
 
 	// Read all fountains in the result set
-	fmt.Println("2", rows)
 	for rows.Next() {
 		var p Photo_db
 		err = rows.Scan(&p.UserId, &p.PhotoId, &p.Timestamp, &p.LikesCount, &p.CommentsCount, &p.Caption, &p.Image)
@@ -41,7 +37,6 @@ WHERE user_id =?`
 		}
 		ret = append(ret, p)
 	}
-	fmt.Println("3", ret, err)
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}

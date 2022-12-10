@@ -1,18 +1,20 @@
 package database
 
+import "fmt"
+
 func (db *appdbimpl) DeletePhoto(photoId string) error {
-	res, err := db.c.Exec("DELETE FROM profile WHERE user_id =?", photoId)
+	res, err := db.c.Exec("DELETE FROM photos WHERE photoId =?", photoId)
 	if err != nil {
-		//
-		return err
+		// error deleting the photo
+		return fmt.Errorf("error deleting the photo: %v", err)
 	}
 
 	affected, err := res.RowsAffected()
 	if err != nil {
 		return err
 	} else if affected == 0 {
-		// If we didn't delete any row, then the user didn't exist
-		return ErrUserNotExists
+		// If we didn't delete any row, then the photo didn't exist
+		return ErrPhotoNotExists
 	}
 	return nil
 }

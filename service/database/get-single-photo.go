@@ -1,17 +1,20 @@
 package database
 
-func (db *appdbimpl) GetUserPhoto(user_id string, photoId string) (Photo_db, error) {
+import "fmt"
 
-	var name string
+func (db *appdbimpl) GetUserPhoto(photoId string) (Photo_db, error) {
+
+	var p Photo_db
 	const query = `
 SELECT *
-FROM photo
-WHERE user_id = ?`
+FROM photos
+WHERE photoId = ?`
 
-	err := db.c.QueryRow(query, user_id).Scan(&name)
+	err := db.c.QueryRow(query, photoId).Scan(&p.UserId, &p.PhotoId, &p.Timestamp, &p.LikesCount, &p.CommentsCount, &p.Caption, &p.Image)
+	fmt.Println(p, err)
 	if err != nil {
 
-		return Photo_db{}, ErrUserNotExists
+		return Photo_db{}, ErrPhotoNotExists
 	}
-	return Photo_db{}, nil
+	return p, nil
 }

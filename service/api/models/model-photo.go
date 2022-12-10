@@ -5,7 +5,6 @@ import (
 )
 
 var (
-	userIdRx   = usernameRx
 	imageUrlRx = ppURLRx
 	captionRx  = bioRx
 )
@@ -25,9 +24,11 @@ type Photo struct {
 	Caption string `json:"caption,omitempty"`
 
 	UserId string `json:"user_id,omitempty"`
+
+	Username string `json:"username,omitempty"`
 }
 
-func (p *Photo) FromDatabase(photo database.Photo_db) {
+func (p *Photo) FromDatabase(photo database.Photo_db, db database.AppDatabase) {
 	p.PhotoId = photo.PhotoId
 	p.Timestamp = photo.Timestamp
 	p.LikesCount = photo.LikesCount
@@ -35,6 +36,7 @@ func (p *Photo) FromDatabase(photo database.Photo_db) {
 	p.Image = photo.Image
 	p.Caption = photo.Caption
 	p.UserId = photo.UserId
+	p.Username, _ = db.GetNameById(p.UserId)
 }
 
 // ToDatabase returns the profile in a database-compatible representation
@@ -55,6 +57,7 @@ func (photo *Photo) ToDatabase() database.Photo_db {
 // read from requests have zero IDs as the user won't send us the ID in that way.
 func (p *Photo) IsValid() bool {
 	return len(p.Caption) <= 100 && captionRx.MatchString(p.Caption) &&
-		len(p.Image) <= 150 && imageUrlRx.MatchString(p.Image)
+		len(p.Image) <= 150 && imageUrlRx.MatchString(p.Image) &&
+		usernameRx.MatchString(p.Username)
 
 }
