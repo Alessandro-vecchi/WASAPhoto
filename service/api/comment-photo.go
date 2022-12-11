@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
@@ -19,27 +18,12 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 
 	// 1. Get photoID from path
 	// The Photo ID in the path is a string and coincides with the photo we are commenting
-	rawPhoto_id := ps.ByName("photo_id")
-	photo_id := strings.TrimPrefix(rawPhoto_id, ":photo_id=")
+	photo_id := rt.getPathParameter("photo_id", ps)
 	if photo_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// 2. Check if the user is authenticated
-	// We want to allow only to the owner of the profile to upload photo,
-	// Therefore the user_id must coincides with the authentication token in the header
-	authtoken := r.Header.Get("authToken")
-	log.Printf("The authentication token in the header is: %v", authtoken)
-
-	err := rt.db.CheckUserIdentity(authtoken, user_id)
-	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-	// 3. get comment from request body
+	// 2. get comment from request body
 	var comment models.Comment
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	fmt.Println(comment)
@@ -52,6 +36,20 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		// discovered that the fountain data are not valid.
 		// Note: the IsValid() function skips the ID check (see below).
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	// 3. Check if the user is authenticated
+	// We want to allow only to logged users to write comments.
+	// Therefore the authentication token in the header should coincides with the username of the writer
+	authtoken := r.Header.Get("authToken")
+	log.Printf("The authentication token in the header is: %v", authtoken)
+	id, _ := rt.db.GetIdByName(comment.Author)
+	err = checkUserIdentity(authtoken, id, rt.db)
+	if errors.Is(err, database.ErrUserNotExists) {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 

@@ -42,7 +42,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	authtoken := r.Header.Get("authToken")
 	log.Printf("The authentication token in the header is: %v", authtoken)
 
-	err := rt.db.CheckUserIdentity(authtoken, user_id_B)
+	err := checkUserIdentity(authtoken, user_id_B, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -65,8 +65,14 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	// 5. The follow is created, encode the name
+	// 5. The follow is created
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(user_id_B)
+	// 6. Encode the name
+	_, name_B, err := models.Conversion(user_id_A, user_id_B, rt.db)
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error while converting user_id and username")
+		return
+	}
+	_ = json.NewEncoder(w).Encode(name_B)
 }

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
@@ -17,8 +16,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	// 1. Get userID from path
 	// The User ID in the path is a string and coincides with the profile we are in
-	user_id := ps.ByName("user_id")
-	user_id = strings.TrimPrefix(user_id, ":user_id=")
+	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -29,9 +27,9 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	authtoken := r.Header.Get("authToken")
 	log.Printf("The authentication token in the header is: %v", authtoken)
 
-	err := rt.db.CheckUserIdentity(authtoken, user_id)
+	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
 		w.WriteHeader(http.StatusUnauthorized)

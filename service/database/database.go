@@ -45,6 +45,8 @@ var (
 	ErrFollowerNotPresent     = errors.New("user B is not following user A")
 	ErrFollowerAlreadyPresent = errors.New("user B is already following user A")
 	ErrUserCantFollowHimself  = errors.New("user can't follow himself")
+	ErrLikeAlreadyPut         = errors.New("like already exists")
+	ErrLikeNotPresent         = errors.New("like not present")
 )
 
 // Represents the information seen in the Profile Page of a user
@@ -54,12 +56,6 @@ type Profile_db struct {
 	ID string
 	// Name of the user
 	Username string
-	// Number of photos in the profile of the user
-	PicturesCount uint32
-	// Number of users that follow the profile
-	FollowersCount uint32
-	// number of users that the user follows
-	FollowsCount uint32
 	// URL of the profile picture. Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
 	ProfilePictureUrl string
 	// Biography of the profile. Just allowing alphanumeric characters and basic punctuation.
@@ -110,6 +106,14 @@ type Follow_db struct {
 	Followed_id string
 }
 
+// Like info
+type Like_db struct {
+	// ID of the photo
+	Photo_id string
+	// ID of the user that liked the photo
+	User_id string
+}
+
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
 	// CreateUserProfile creates a new user if he/she doesn't exist
@@ -120,9 +124,6 @@ type AppDatabase interface {
 	// if the user does not exist, it will be created and an identifier will be returned.
 	// If it does exist, the user identifier will be returned.
 	DoLogin(username string) (string, error)
-
-	// check that the user is authenticated
-	CheckUserIdentity(authtoken string, user_id string) error
 
 	// Update profile of the user
 	UpdateUserProfile(p Profile_db) (Profile_db, error)
@@ -161,6 +162,18 @@ type AppDatabase interface {
 	// Get a list of the users the user is following
 	GetFollowing(userId string) ([]string, error)
 
+	// Count the number of occurencies of a verb
+	CountStuffs(filter string, table_name string, filterValue string) uint32
+
+	// Put a like to a photo
+	LikePhoto(photoId string, userId string) error
+
+	// Delete a like to a photo
+	UnlikePhoto(photoId string, userId string) error
+
+	// Get likes to a photo
+	GetLikes(photoId string) ([]string, error)
+
 	// check availability
 	Ping() error
 }
@@ -181,9 +194,6 @@ func New(db *sql.DB) (AppDatabase, error) {
 	sqlStmt := `CREATE TABLE profile (
     user_id TEXT NOT NULL PRIMARY KEY,
     username TEXT NOT NULL,
-    picturesCount INTEGER DEFAULT 0 NOT NULL,
-    followersCount INTEGER DEFAULT 0 NOT NULL,
-	followsCount INTEGER DEFAULT 0 NOT NULL,
     profilePictureUrl TEXT DEFAULT "" NOT NULL,
     bio TEXT DEFAULT "" NOT NULL);`
 
@@ -227,15 +237,26 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}
 
 	tableName = "follow"
-	// SQLite does not have a separate Boolean storage class.
-	// Instead, Boolean values are stored as integers 0 (false) and 1 (true).
-
 	sqlStmt = `CREATE TABLE ` + tableName + `(
 		follower_id TEXT NOT NULL,
 		followed_id TEXT NOT NULL,
 		PRIMARY KEY (follower_id, followed_id),
 		FOREIGN KEY(follower_id) REFERENCES profile(user_id),
 		FOREIGN KEY(followed_id) REFERENCES profile(user_id)
+		);`
+
+	err = createTables(tableName, sqlStmt, db)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database followers structure: %w", err)
+	}
+
+	tableName = "likes"
+	sqlStmt = `CREATE TABLE ` + tableName + `(
+		photo_id TEXT NOT NULL,
+		user_id TEXT NOT NULL,
+		PRIMARY KEY (photo_id, user_id),
+		FOREIGN KEY(photo_id) REFERENCES photo(photo_id),
+		FOREIGN KEY(user_id) REFERENCES profile(user_id)
 		);`
 
 	err = createTables(tableName, sqlStmt, db)

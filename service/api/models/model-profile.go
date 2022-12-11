@@ -39,12 +39,12 @@ type Profile struct {
 // structure is different from the structure of the REST API.
 // Also, in this way the database package is freely usable by other packages without the assumption that structs from
 // the database should somehow be JSON-serializable (or, in general, serializable).
-func (p *Profile) FromDatabase(profile database.Profile_db) {
+func (p *Profile) FromDatabase(profile database.Profile_db, db database.AppDatabase) {
 	p.ID = profile.ID
 	p.Username = profile.Username
-	p.PicturesCount = profile.PicturesCount
-	p.FollowersCount = profile.FollowersCount
-	p.FollowsCount = profile.FollowsCount
+	p.PicturesCount = db.CountStuffs("user_id", "photos", p.ID)
+	p.FollowersCount = db.CountStuffs("followed_id", "follow", p.ID)
+	p.FollowsCount = db.CountStuffs("follower_id", "follow", p.ID)
 	p.ProfilePictureUrl = profile.ProfilePictureUrl
 	p.Bio = profile.Bio
 }
@@ -54,9 +54,6 @@ func (profile *Profile) ToDatabase() database.Profile_db {
 	return database.Profile_db{
 		ID:                profile.ID,
 		Username:          profile.Username,
-		PicturesCount:     profile.PicturesCount,
-		FollowersCount:    profile.FollowersCount,
-		FollowsCount:      profile.FollowsCount,
 		ProfilePictureUrl: profile.ProfilePictureUrl,
 		Bio:               profile.Bio,
 	}
@@ -69,9 +66,6 @@ func (p *Profile) IsValid() bool {
 	//fmt.Println(p.ID, len(p.ID) >= 1, len(p.ID) <= 32, usernameRx.MatchString(p.ID), len(p.Username) >= 3, len(p.Username) <= 16, usernameRx.MatchString(p.Username), len(*p.ProfilePictureUrl) <= 150, ppURLRx.MatchString(*p.ProfilePictureUrl), len(*p.Bio) <= 150, bioRx.MatchString(*p.Bio))
 	//len(p.ID) >= 1 && len(p.ID) <= 32 && usernameRx.MatchString(p.ID) &&
 	return len(p.Username) >= 3 && len(p.Username) <= 16 && usernameRx.MatchString(p.Username) &&
-		//p.PicturesCount >= 0 &&
-		//p.FollowersCount >= 0 &&
-		//p.FollowsCount >= 0 &&
 		len(p.ProfilePictureUrl) <= 150 && ppURLRx.MatchString(p.ProfilePictureUrl) &&
 		len(p.Bio) <= 150 && bioRx.MatchString(p.Bio)
 

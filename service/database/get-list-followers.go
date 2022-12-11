@@ -26,7 +26,11 @@ WHERE followed_id =?`
 		if err != nil {
 			return nil, fmt.Errorf("error scanning followers: %v", err)
 		}
-		followers = append(followers, follower_id)
+		follower_name, err := db.GetNameById(follower_id)
+		if err != nil {
+			return []string{}, err
+		}
+		followers = append(followers, follower_name)
 	}
 	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("error encountered during iteration: %v", err)

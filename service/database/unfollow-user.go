@@ -10,7 +10,7 @@ func (db *appdbimpl) UnfollowUser(userId_A string, followerId_B string) error {
 		WHERE user_id = ? AND follower_id = ?`
 	res, err := db.c.Exec(query, userId_A, followerId_B)
 	if err != nil {
-		return fmt.Errorf("error when following a new user: %w", err)
+		return fmt.Errorf("error when unfollowing an user: %w", err)
 	}
 
 	affected, err := res.RowsAffected()

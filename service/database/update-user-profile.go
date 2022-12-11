@@ -9,7 +9,7 @@ WHERE user_id = ?`
 	var old Profile_db
 	user := db.c.QueryRow(query, id)
 
-	err := user.Scan(&old.Username, &old.PicturesCount, &old.FollowersCount, &old.FollowsCount, &old.ProfilePictureUrl, &old.Bio)
+	err := user.Scan(&old.Username, &old.ProfilePictureUrl, &old.Bio)
 	if err != nil {
 		return Profile_db{}, err
 	}

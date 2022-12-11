@@ -24,7 +24,7 @@ WHERE username = ?`
 	if !res {
 		return Profile_db{}, ErrUserNotExists
 	}
-	err = userPage.Scan(&ret.ID, &ret.Username, &ret.PicturesCount, &ret.FollowersCount, &ret.FollowsCount, &ret.ProfilePictureUrl, &ret.Bio)
+	err = userPage.Scan(&ret.ID, &ret.Username, &ret.ProfilePictureUrl, &ret.Bio)
 	if err != nil {
 		return Profile_db{}, fmt.Errorf("error while scanning the profile: %w", err)
 	}

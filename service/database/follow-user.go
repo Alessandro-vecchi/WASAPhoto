@@ -9,16 +9,14 @@ import (
 func (db *appdbimpl) FollowUser(userId_A string, followerId_B string) error {
 
 	// check if user B is already following user A
-	var tab_follow Follow_db
 	const query = `
 SELECT *
 FROM follow
 WHERE user_id = ? AND follower_id = ?`
 
-	err := db.c.QueryRow(query, userId_A, followerId_B).Scan(&tab_follow)
+	err := db.c.QueryRow(query, userId_A, followerId_B).Scan()
 	if !errors.Is(err, sql.ErrNoRows) {
 		// user B already follows user A
-
 		return ErrFollowerAlreadyPresent
 	}
 	// user B doesn't follow user A

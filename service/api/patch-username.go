@@ -50,7 +50,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 	var pp models.Profile
-	pp.FromDatabase(userProfile)
+	pp.FromDatabase(userProfile, rt.db)
 	oldProfileBytes, err := json.Marshal(&pp)
 	if err != nil {
 		fmt.Println("Error creating json patch", err.Error())
