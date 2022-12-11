@@ -12,7 +12,7 @@ func (db *appdbimpl) LikePhoto(photoId string, userId string) error {
 	const query = `
 SELECT *
 FROM likes
-WHERE photo_id = ? AND user_id = ?`
+WHERE photo_id = ? AND liker_id = ?`
 
 	err := db.c.QueryRow(query, photoId, userId).Scan()
 	if !errors.Is(err, sql.ErrNoRows) {
@@ -21,7 +21,7 @@ WHERE photo_id = ? AND user_id = ?`
 		return ErrLikeAlreadyPut
 	}
 	// inserting like in the database
-	_, err = db.c.Exec(`INSERT INTO likes (photo_id, user_id) VALUES (?,?)`, photoId, userId)
+	_, err = db.c.Exec(`INSERT INTO likes (photo_id, liker_id) VALUES (?,?)`, photoId, userId)
 	if err != nil {
 		return fmt.Errorf("error when liking a photo: %w", err)
 	}

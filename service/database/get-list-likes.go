@@ -6,7 +6,7 @@ import "fmt"
 func (db *appdbimpl) GetLikes(photoId string) ([]string, error) {
 
 	const query = `
-	SELECT user_id
+	SELECT liker_id
 	FROM likes
 	WHERE photo_id =?`
 

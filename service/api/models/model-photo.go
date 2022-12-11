@@ -31,8 +31,8 @@ type Photo struct {
 func (p *Photo) FromDatabase(photo database.Photo_db, db database.AppDatabase) {
 	p.PhotoId = photo.PhotoId
 	p.Timestamp = photo.Timestamp
-	p.LikesCount = photo.LikesCount
-	p.CommentsCount = photo.CommentsCount
+	p.LikesCount = db.CountStuffs("photo_id", "likes", p.PhotoId)
+	p.CommentsCount = db.CountStuffs("photo_id", "comments", p.PhotoId)
 	p.Image = photo.Image
 	p.Caption = photo.Caption
 	p.UserId = photo.UserId
@@ -42,13 +42,11 @@ func (p *Photo) FromDatabase(photo database.Photo_db, db database.AppDatabase) {
 // ToDatabase returns the profile in a database-compatible representation
 func (photo *Photo) ToDatabase() database.Photo_db {
 	return database.Photo_db{
-		PhotoId:       photo.PhotoId,
-		Timestamp:     photo.Timestamp,
-		LikesCount:    photo.LikesCount,
-		CommentsCount: photo.CommentsCount,
-		Image:         photo.Image,
-		Caption:       photo.Caption,
-		UserId:        photo.UserId,
+		PhotoId:   photo.PhotoId,
+		Timestamp: photo.Timestamp,
+		Image:     photo.Image,
+		Caption:   photo.Caption,
+		UserId:    photo.UserId,
 	}
 }
 

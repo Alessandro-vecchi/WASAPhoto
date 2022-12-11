@@ -68,15 +68,11 @@ type Photo_db struct {
 	PhotoId string
 	// Date and time of creation following RFC3339
 	Timestamp string
-	// Number of likes
-	LikesCount uint32
-	// Number of comments
-	CommentsCount uint32
 	// URL of the image just uploaded. | Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
 	Image string
 	// A written description or explanation about a photo to provide more context
 	Caption string
-
+	// Id of the user that uploaded the photo
 	UserId string
 }
 
@@ -214,8 +210,6 @@ func New(db *sql.DB) (AppDatabase, error) {
 		user_id TEXT NOT NULL,
 		photo_id TEXT NOT NULL PRIMARY KEY,
 		timestamp TEXT DEFAULT "" NOT NULL,
-		likesCount INTEGER DEFAULT 0 NOT NULL,
-		commentsCount INTEGER DEFAULT 0 NOT NULL,
 		caption TEXT DEFAULT "" NOT NULL,
 		image TEXT DEFAULT "" NOT NULL,
 		FOREIGN KEY(user_id) REFERENCES profile(user_id));`

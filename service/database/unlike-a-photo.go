@@ -7,7 +7,7 @@ func (db *appdbimpl) UnlikePhoto(photoId string, userId string) error {
 	const query = `
 		DELETE
 		FROM likes
-		WHERE photo_id = ? AND user_id = ?`
+		WHERE photo_id = ? AND liker_id = ?`
 	res, err := db.c.Exec(query, photoId, userId)
 	if err != nil {
 		return fmt.Errorf("error when unliking a photo: %w", err)

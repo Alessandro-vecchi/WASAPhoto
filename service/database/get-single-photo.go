@@ -10,7 +10,7 @@ SELECT *
 FROM photos
 WHERE photo_id = ?`
 
-	err := db.c.QueryRow(query, photoId).Scan(&p.UserId, &p.PhotoId, &p.Timestamp, &p.LikesCount, &p.CommentsCount, &p.Caption, &p.Image)
+	err := db.c.QueryRow(query, photoId).Scan(&p.UserId, &p.PhotoId, &p.Timestamp, &p.Caption, &p.Image)
 	fmt.Println(p, err)
 	if err != nil {
 
