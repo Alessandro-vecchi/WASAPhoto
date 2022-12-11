@@ -8,7 +8,7 @@ func (db *appdbimpl) GetUserPhoto(photoId string) (Photo_db, error) {
 	const query = `
 SELECT *
 FROM photos
-WHERE photoId = ?`
+WHERE photo_id = ?`
 
 	err := db.c.QueryRow(query, photoId).Scan(&p.UserId, &p.PhotoId, &p.Timestamp, &p.LikesCount, &p.CommentsCount, &p.Caption, &p.Image)
 	fmt.Println(p, err)

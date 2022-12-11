@@ -38,9 +38,13 @@ import (
 
 var (
 	// ErrDatabaseNotInitialized is returned when the database is not initialized.
-	ErrUserNotExists  = errors.New("user does not exist")
-	ErrUserExists     = errors.New("user already exists")
-	ErrPhotoNotExists = errors.New("photo does not exist")
+	ErrUserNotExists          = errors.New("user does not exist")
+	ErrUserExists             = errors.New("user already exists")
+	ErrAuthenticationFailed   = errors.New("authentication failed: user is not authenticated")
+	ErrPhotoNotExists         = errors.New("photo does not exist")
+	ErrFollowerNotPresent     = errors.New("user B is not following user A")
+	ErrFollowerAlreadyPresent = errors.New("user B is already following user A")
+	ErrUserCantFollowHimself  = errors.New("user can't follow himself")
 )
 
 // Represents the information seen in the Profile Page of a user
@@ -81,6 +85,9 @@ type Photo_db struct {
 
 // Attributes of a comment
 type Comment_db struct {
+	// Id of the author of the comment
+	UserId string
+	// Id of the comment
 	CommentId string
 	// Date and time of creation of the comment following RFC3339
 	Created_in string
@@ -95,6 +102,14 @@ type Comment_db struct {
 	IsReplyComment bool
 }
 
+// Followers relationship
+type Follow_db struct {
+	// User_id of the followers
+	Follower_id string
+	// User_id of the user that is being followed
+	Followed_id string
+}
+
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
 	// CreateUserProfile creates a new user if he/she doesn't exist
@@ -106,6 +121,9 @@ type AppDatabase interface {
 	// If it does exist, the user identifier will be returned.
 	DoLogin(username string) (string, error)
 
+	// check that the user is authenticated
+	CheckUserIdentity(authtoken string, user_id string) error
+
 	// Update profile of the user
 	UpdateUserProfile(p Profile_db) (Profile_db, error)
 
@@ -114,6 +132,7 @@ type AppDatabase interface {
 
 	// Convert id and name
 	GetNameById(userId string) (string, error)
+	GetIdByName(username string) (string, error)
 
 	// Retrieve collection of photos resources of a certain user
 	GetListUserPhotos(userId string) ([]Photo_db, error)
@@ -129,6 +148,18 @@ type AppDatabase interface {
 
 	// Comment a photo
 	CommentPhoto(photoId string, c Comment_db) (Comment_db, error)
+
+	// Follow a user
+	FollowUser(userId string, followerId string) error
+
+	// Unfollow a user
+	UnfollowUser(userId string, followerId string) error
+
+	// Get a list of followers of a specific user
+	GetFollowers(userId string) ([]string, error)
+
+	// Get a list of the users the user is following
+	GetFollowing(userId string) ([]string, error)
 
 	// check availability
 	Ping() error
@@ -158,37 +189,58 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	err := createTables(tableName, sqlStmt, db)
 	if err != nil {
-		return nil, fmt.Errorf("error creating database structure: %w", err)
+		return nil, fmt.Errorf("error creating database profile structure: %w", err)
 	}
 	tableName = "photos"
 	sqlStmt = `CREATE TABLE photos (
-    user_id TEXT NOT NULL,
-    photoId TEXT NOT NULL PRIMARY KEY,
-	timestamp TEXT DEFAULT "" NOT NULL,
-    likesCount INTEGER DEFAULT 0 NOT NULL,
-    commentsCount INTEGER DEFAULT 0 NOT NULL,
-    caption TEXT DEFAULT "" NOT NULL,
-    image TEXT DEFAULT "" NOT NULL);`
+		user_id TEXT NOT NULL,
+		photo_id TEXT NOT NULL PRIMARY KEY,
+		timestamp TEXT DEFAULT "" NOT NULL,
+		likesCount INTEGER DEFAULT 0 NOT NULL,
+		commentsCount INTEGER DEFAULT 0 NOT NULL,
+		caption TEXT DEFAULT "" NOT NULL,
+		image TEXT DEFAULT "" NOT NULL,
+		FOREIGN KEY(user_id) REFERENCES profile(user_id));`
 
 	err = createTables(tableName, sqlStmt, db)
 	if err != nil {
-		return nil, fmt.Errorf("error creating database structure: %w", err)
+		return nil, fmt.Errorf("error creating database photo structure: %w", err)
 	}
 	tableName = "comments"
 	// SQLite does not have a separate Boolean storage class.
 	// Instead, Boolean values are stored as integers 0 (false) and 1 (true).
 
 	sqlStmt = `CREATE TABLE comments (
-    comment_id TEXT NOT NULL PRIMARY KEY,
-	created_in TEXT DEFAULT "" NOT NULL,
-	body TEXT DEFAULT "" NOT NULL,
-	photo_id TEXT NOT NULL,
-    modified_in TEXT DEFAULT "" NOT NULL,
-    is_reply_comment INTEGER DEFAULT 0 NOT NULL);`
+		user_id TEXT NOT NULL,
+		comment_id TEXT NOT NULL PRIMARY KEY,
+		created_in TEXT DEFAULT "" NOT NULL,
+		body TEXT DEFAULT "" NOT NULL,
+		photo_id TEXT NOT NULL,
+		modified_in TEXT DEFAULT "" NOT NULL,
+		is_reply_comment INTEGER DEFAULT 0 NOT NULL,
+		FOREIGN KEY(user_id) REFERENCES profile(user_id),
+		FOREIGN KEY(photo_id) REFERENCES photos(photoId));`
 
 	err = createTables(tableName, sqlStmt, db)
 	if err != nil {
-		return nil, fmt.Errorf("error creating database structure: %w", err)
+		return nil, fmt.Errorf("error creating database comments structure: %w", err)
+	}
+
+	tableName = "follow"
+	// SQLite does not have a separate Boolean storage class.
+	// Instead, Boolean values are stored as integers 0 (false) and 1 (true).
+
+	sqlStmt = `CREATE TABLE ` + tableName + `(
+		follower_id TEXT NOT NULL,
+		followed_id TEXT NOT NULL,
+		PRIMARY KEY (follower_id, followed_id),
+		FOREIGN KEY(follower_id) REFERENCES profile(user_id),
+		FOREIGN KEY(followed_id) REFERENCES profile(user_id)
+		);`
+
+	err = createTables(tableName, sqlStmt, db)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database followers structure: %w", err)
 	}
 	return &appdbimpl{
 		c: db,
@@ -197,8 +249,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 func createTables(tableName string, sqlStmt string, db *sql.DB) error {
 	var table string
-	//f, _ := db.Exec(`DROP TABLE IF EXISTS profile;`)
-	//fmt.Println(f)
+	// f, _ := db.Exec(`DROP TABLE IF EXISTS ` + tableName + `;`)
+	// fmt.Println(f)
 	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='` + tableName + `';`).Scan(&table)
 	if errors.Is(err, sql.ErrNoRows) {
 		_, err = db.Exec(sqlStmt)

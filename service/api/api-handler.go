@@ -37,8 +37,11 @@ func (rt *_router) Handler() http.Handler {
 	// Upload a comment
 	rt.router.POST("/photos/:photo_id/comments/", rt.wrap(rt.commentPhoto))
 
-	// Upload a comment
+	// Delete a comment
 	rt.router.DELETE("/comments/:comments_id", rt.wrap(rt.uncommentPhoto))
+
+	// Follow a user
+	rt.router.PUT("/users/:user_id/followers/:followers_id", rt.wrap(rt.followUser))
 
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)

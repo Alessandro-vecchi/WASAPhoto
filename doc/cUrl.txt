@@ -7,9 +7,9 @@ curl -X PATCH http://localhost:3001/users/:user_id=2Idw46q6s1oYd9xk8Uy0iB9bc8g -
 DeleteUserProfile
 curl -X DELETE "http://localhost:3001/users/:user_id=5e9b1511-f78c-4163-a436-9e19fed724ad"
 UploadPhoto
-curl -X POST "http://localhost:3001/users/:user_id=5e9b1511-f78c-4163-a436-9e19fed724ad/photos/" -H 'Content-Type: application/json' -d '{"caption":"bella raga", "image":"https://www.sono_scema.it/michi.png"}'
+curl -X POST "http://localhost:3001/users/:user_id=828f3134-cdcd-46f0-b013-43eb75ff424e/photos/" -H 'Content-Type: application/json' -H 'authToken: 828f3134-cdcd-46f0-b013-43eb75ff424e' -d '{"caption":"bella raga", "image":"https://www.sono_scema.it/michi.png"}'
 GetSinglePhoto
-curl -X GET "http://localhost:3001/photos/:photo_id=ef08d077-070f-435f-b4ae-b3929e759543"
+curl -X GET "http://localhost:3001/photos/:photo_id=828f3134-cdcd-46f0-b013-43eb75ff424e"
 GetListPhotos
 curl "http://localhost:3001/users/:user_id=5e9b1511-f78c-4163-a436-9e19fed724ad/photos/"
 DeletePhoto

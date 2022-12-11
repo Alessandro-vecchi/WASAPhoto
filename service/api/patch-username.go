@@ -51,7 +51,6 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	}
 	var pp models.Profile
 	pp.FromDatabase(userProfile)
-	fmt.Println("bella", pp)
 	oldProfileBytes, err := json.Marshal(&pp)
 	if err != nil {
 		fmt.Println("Error creating json patch", err.Error())
@@ -72,7 +71,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	var jsonProfile models.Profile
-	fmt.Println("hey", jsonProfile)
+	//fmt.Println("hey", jsonProfile)
 	err = json.Unmarshal(modified, &jsonProfile)
 	if err != nil {
 		fmt.Println("Error unmarshaling patch json ", err.Error())
@@ -87,14 +86,3 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(jsonProfile)
 }
-
-/*
-curl -X PATCH http://localhost:3001/users/:user_id=2Idw46q6s1oYd9xk8Uy0iB9bc8g -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"username":"paola"}'
-curl -X POST "http://localhost:3001/session/" -H 'Content-Type: application/json' -d '{"username":"gianni"}'
-curl "http://localhost:3001/users/?username=michi"
-curl -X DELETE "http://localhost:3001/users/:user_id=5e9b1511-f78c-4163-a436-9e19fed724ad"
-curl -X POST "http://localhost:3001/users/:user_id=5e9b1511-f78c-4163-a436-9e19fed724ad/photos/" -H 'Content-Type: application/json' -d '{"caption":"bella raga", "image":"https://www.sono_scema.it/michi.png"}'
-curl "http://localhost:3001/users/:user_id=5e9b1511-f78c-4163-a436-9e19fed724ad/photos/"
-curl -X DELETE "http://localhost:3001/photos/:photo_id=ef08d077-070f-435f-b4ae-b3929e759543"
-curl -X GET "http://localhost:3001/photos/:photo_id=ef08d077-070f-435f-b4ae-b3929e759543"
-*/
