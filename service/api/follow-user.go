@@ -29,7 +29,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// 3. Check if the users are the same
+	// 3. Check that user is not following himself
 	if models.AreTheSame(user_id_A, user_id_B) {
 		// A user can't follow himself
 		ctx.Logger.WithError(database.ErrUserCantFollowHimself).Error("a user can't follow himself ")

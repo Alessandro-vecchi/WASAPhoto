@@ -13,8 +13,6 @@ type Comment struct {
 	Created_in string `json:"created_in,omitempty"`
 	// Content of the comment
 	Body string `json:"body,omitempty"`
-	// Id of the photo under which the comments are being written
-	PhotoId string `json:"photoId,omitempty"`
 	// Username of the user that created the comment
 	Author string `json:"author,omitempty"`
 	// Date and time of when the comment was modified following RFC3339
@@ -25,7 +23,6 @@ type Comment struct {
 
 func (c *Comment) FromDatabase(comment database.Comment_db, db database.AppDatabase) {
 	c.CommentId = comment.CommentId
-	c.PhotoId = comment.PhotoId
 	c.Created_in = comment.Created_in
 	c.Modified_in = comment.Modified_in
 	c.IsReplyComment = comment.IsReplyComment
@@ -34,14 +31,14 @@ func (c *Comment) FromDatabase(comment database.Comment_db, db database.AppDatab
 }
 
 // ToDatabase returns the profile in a database-compatible representation
-func (comment *Comment) ToDatabase(db database.AppDatabase) database.Comment_db {
+func (comment *Comment) ToDatabase(db database.AppDatabase, photo_id string) database.Comment_db {
 	id, _ := db.GetIdByName(comment.Author)
 	return database.Comment_db{
 		UserId:         id,
 		CommentId:      comment.CommentId,
 		Created_in:     comment.Created_in,
 		Body:           comment.Body,
-		PhotoId:        comment.PhotoId,
+		PhotoId:        photo_id,
 		Modified_in:    comment.Modified_in,
 		IsReplyComment: comment.IsReplyComment,
 	}

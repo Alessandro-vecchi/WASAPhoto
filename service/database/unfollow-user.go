@@ -2,13 +2,13 @@ package database
 
 import "fmt"
 
-func (db *appdbimpl) UnfollowUser(userId_A string, followerId_B string) error {
+func (db *appdbimpl) UnfollowUser(followedId_A string, followerId_B string) error {
 
 	const query = `
 		DELETE
 		FROM follow
-		WHERE user_id = ? AND follower_id = ?`
-	res, err := db.c.Exec(query, userId_A, followerId_B)
+		WHERE follower_id = ? AND followed_id = ?`
+	res, err := db.c.Exec(query, followerId_B, followedId_A)
 	if err != nil {
 		return fmt.Errorf("error when unfollowing an user: %w", err)
 	}

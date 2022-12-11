@@ -47,6 +47,7 @@ var (
 	ErrUserCantFollowHimself  = errors.New("user can't follow himself")
 	ErrLikeAlreadyPut         = errors.New("like already exists")
 	ErrLikeNotPresent         = errors.New("like not present")
+	ErrUserCantLikeHimself    = errors.New("user can't like its own photo")
 )
 
 // Represents the information seen in the Profile Page of a user
@@ -131,10 +132,6 @@ type AppDatabase interface {
 	// Delete user profile
 	DeleteUserProfile(userID string) error
 
-	// Convert id and name
-	GetNameById(userId string) (string, error)
-	GetIdByName(username string) (string, error)
-
 	// Retrieve collection of photos resources of a certain user
 	GetListUserPhotos(userId string) ([]Photo_db, error)
 
@@ -162,9 +159,6 @@ type AppDatabase interface {
 	// Get a list of the users the user is following
 	GetFollowing(userId string) ([]string, error)
 
-	// Count the number of occurencies of a verb
-	CountStuffs(filter string, table_name string, filterValue string) uint32
-
 	// Put a like to a photo
 	LikePhoto(photoId string, userId string) error
 
@@ -173,6 +167,20 @@ type AppDatabase interface {
 
 	// Get likes to a photo
 	GetLikes(photoId string) ([]string, error)
+
+	// Get the stream of photos of the users we are following in reverse chronological order
+	GetMyStream(user_id string) ([]Photo_db, error)
+
+	// UTILITIES:
+	// Get owner of a profile
+	GetProfileOwner(photo_id string) (string, error)
+
+	// Count the number of occurencies of a verb
+	CountStuffs(filter string, table_name string, filterValue string) uint32
+
+	// Convert id and name
+	GetNameById(userId string) (string, error)
+	GetIdByName(username string) (string, error)
 
 	// check availability
 	Ping() error

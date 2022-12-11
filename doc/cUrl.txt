@@ -1,20 +1,28 @@
 DoLogin
 curl -X POST "http://localhost:3001/session/" -H 'Content-Type: application/json' -d '{"username":"gianni"}'
 GetUserProfileByUsername
-curl "http://localhost:3001/users/?username=michi"
+curl "http://localhost:3001/users/?username=valentina"
 ModifyUsername
 curl -X PATCH http://localhost:3001/users/:user_id=2Idw46q6s1oYd9xk8Uy0iB9bc8g -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"username":"paola"}'
 DeleteUserProfile
 curl -X DELETE "http://localhost:3001/users/:user_id=5e9b1511-f78c-4163-a436-9e19fed724ad"
 UploadPhoto
-curl -X POST "http://localhost:3001/users/:user_id=828f3134-cdcd-46f0-b013-43eb75ff424e/photos/" -H 'Content-Type: application/json' -H 'authToken: 828f3134-cdcd-46f0-b013-43eb75ff424e' -d '{"caption":"bella raga", "image":"https://www.sono_scema.it/michi.png"}'
+curl -X POST "http://localhost:3001/users/:user_id=8f3549a7-4d62-416c-9755-0fa01b17f2cd/photos/" -H 'Content-Type: application/json' -H 'authToken: 8f3549a7-4d62-416c-9755-0fa01b17f2cd' -d '{"caption":"bella raga", "image":"https://www.sono_scema.it/vale.png"}'
 GetSinglePhoto
-curl -X GET "http://localhost:3001/photos/:photo_id=828f3134-cdcd-46f0-b013-43eb75ff424e"
+curl -X GET "http://localhost:3001/photos/:photo_id=40df7a10-2fd5-4a50-a3aa-7d9a76463a25"
 GetListPhotos
 curl "http://localhost:3001/users/:user_id=5e9b1511-f78c-4163-a436-9e19fed724ad/photos/"
 DeletePhoto
 curl -X DELETE "http://localhost:3001/photos/:photo_id=ef08d077-070f-435f-b4ae-b3929e759543"
 UploadComment
-curl -X POST "http://localhost:3001/photos/:photo_id=ef08d077-070f-435f-b4ae-b3929e759543/comments/" -H 'Content-Type: application/json' -d '{"body":"ciao gianfranco, bella foto"}'
+curl -X POST "http://localhost:3001/photos/:photo_id=40df7a10-2fd5-4a50-a3aa-7d9a76463a25/comments/" -H 'Content-Type: application/json' -d '{"body":"ciao gianfranco, bella foto"}'
 DeleteComment
 curl -X DELETE "http://localhost:3001/comments/:comment_id="
+FollowUser
+curl -X PUT "http://localhost:3001/users/:user_id=3587230e-17cc-48da-b930-6738465261f5/followers/:followers_id=b11edbd9-dc73-4c46-af99-68827870ee23" -H 'Content-Type: application/json' -H 'authToken: b11edbd9-dc73-4c46-af99-68827870ee23'
+UnfollowUser
+curl -X DELETE "http://localhost:3001/users/:user_id=3587230e-17cc-48da-b930-6738465261f5/followers/:followers_id=b11edbd9-dc73-4c46-af99-68827870ee23" -H 'Content-Type: application/json' -H 'authToken: b11edbd9-dc73-4c46-af99-68827870ee23'
+GetFollowers
+curl -X GET "http://localhost:3001/users/:user_id=3587230e-17cc-48da-b930-6738465261f5/followers/"
+GetFollowed
+curl -X GET "http://localhost:3001/users/:user_id=8f3549a7-4d62-416c-9755-0fa01b17f2cd/following/"

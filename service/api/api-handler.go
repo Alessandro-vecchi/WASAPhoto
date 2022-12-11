@@ -43,6 +43,24 @@ func (rt *_router) Handler() http.Handler {
 	// Follow a user
 	rt.router.PUT("/users/:user_id/followers/:followers_id", rt.wrap(rt.followUser))
 
+	// Unfollow a user
+	rt.router.DELETE("/users/:user_id/followers/:followers_id", rt.wrap(rt.unfollowUser))
+
+	// Get list followers
+	rt.router.GET("/users/:user_id/followers/", rt.wrap(rt.getFollowers))
+
+	// Get list followed
+	rt.router.GET("/users/:user_id/following/", rt.wrap(rt.getFollowed))
+
+	// Put a like to a photo
+	rt.router.PUT("/photos/:photo_id/likes/:likes_id", rt.wrap(rt.likePhoto))
+
+	// Unlike a photo
+	rt.router.DELETE("/photos/:photo_id/likes/:likes_id", rt.wrap(rt.unlikePhoto))
+
+	// Get list of the users that added a like
+	rt.router.GET("/photos/:photo_id/likes/", rt.wrap(rt.getLikes))
+
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)
 

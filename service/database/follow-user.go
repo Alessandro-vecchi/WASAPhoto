@@ -12,9 +12,10 @@ func (db *appdbimpl) FollowUser(userId_A string, followerId_B string) error {
 	const query = `
 SELECT *
 FROM follow
-WHERE user_id = ? AND follower_id = ?`
+WHERE follower_id = ? AND followed_id = ?`
 
 	err := db.c.QueryRow(query, userId_A, followerId_B).Scan()
+	fmt.Println(err)
 	if !errors.Is(err, sql.ErrNoRows) {
 		// user B already follows user A
 		return ErrFollowerAlreadyPresent

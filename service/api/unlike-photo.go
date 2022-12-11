@@ -11,37 +11,26 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-
-	// 1. Get user ID of user A from path
-	// The User ID in the path is a string and coincides with the profile we watching
-	user_id_A := rt.getPathParameter("user_id", ps)
-	if user_id_A == "" {
+func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	// 1. Retrieve photo ID from path.
+	photo_id := rt.getPathParameter("photo_id", ps)
+	if photo_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// 2. Get user ID of user B from path
-	// It coincides with the user that want to follow
-	user_id_B := rt.getPathParameter("followers_id", ps)
-	if user_id_B == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// 3. Check that the user is not unfollowing himself
-	if models.AreTheSame(user_id_A, user_id_B) {
-		// A user can't unfollow himself
-		ctx.Logger.WithError(database.ErrUserCantFollowHimself).Error("a user can't follow himself ")
+	// 2. Retrieve ID of the user who want to put like from path.
+	user_id := rt.getPathParameter("like_id", ps)
+	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// 4. Check if the user is authenticated
+	// 3. Check if the user is authenticated
 	// We want to allow only to logged users to put likes.
 	// Therefore the authentication token in the header should coincide with the id of the user who is liking the photo
 	authtoken := r.Header.Get("authToken")
 	log.Printf("The authentication token in the header is: %v", authtoken)
-	err := checkUserIdentity(authtoken, user_id_B, rt.db)
+	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -49,21 +38,29 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+	// 4. Check that the user is not deleting a like to an own photo
+	if models.IsLikingHimself(photo_id, user_id, rt.db) {
+		ctx.Logger.WithError(database.ErrUserCantLikeHimself).Error("like not possible ")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-	err = rt.db.UnfollowUser(user_id_A, user_id_B)
-	if errors.Is(err, database.ErrFollowerNotPresent) {
-		// User B wasn't following user A, reject the action indicating an error on the client side.
+	// 5. Remove a like from the database if it's present,
+	// 	  otherwise don't do anything
+	err = rt.db.UnlikePhoto(photo_id, user_id)
+	if errors.Is(err, database.ErrPhotoNotExists) {
+		// The photo (indicated by `id`) does not exist, reject the action indicating an error on the client side.
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
 		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
 		// Note (2): we are adding the error and an additional field (`id`) to the log entry, so that we will receive
-		// the identifier of the fountain that triggered the error.
-		ctx.Logger.WithError(err).WithField("id", user_id_B).Error("can't unfollow user")
+		// the identifier of the photo that triggered the error.
+		ctx.Logger.WithError(err).WithField("id", photo_id).Error("can't unlike photo")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	// Succesful response: 204 No Content
 	w.WriteHeader(http.StatusNoContent)
 }

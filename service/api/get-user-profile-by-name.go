@@ -36,7 +36,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	// Send the user profile to the user
 	w.Header().Set("Content-Type", "application/json")
 	// translating from database to api
-	p.FromDatabase(profile)
+	p.FromDatabase(profile, rt.db)
 	// checking that the profile is valid
 	if p.IsValid() {
 		_ = json.NewEncoder(w).Encode(p)
