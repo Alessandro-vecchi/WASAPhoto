@@ -14,7 +14,7 @@ func (db *appdbimpl) GetLikes(photoId string) ([]string, error) {
 
 	rows, err := db.c.Query(query, photoId)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching likes: %v", err)
+		return []string{}, fmt.Errorf("error fetching likes: %v", err)
 	}
 
 	defer func() { _ = rows.Close() }()
@@ -24,7 +24,7 @@ func (db *appdbimpl) GetLikes(photoId string) ([]string, error) {
 		var user_like_id string
 		err = rows.Scan(&user_like_id)
 		if err != nil {
-			return nil, fmt.Errorf("error scanning likes: %v", err)
+			return []string{}, fmt.Errorf("error scanning likes: %v", err)
 		}
 		like_name, err := db.GetNameById(user_like_id)
 		if err != nil {
@@ -33,7 +33,7 @@ func (db *appdbimpl) GetLikes(photoId string) ([]string, error) {
 		likes = append(likes, like_name)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("error encountered during iteration: %v", err)
+		return []string{}, fmt.Errorf("error encountered during iteration: %v", err)
 	}
 	// successfully retrieved followers
 	return likes, nil

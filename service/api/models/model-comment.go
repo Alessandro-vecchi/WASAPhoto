@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/Alessandro-vecchi/WASAPhoto/service/database"
 )
 
@@ -39,7 +41,7 @@ func (comment *Comment) ToDatabase(db database.AppDatabase, photo_id string) dat
 		Created_in:     comment.Created_in,
 		Body:           comment.Body,
 		PhotoId:        photo_id,
-		Modified_in:    comment.Modified_in,
+		Modified_in:    time.Now().Format(time.RFC3339),
 		IsReplyComment: comment.IsReplyComment,
 	}
 }

@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
@@ -11,25 +10,18 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) getPhotoComments(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	var err error
-	var listPhotos []database.Photo_db
+	var listCommentsDb []database.Comment_db
 
-	// 1. Retrieve ID of the user profile from the path
-	user_id := rt.getPathParameter("user_id", ps)
-	fmt.Println(user_id)
-	if user_id == "" {
+	// 1. Retrieve ID of the photo from the path
+	photo_id := rt.getPathParameter("photo_id", ps)
+	if photo_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	if r.URL.Query().Has("latitude") && r.URL.Query().Has("longitude") {
-		fmt.Println("hi")
-	} else {
-		// Request an unfiltered list of photos from the DB
-		listPhotos, err = rt.db.GetListUserPhotos(user_id)
-	}
+	listCommentsDb, err = rt.db.GetComments(photo_id)
 	if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
 		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
@@ -37,15 +29,15 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	var listPhotosAPI []models.Photo
-	for _, element := range listPhotos {
-		var m models.Photo
-		m.FromDatabase(element, rt.db)
 
-		fmt.Println(m.Username)
-		listPhotosAPI = append(listPhotosAPI, m)
+	var listCommentsAPI []models.Comment
+	for _, element := range listCommentsDb {
+		var c models.Comment
+		c.FromDatabase(element, rt.db)
+
+		listCommentsAPI = append(listCommentsAPI, c)
 	}
 	// Send the list to the user.
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(listPhotosAPI)
+	_ = json.NewEncoder(w).Encode(listCommentsAPI)
 }

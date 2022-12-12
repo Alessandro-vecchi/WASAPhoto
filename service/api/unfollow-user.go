@@ -31,12 +31,12 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	// 3. Check that the user is not unfollowing himself
 	if models.AreTheSame(user_id_A, user_id_B) {
 		// A user can't unfollow himself
-		ctx.Logger.WithError(database.ErrUserCantFollowHimself).Error("a user can't follow himself ")
+		ctx.Logger.WithError(database.ErrUserCantFollowHimself).Error("a user can't unfollow himself ")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// 4. Check if the user is authenticated
+	// 4. Check if the user B is authenticated
 	// We want to allow only to logged users to put likes.
 	// Therefore the authentication token in the header should coincide with the id of the user who is liking the photo
 	authtoken := r.Header.Get("authToken")

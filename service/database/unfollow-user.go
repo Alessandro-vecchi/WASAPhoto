@@ -20,6 +20,6 @@ func (db *appdbimpl) UnfollowUser(followedId_A string, followerId_B string) erro
 		// If we didn't delete any row, then user B wasn't following user A
 		return ErrFollowerNotPresent
 	}
-	// successfully unfollowed the user
+	// succesfully unfollowed the user
 	return nil
 }

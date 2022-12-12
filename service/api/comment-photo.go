@@ -23,7 +23,8 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// 2. get comment from request body
+	// 2. Get comment from request body
+	// If comment is a reply comment, commentId will contain the id of parent comment.
 	var comment models.Comment
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	fmt.Println(comment)

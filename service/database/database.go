@@ -49,6 +49,8 @@ var (
 	ErrLikeNotPresent         = errors.New("like not present")
 	ErrUserCantLikeHimself    = errors.New("user can't like its own photo")
 	ErrCommentNotExists       = errors.New("comment not exists")
+	ErrBanNotPresent          = errors.New("user B didn't ban user A")
+	ErrBanAlreadyPresent      = errors.New("user B already banned user A")
 )
 
 // Represents the information seen in the Profile Page of a user
@@ -96,82 +98,73 @@ type Comment_db struct {
 	IsReplyComment bool
 }
 
-// Followers relationship
-type Follow_db struct {
-	// User_id of the followers
-	Follower_id string
-	// User_id of the user that is being followed
-	Followed_id string
-}
-
-// Like info
-type Like_db struct {
-	// ID of the photo
-	Photo_id string
-	// ID of the user that liked the photo
-	User_id string
-}
-
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
 	// CreateUserProfile creates a new user if he/she doesn't exist
 
-	// Get the user's profile by username
-	GetUserProfileByUsername(username string) (Profile_db, error)
-
+	// PROFILE
 	// if the user does not exist, it will be created and an identifier will be returned.
 	// If it does exist, the user identifier will be returned.
 	DoLogin(username string) (string, error)
-
+	// Get the user's profile by username
+	GetUserProfileByUsername(username string) (Profile_db, error)
 	// Update profile of the user
 	UpdateUserProfile(p Profile_db) (Profile_db, error)
-
 	// Delete user profile
 	DeleteUserProfile(userID string) error
 
-	// Retrieve collection of photos resources of a certain user
-	GetListUserPhotos(userId string) ([]Photo_db, error)
-
+	// MEDIA
 	// Upload a photo on the profile of a specific user
 	UploadPhoto(userId string, p Photo_db) (Photo_db, error)
-
 	// Get a single photo from the profile of a user
 	GetUserPhoto(photoId string) (Photo_db, error)
+	// Retrieve collection of photos resources of a certain user
+	GetListUserPhotos(userId string) ([]Photo_db, error)
 
 	// Delete photo from the profile of a specific user. It also removes likes and comments
 	DeletePhoto(photoId string) error
 
+	// COMMENTS
 	// Comment a photo
 	CommentPhoto(photoId string, c Comment_db) (Comment_db, error)
-
+	// Get list of comments
+	GetComments(photoId string) ([]Comment_db, error)
+	// Modify a comment
+	ModifyComment(c Comment_db) (Comment_db, error)
 	// Uncomment a photo
 	UncommentPhoto(commentId string) error
 
-	// Follow a user
-	FollowUser(userId string, followerId string) error
-
-	// Unfollow a user
-	UnfollowUser(userId string, followerId string) error
-
-	// Get a list of followers of a specific user
-	GetFollowers(userId string) ([]string, error)
-
-	// Get a list of the users the user is following
-	GetFollowing(userId string) ([]string, error)
-
+	// LIKES
 	// Put a like to a photo
 	LikePhoto(photoId string, userId string) error
-
 	// Delete a like to a photo
 	UnlikePhoto(photoId string, userId string) error
-
 	// Get likes to a photo
 	GetLikes(photoId string) ([]string, error)
 
+	// FOLLOWERS
+	// Follow a user
+	FollowUser(userId string, followerId string) error
+	// Unfollow a user
+	UnfollowUser(userId string, followerId string) error
+	// Get a list of followers of a specific user
+	GetFollowers(userId string) ([]string, error)
+	// Get a list of the users the user is following
+	GetFollowing(userId string) ([]string, error)
+
+	// BANS
+	// Ban a user
+	BanUser(userId string, followerId string) error
+	// Unfollow a user
+	UnbanUser(userId string, followerId string) error
+	// Get the list of users banned by a specific user
+	GetBannedUsers(banner_id string) ([]string, error)
+
+	// STREAM
 	// Get the stream of photos of the users we are following in reverse chronological order
 	GetMyStream(user_id string) ([]Photo_db, error)
 
-	// UTILITIES:
+	// UTILS
 	// Get owner of a profile
 	GetProfileOwner(photo_id string) (string, error)
 
@@ -181,6 +174,7 @@ type AppDatabase interface {
 	// Convert id and name
 	GetNameById(userId string) (string, error)
 	GetIdByName(username string) (string, error)
+	GetPhotoIdFromCommentId(comment_id string) (string, error)
 
 	// check availability
 	Ping() error
@@ -207,8 +201,35 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	err := createTables(tableName, sqlStmt, db)
 	if err != nil {
-		return nil, fmt.Errorf("error creating database profile structure: %w", err)
+		return nil, fmt.Errorf("error creating database "+tableName+" structure: %w", err)
 	}
+
+	tableName = "follow"
+	sqlStmt = `CREATE TABLE ` + tableName + `(
+		follower_id TEXT NOT NULL,
+		followed_id TEXT NOT NULL,
+		PRIMARY KEY (follower_id, followed_id),
+		FOREIGN KEY(follower_id) REFERENCES profile(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+		FOREIGN KEY(followed_id) REFERENCES profile(user_id) ON UPDATE CASCADE ON DELETE CASCADE);`
+
+	err = createTables(tableName, sqlStmt, db)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database "+tableName+" structure: %w", err)
+	}
+
+	tableName = "ban"
+	sqlStmt = `CREATE TABLE ` + tableName + `(
+		banner_id TEXT NOT NULL,
+		banned_id TEXT NOT NULL,
+		PRIMARY KEY (banner_id, banned_id),
+		FOREIGN KEY(banner_id) REFERENCES profile(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+		FOREIGN KEY(banned_id) REFERENCES profile(user_id) ON UPDATE CASCADE ON DELETE CASCADE);`
+
+	err = createTables(tableName, sqlStmt, db)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database "+tableName+" structure: %w", err)
+	}
+
 	tableName = "photos"
 	sqlStmt = `CREATE TABLE photos (
 		user_id TEXT NOT NULL,
@@ -216,11 +237,11 @@ func New(db *sql.DB) (AppDatabase, error) {
 		timestamp TEXT DEFAULT "" NOT NULL,
 		caption TEXT DEFAULT "" NOT NULL,
 		image TEXT DEFAULT "" NOT NULL,
-		FOREIGN KEY(user_id) REFERENCES profile(user_id));`
+		FOREIGN KEY(user_id) REFERENCES profile(user_id) ON UPDATE CASCADE ON DELETE CASCADE);`
 
 	err = createTables(tableName, sqlStmt, db)
 	if err != nil {
-		return nil, fmt.Errorf("error creating database photo structure: %w", err)
+		return nil, fmt.Errorf("error creating database "+tableName+" structure: %w", err)
 	}
 	tableName = "comments"
 	// SQLite does not have a separate Boolean storage class.
@@ -234,26 +255,13 @@ func New(db *sql.DB) (AppDatabase, error) {
 		photo_id TEXT NOT NULL,
 		modified_in TEXT DEFAULT "" NOT NULL,
 		is_reply_comment INTEGER DEFAULT 0 NOT NULL,
-		FOREIGN KEY(user_id) REFERENCES profile(user_id),
-		FOREIGN KEY(photo_id) REFERENCES photos(photoId));`
+		parent_id TEXT NULL,
+		FOREIGN KEY(user_id) REFERENCES profile(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+		FOREIGN KEY(photo_id) REFERENCES photos(photoId) ON UPDATE CASCADE ON DELETE CASCADE);`
 
 	err = createTables(tableName, sqlStmt, db)
 	if err != nil {
-		return nil, fmt.Errorf("error creating database comments structure: %w", err)
-	}
-
-	tableName = "follow"
-	sqlStmt = `CREATE TABLE ` + tableName + `(
-		follower_id TEXT NOT NULL,
-		followed_id TEXT NOT NULL,
-		PRIMARY KEY (follower_id, followed_id),
-		FOREIGN KEY(follower_id) REFERENCES profile(user_id),
-		FOREIGN KEY(followed_id) REFERENCES profile(user_id)
-		);`
-
-	err = createTables(tableName, sqlStmt, db)
-	if err != nil {
-		return nil, fmt.Errorf("error creating database followers structure: %w", err)
+		return nil, fmt.Errorf("error creating database "+tableName+" structure: %w", err)
 	}
 
 	tableName = "likes"
@@ -261,13 +269,12 @@ func New(db *sql.DB) (AppDatabase, error) {
 		photo_id TEXT NOT NULL,
 		liker_id TEXT NOT NULL,
 		PRIMARY KEY (photo_id, user_id),
-		FOREIGN KEY(photo_id) REFERENCES photo(photo_id),
-		FOREIGN KEY(liker_id) REFERENCES profile(user_id)
-		);`
+		FOREIGN KEY(photo_id) REFERENCES photo(photo_id) ON UPDATE CASCADE ON DELETE CASCADE,
+		FOREIGN KEY(liker_id) REFERENCES profile(user_id) ON UPDATE CASCADE ON DELETE CASCADE);`
 
 	err = createTables(tableName, sqlStmt, db)
 	if err != nil {
-		return nil, fmt.Errorf("error creating database followers structure: %w", err)
+		return nil, fmt.Errorf("error creating database "+tableName+" structure: %w", err)
 	}
 	return &appdbimpl{
 		c: db,

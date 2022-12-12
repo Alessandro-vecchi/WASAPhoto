@@ -14,7 +14,7 @@ WHERE follower_id =?`
 
 	rows, err := db.c.Query(query, follower_id)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching following: %v", err)
+		return []string{}, fmt.Errorf("error fetching following: %v", err)
 	}
 
 	defer func() { _ = rows.Close() }()
@@ -24,7 +24,7 @@ WHERE follower_id =?`
 		var followed_id string
 		err = rows.Scan(&followed_id)
 		if err != nil {
-			return nil, fmt.Errorf("error scanning following: %v", err)
+			return []string{}, fmt.Errorf("error scanning following: %v", err)
 		}
 		followed_name, err := db.GetNameById(followed_id)
 		if err != nil {
@@ -33,7 +33,7 @@ WHERE follower_id =?`
 		followed = append(followed, followed_name)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("error encountered during iteration: %v", err)
+		return []string{}, fmt.Errorf("error encountered during iteration: %v", err)
 	}
 	// successfully retrieved following
 	return followed, nil

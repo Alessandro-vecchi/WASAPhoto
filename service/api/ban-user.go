@@ -12,32 +12,32 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// user b follows user A
-func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+// user B bans user A
+func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
-	// 1. Get user ID of user A from path
-	// The User ID in the path is a string and coincides with the profile we watching
+	// 1. Get ID of the profile of user A from path
+	// The User ID in the path is a string and correspondes with the profile we're watching
 	user_id_A := rt.getPathParameter("user_id", ps)
 	if user_id_A == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// 2. Get user ID of user B from path
-	// It coincides with the user that want to follow
-	user_id_B := rt.getPathParameter("followers_id", ps)
+	// 2. Get ID of user B from path
+	// It coincides with the user that want to ban
+	user_id_B := rt.getPathParameter("ban_id", ps)
 	if user_id_B == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// 3. Check that user is not following himself
+	// 3. Check that user is not banning himself
 	if models.AreTheSame(user_id_A, user_id_B) {
-		// A user can't follow himself
-		ctx.Logger.WithError(database.ErrUserCantFollowHimself).Error("a user can't follow himself ")
+		// A user can't ban himself
+		ctx.Logger.WithError(database.ErrUserCantFollowHimself).Error("a user can't ban himself ")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	// 4. Check if the user B is authenticated
-	// We want to allow only to a logged in user to follow another user,
+	// We want to allow only to a logged in user to ban another user.
 	// Therefore the user_id of the user that want to follow must coincide with the authentication token in the header
 	authtoken := r.Header.Get("authToken")
 	log.Printf("The authentication token in the header is: %v", authtoken)
@@ -51,28 +51,28 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	// 4. Follow user A
-	err = rt.db.FollowUser(user_id_A, user_id_B)
-	if !errors.Is(err, database.ErrFollowerAlreadyPresent) {
-		// user B already follows user A
+	// 4. Ban user A
+	err = rt.db.BanUser(user_id_A, user_id_B)
+	if !errors.Is(err, database.ErrBanAlreadyPresent) {
+		// user B already banned user A
 		w.WriteHeader(http.StatusNoContent)
 		return
 	} else if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
 		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
-		ctx.Logger.WithError(err).Error("database error")
+		ctx.Logger.WithError(err).Error("error in the database")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// 5. The follow is created
+	// 5. The ban is created
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 	// 6. Encode the name
-	_, name_B, err := models.Conversion(user_id_A, user_id_B, rt.db)
+	name_A, _, err := models.Conversion(user_id_A, user_id_B, rt.db)
 	if err != nil {
 		ctx.Logger.WithError(err).Error("error while converting user_id in username")
 		return
 	}
-	_ = json.NewEncoder(w).Encode(name_B)
+	_ = json.NewEncoder(w).Encode(name_A)
 }
