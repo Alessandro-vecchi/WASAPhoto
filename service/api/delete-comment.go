@@ -29,9 +29,7 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	} else if !comment.IsValid() {
-		// Here we validated the fountain structure content (e.g., location coordinates in correct range, etc.), and we
-		// discovered that the fountain data are not valid.
-		// Note: the IsValid() function skips the ID check (see below).
+		// Here we validated the comment structure is valid
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
