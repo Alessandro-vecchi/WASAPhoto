@@ -111,7 +111,7 @@ type AppDatabase interface {
 	// Get the user's profile by username
 	GetUserProfileByUsername(username string) (Profile_db, error)
 	// Update profile of the user
-	UpdateUserProfile(p Profile_db) (Profile_db, error)
+	UpdateUserProfile(updateUsername bool, p Profile_db) (Profile_db, error)
 	// Delete user profile
 	DeleteUserProfile(userID string) error
 

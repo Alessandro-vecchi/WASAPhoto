@@ -1,6 +1,6 @@
 package database
 
-func (db *appdbimpl) UpdateUserProfile(p Profile_db) (Profile_db, error) {
+func (db *appdbimpl) UpdateUserProfile(isPatch bool, p Profile_db) (Profile_db, error) {
 
 	const query = `
 		SELECT username, profilePictureUrl, bio
@@ -14,9 +14,14 @@ func (db *appdbimpl) UpdateUserProfile(p Profile_db) (Profile_db, error) {
 	if err != nil {
 		return Profile_db{}, err
 	}
-	_, err = db.c.Exec(`UPDATE profile SET username = ? WHERE user_id = ?`, p.Username, p.ID)
+	if isPatch {
+		_, err = db.c.Exec(`UPDATE profile SET username = ? WHERE user_id = ?`, p.Username, p.ID)
+	} else {
+		_, err = db.c.Exec(`UPDATE profile SET username = ? AND profilePictureUrl = ? AND bio = ?  WHERE user_id = ?`, p.Username, p.ProfilePictureUrl, p.Bio, p.ID)
 
+	}
 	if err != nil {
+		// if there is an error return old profile
 		return old, err
 	}
 

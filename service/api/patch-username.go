@@ -2,9 +2,8 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
-	"strings"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
@@ -15,9 +14,7 @@ import (
 func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	// The User ID in the path is a string
-	user_id := ps.ByName("user_id")
-	user_id = strings.TrimPrefix(user_id, ":user_id=")
-	fmt.Println(user_id)
+	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -36,11 +33,9 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// The client is not supposed to send us the ID in the body, as the fountain ID is already specified in the path,
-	// and it's immutable. So, here we overwrite the ID in the JSON with the `id` variable (that comes from the URL).
 	name, err := rt.db.GetNameById(user_id)
 	if err != nil {
-		fmt.Println("couldn't get name from id")
+		log.Println("couldn't get name from id")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -51,38 +46,40 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	}
 	var pp models.Profile
 	pp.FromDatabase(userProfile, rt.db)
+
 	oldProfileBytes, err := json.Marshal(&pp)
 	if err != nil {
-		fmt.Println("Error creating json patch", err.Error())
+		log.Println("Error creating json patch", err.Error())
 		return
 	}
-	fmt.Println(`{"op":"replace", "path": "/username", "value": "` + p.Username + `"}`)
+	// fmt.Println(`{"op":"replace", "path": "/username", "value": "` + p.Username + `"}`)
 	patchJSON := []byte(`[{"op":"replace", "path": "/username", "value": "` + p.Username + `"}]`)
-	fmt.Println(patchJSON)
+	// fmt.Println(patchJSON)
 	patch, err := jsonpatch.DecodePatch(patchJSON)
 	if err != nil {
-		fmt.Println("Error Decoding patch json ", err.Error())
+		log.Println("Error Decoding patch json ", err.Error())
 		return
 	}
 	modified, err := patch.Apply(oldProfileBytes)
 	if err != nil {
-		fmt.Println("Error Applying patch json ", err.Error())
+		log.Println("Error Applying patch json ", err.Error())
 		return
 	}
 
 	var jsonProfile models.Profile
-	//fmt.Println("hey", jsonProfile)
 	err = json.Unmarshal(modified, &jsonProfile)
 	if err != nil {
-		fmt.Println("Error unmarshaling patch json ", err.Error())
+		log.Println("Error unmarshaling patch json ", err.Error())
 		return
 	}
 	// updating profile in the database
-	_, err = rt.db.UpdateUserProfile(jsonProfile.ToDatabase())
+	_, err = rt.db.UpdateUserProfile(true, jsonProfile.ToDatabase())
 	if err != nil {
-		fmt.Println("Error UPDATING the database ", err.Error())
+		log.Println("Error UPDATING the database ", err.Error())
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(jsonProfile)
 }

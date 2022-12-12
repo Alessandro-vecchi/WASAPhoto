@@ -46,7 +46,7 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	// The client is not supposed to send us the ID in the body, as the fountain ID is already specified in the path,
 	// and it's immutable. So, here we overwrite the ID in the JSON with the `id` variable (that comes from the URL).
 	p.ID = user_id
-	_, err = rt.db.UpdateUserProfile(p.ToDatabase())
+	_, err = rt.db.UpdateUserProfile(false, p.ToDatabase())
 
 	if errors.Is(err, database.ErrUserNotExists) {
 		w.WriteHeader(http.StatusNotFound)
@@ -56,7 +56,7 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	//w.WriteHeader(http.StatusNoContent)
+	// w.WriteHeader(http.StatusNoContent)
 	// Send the user profile to the user
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
