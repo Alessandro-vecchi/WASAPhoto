@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
@@ -24,8 +23,7 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 	var listPhotos []database.Photo_db
 
 	// The User ID in the path is a string
-	user_id := ps.ByName("user_id")
-	user_id = strings.TrimPrefix(user_id, ":user_id=")
+	user_id := rt.getPathParameter("user_id", ps)
 	fmt.Println(user_id)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)

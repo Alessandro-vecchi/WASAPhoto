@@ -48,6 +48,7 @@ var (
 	ErrLikeAlreadyPut         = errors.New("like already exists")
 	ErrLikeNotPresent         = errors.New("like not present")
 	ErrUserCantLikeHimself    = errors.New("user can't like its own photo")
+	ErrCommentNotExists       = errors.New("comment not exists")
 )
 
 // Represents the information seen in the Profile Page of a user
@@ -142,6 +143,9 @@ type AppDatabase interface {
 
 	// Comment a photo
 	CommentPhoto(photoId string, c Comment_db) (Comment_db, error)
+
+	// Uncomment a photo
+	UncommentPhoto(commentId string) error
 
 	// Follow a user
 	FollowUser(userId string, followerId string) error
@@ -255,10 +259,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 	tableName = "likes"
 	sqlStmt = `CREATE TABLE ` + tableName + `(
 		photo_id TEXT NOT NULL,
-		user_id TEXT NOT NULL,
+		liker_id TEXT NOT NULL,
 		PRIMARY KEY (photo_id, user_id),
 		FOREIGN KEY(photo_id) REFERENCES photo(photo_id),
-		FOREIGN KEY(user_id) REFERENCES profile(user_id)
+		FOREIGN KEY(liker_id) REFERENCES profile(user_id)
 		);`
 
 	err = createTables(tableName, sqlStmt, db)

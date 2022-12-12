@@ -26,7 +26,7 @@ func (db *appdbimpl) GetMyStream(user_id string) ([]Photo_db, error) {
 
 	rows, err := db.c.Query(query, user_id)
 	if err != nil {
-		return nil, fmt.Errorf("error encountered while querying: %v", err)
+		return []Photo_db{}, fmt.Errorf("error encountered while querying: %v", err)
 	}
 	defer func() { _ = rows.Close() }()
 
@@ -35,12 +35,12 @@ func (db *appdbimpl) GetMyStream(user_id string) ([]Photo_db, error) {
 		var photo Photo_db
 		err = rows.Scan(&photo.PhotoId, &photo.Timestamp, &photo.Image, &photo.Caption, &photo.UserId)
 		if err != nil {
-			return nil, err
+			return []Photo_db{}, err
 		}
 		photos = append(photos, photo)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return []Photo_db{}, err
 	}
 	return photos, nil
 }

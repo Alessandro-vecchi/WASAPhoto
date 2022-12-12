@@ -53,7 +53,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	// 3 - chiamare metodo DB
+	// 4. Write comment in the database
 	comment_db, err := rt.db.CommentPhoto(photo_id, comment.ToDatabase(rt.db, photo_id))
 	if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user

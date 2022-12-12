@@ -61,6 +61,9 @@ func (rt *_router) Handler() http.Handler {
 	// Get list of the users that added a like
 	rt.router.GET("/photos/:photo_id/likes/", rt.wrap(rt.getLikes))
 
+	// Get stream of the user
+	rt.router.GET("/users/:user_id/stream/", rt.wrap(rt.getMyStream))
+
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)
 
