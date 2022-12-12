@@ -6,10 +6,9 @@ import (
 	"github.com/Alessandro-vecchi/WASAPhoto/service/database"
 )
 
-var ()
-
 // Attributes of a comment
 type Comment struct {
+	// Id of the comment
 	CommentId string `json:"commentId,omitempty"`
 	// Date and time of creation of the comment following RFC3339
 	Created_in string `json:"created_in,omitempty"`
@@ -21,6 +20,8 @@ type Comment struct {
 	Modified_in string `json:"modified_in,omitempty"`
 	// States if a comment is a reply to another comment or not
 	IsReplyComment bool `json:"isReplyComment,omitempty"`
+	// Id of the parent comment, "" if top-level comment
+	ParentId string `json:"parentId,omitempty"`
 }
 
 func (c *Comment) FromDatabase(comment database.Comment_db, db database.AppDatabase) {
@@ -30,6 +31,7 @@ func (c *Comment) FromDatabase(comment database.Comment_db, db database.AppDatab
 	c.IsReplyComment = comment.IsReplyComment
 	c.Body = comment.Body
 	c.Author, _ = db.GetNameById(comment.UserId)
+	c.ParentId = comment.ParentId
 }
 
 // ToDatabase returns the profile in a database-compatible representation
@@ -43,6 +45,7 @@ func (comment *Comment) ToDatabase(db database.AppDatabase, photo_id string) dat
 		PhotoId:        photo_id,
 		Modified_in:    time.Now().Format(time.RFC3339),
 		IsReplyComment: comment.IsReplyComment,
+		ParentId:       comment.ParentId,
 	}
 }
 

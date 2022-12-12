@@ -221,10 +221,11 @@ components:
           minLength: 20
           maxLength: 25
         is_reply_comment:
-          description: States id the comment is a reply or not
+          description: States if the comment is a reply or not
           type: boolean
           default: false
           example: true
+        parentId: {$ref: "#/components/schemas/CommentID"}
 
     UserID:
       description: |
@@ -310,7 +311,7 @@ paths:
       summary: Find user by username
       description: |
         The profile of an user contains the username, the number of photos it has, the number of follows/followers, a bio and a profile picture.
-      operationId: getUserProfileByName
+      operationId: getUserProfile
       parameters:
         - name: username
           in: query
@@ -331,28 +332,9 @@ paths:
       security:
         - bearerAuth: []
 
-  /users/{userID}:
+  /users/{user_id}:
     parameters:
       - $ref: "#/components/parameters/userID"
-
-    get:
-      tags:
-       - Profile
-      summary:  Get user profile
-      description: >
-        The profile of an user contains the username, the number of photos it has, the number of follows/followers, a bio and a profile picture.
-      operationId: getUserProfile
-      responses: 
-        "200":
-          description: User profile
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Profile"
-        "500": { $ref: "#/components/responses/InternalServerError" }
-      security:
-        - bearerAuth: []
-      
     
     patch:
       tags:
@@ -387,7 +369,7 @@ paths:
         - User
       summary: Delete my profile
       description: This can only be done by the logged in user.
-      operationId: deleteUsername
+      operationId: deleteUserProfile
       responses:
         "204": { description: User deleted successfully }
         "400": { description: Invalid username supplied }
@@ -396,7 +378,7 @@ paths:
       security:
         - bearerAuth: []
   
-  /users/{userID}/follows/:
+  /users/{user_id}/followers/:
     parameters:
       - $ref: "#/components/parameters/userID"
       
@@ -424,7 +406,7 @@ paths:
           - bearerAuth: []
 
 
-  /users/{userID}/follows/{followID}:
+  /users/{user_id}/followers/{follower_id}:
     parameters:
       - $ref: "#/components/parameters/userID"
       - name: followID
@@ -473,7 +455,7 @@ paths:
       security:
         - bearerAuth: []
 
-  /users/{userID}/stream/:
+  /users/{user_id}/stream/:
     parameters:
       - $ref: "#/components/parameters/userID"
 
@@ -503,7 +485,7 @@ paths:
       security:
         - bearerAuth: []
 
-  /users/{userID}/bans/:
+  /users/{user_id}/bans/:
     parameters:
       - $ref: "#/components/parameters/userID"
     
@@ -533,7 +515,7 @@ paths:
       security:
           - bearerAuth: []
 
-  /users/{userID}/bans/{banID}:
+  /users/{user_id}/bans/{ban_id}:
     parameters:
       - $ref: "#/components/parameters/userID"
       - name: banID
@@ -581,7 +563,7 @@ paths:
       security:
         - bearerAuth: []
 
-  /users/{userID}/photos/:
+  /users/{user_id}/photos/:
     parameters:
       - $ref: "#/components/parameters/userID"
     
@@ -591,7 +573,7 @@ paths:
       summary: >
         Retrieve collection of photos
       description: Retrieve collection of photos resources of a certain user
-      operationId: getPhotos
+      operationId: getUserPhotos
       parameters:
         - in: query
           name: sort_by
@@ -656,7 +638,7 @@ paths:
         - bearerAuth: []
         
       
-  /photos/{photoID}:
+  /photos/{photo_id}:
     description: >
       This resource represents an individual photo in the system belonging to the user user-ID.
       Each photo is identified by a numeric `ID`.
@@ -669,7 +651,7 @@ paths:
        - Profile
       summary: Get a photo
       description: Retrieve a single photo
-      operationId: getPhoto
+      operationId: getUserPhoto
       responses: 
         "200":
           description: Photo found
@@ -697,7 +679,7 @@ paths:
       security:
           - bearerAuth: []
   
-  /photos/{photoID}/likes/:
+  /photos/{photo_id}/likes/:
     parameters:
       - $ref: '#/components/parameters/photoID'
     get:
@@ -725,7 +707,7 @@ paths:
         - bearerAuth: []
           
 
-  /photos/{photoID}/likes/{likeID}:
+  /photos/{photo_id}/likes/{like_id}:
     parameters:
       - $ref: "#/components/parameters/photoID"
       - name: likeID
@@ -773,7 +755,7 @@ paths:
       security:
         - bearerAuth: []
       
-  /photos/{photoID}/comments/:
+  /photos/{photo_id}/comments/:
     parameters:
       - $ref: "#/components/parameters/photoID"
       
@@ -827,7 +809,7 @@ paths:
       security:
         - bearerAuth: []
   
-  /photos/{photoID}/comments/{commentID}:
+  /photos/{photo_id}/comments/{comment_id}:
     parameters:
       - $ref: "#/components/parameters/photoID"
       - $ref: "#/components/parameters/commentID"
@@ -838,7 +820,7 @@ paths:
       summary: Modify or reply to a comment
       description: |
         An user can modify its own comment or reply to a comment of another user if the boolean flag is_reply_comment is activated
-      operationId: replyComment
+      operationId: modifyComment
       requestBody:
         content:
           application/json:

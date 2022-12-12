@@ -23,8 +23,6 @@ type Photo struct {
 	// A written description or explanation about a photo to provide more context
 	Caption string `json:"caption,omitempty"`
 
-	UserId string `json:"user_id,omitempty"`
-
 	Username string `json:"username,omitempty"`
 }
 
@@ -35,18 +33,18 @@ func (p *Photo) FromDatabase(photo database.Photo_db, db database.AppDatabase) {
 	p.CommentsCount = db.CountStuffs("photo_id", "comments", p.PhotoId)
 	p.Image = photo.Image
 	p.Caption = photo.Caption
-	p.UserId = photo.UserId
-	p.Username, _ = db.GetNameById(p.UserId)
+	p.Username, _ = db.GetNameById(photo.UserId)
 }
 
 // ToDatabase returns the profile in a database-compatible representation
-func (photo *Photo) ToDatabase() database.Photo_db {
+func (photo *Photo) ToDatabase(db database.AppDatabase) database.Photo_db {
+	id, _ := db.GetIdByName(photo.Username)
 	return database.Photo_db{
 		PhotoId:   photo.PhotoId,
 		Timestamp: photo.Timestamp,
 		Image:     photo.Image,
 		Caption:   photo.Caption,
-		UserId:    photo.UserId,
+		UserId:    id,
 	}
 }
 

@@ -36,27 +36,27 @@ func (rt *_router) Handler() http.Handler {
 	// Retrieve list of comments under a photo
 	rt.router.GET("/photos/:photo_id/comments/", rt.wrap(rt.getPhotoComments))
 	// Modify an own comment
-	rt.router.PUT("/comments/:comments_id", rt.wrap(rt.modifyComment))
+	rt.router.PUT("/comments/:comment_id", rt.wrap(rt.modifyComment))
 	// Delete a comment
-	rt.router.DELETE("/comments/:comments_id", rt.wrap(rt.uncommentPhoto))
+	rt.router.DELETE("/comments/:comment_id", rt.wrap(rt.uncommentPhoto))
 
 	// LIKES
 	// Put a like to a photo
-	rt.router.PUT("/photos/:photo_id/likes/:likes_id", rt.wrap(rt.likePhoto))
+	rt.router.PUT("/photos/:photo_id/likes/:like_id", rt.wrap(rt.likePhoto))
 	// Get list of the users that added a like
 	rt.router.GET("/photos/:photo_id/likes/", rt.wrap(rt.getLikes))
 	// Unlike a photo
-	rt.router.DELETE("/photos/:photo_id/likes/:likes_id", rt.wrap(rt.unlikePhoto))
+	rt.router.DELETE("/photos/:photo_id/likes/:like_id", rt.wrap(rt.unlikePhoto))
 
 	// FOLLOWERS
 	// Follow a user
-	rt.router.PUT("/users/:user_id/followers/:followers_id", rt.wrap(rt.followUser))
+	rt.router.PUT("/users/:user_id/followers/:follower_id", rt.wrap(rt.followUser))
 	// Get list followers
 	rt.router.GET("/users/:user_id/followers/", rt.wrap(rt.getFollowers))
 	// Get list following
 	rt.router.GET("/users/:user_id/following/", rt.wrap(rt.getFollowed))
 	// Unfollow a user
-	rt.router.DELETE("/users/:user_id/followers/:followers_id", rt.wrap(rt.unfollowUser))
+	rt.router.DELETE("/users/:user_id/followers/:follower_id", rt.wrap(rt.unfollowUser))
 
 	// BANS
 	// Ban a user

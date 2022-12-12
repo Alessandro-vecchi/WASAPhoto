@@ -24,7 +24,8 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 	// 2. Get comment from request body
-	// If comment is a reply comment, commentId will contain the id of parent comment.
+	// If comment is a reply comment, parentId will contain the comment id of parent comment.
+	// "" otherwise
 	var comment models.Comment
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	fmt.Println(comment)
@@ -33,8 +34,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	} else if !comment.IsValid() {
-		// Here we validated the fountain structure content (e.g., location coordinates in correct range, etc.), and we
-		// discovered that the fountain data are not valid.
+		// Here we validated the comment structure content
 		// Note: the IsValid() function skips the ID check (see below).
 		w.WriteHeader(http.StatusBadRequest)
 		return

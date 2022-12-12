@@ -96,6 +96,8 @@ type Comment_db struct {
 	Modified_in string
 	// States if a comment is a reply to another comment or not
 	IsReplyComment bool
+	// Id of the parent comment
+	ParentId string
 }
 
 // AppDatabase is the high level interface for the DB
@@ -255,7 +257,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 		photo_id TEXT NOT NULL,
 		modified_in TEXT DEFAULT "" NOT NULL,
 		is_reply_comment INTEGER DEFAULT 0 NOT NULL,
-		parent_id TEXT NULL,
+		parent_id TEXT NOT NULL,
 		FOREIGN KEY(user_id) REFERENCES profile(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
 		FOREIGN KEY(photo_id) REFERENCES photos(photoId) ON UPDATE CASCADE ON DELETE CASCADE);`
 
