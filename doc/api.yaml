@@ -431,6 +431,32 @@ paths:
       security:
           - bearerAuth: []
 
+  /users/{user_id}/following/:
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+        
+      get:
+        tags:
+          - User
+        summary: See followed users
+        description: |
+          List of users that are followed by an user
+        operationId: getFollowing
+        responses:
+          "200":
+            description: List of followed users
+            content:
+              application/json:
+                schema:
+                  description: |
+                    Represents the users that are followed by the profile.
+                    Users can see followed users in batches of 100.
+                  type: array
+                  minItems: 0
+                  maxItems: 100
+                  items: {$ref: '#/components/schemas/UserID'}
+        security:
+            - bearerAuth: []
 
   /users/{user_id}/followers/{follower_id}:
     parameters:
