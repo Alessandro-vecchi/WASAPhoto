@@ -87,19 +87,19 @@ tags:
     
 components:
   parameters:
-    userID:
+    user_id:
       description: User whose profile belongs to. 
       name: userID
       in: path
       required: true
       schema: { $ref: "#/components/schemas/UserID" }
-    photoID:
+    photo_id:
       description: ID of the picture considered
       name: photoID
       in: path
       required: true
       schema: { $ref: "#/components/schemas/PhotoID" }
-    commentID:
+    comment_id:
       description: Unique comment identifier
       name: commentID
       in: path
@@ -334,7 +334,7 @@ paths:
 
   /users/{user_id}:
     parameters:
-      - $ref: "#/components/parameters/userID"
+      - $ref: "#/components/parameters/user_id"
     
     patch:
       tags:
@@ -364,6 +364,32 @@ paths:
       security:
         - bearerAuth: []
     
+    put:
+      tags:
+        - User
+      summary: Update profile
+      description: This can only be done by the logged in user.
+      operationId: updateProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      responses:
+        "200":
+          description: Profile updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        "204":
+          description: No content. Update occured but didn't send back any representation or description.
+        "400": { description: Invalid profile supplied }
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - bearerAuth: []
+
     delete:
       tags:
         - User
@@ -380,7 +406,7 @@ paths:
   
   /users/{user_id}/followers/:
     parameters:
-      - $ref: "#/components/parameters/userID"
+      - $ref: "#/components/parameters/user_id"
       
     get:
       tags:
@@ -408,8 +434,8 @@ paths:
 
   /users/{user_id}/followers/{follower_id}:
     parameters:
-      - $ref: "#/components/parameters/userID"
-      - name: followID
+      - $ref: "#/components/parameters/user_id"
+      - name: follower_id
         in: path
         required: true
         description: User who is following
@@ -457,7 +483,7 @@ paths:
 
   /users/{user_id}/stream/:
     parameters:
-      - $ref: "#/components/parameters/userID"
+      - $ref: "#/components/parameters/user_id"
 
     get:
       tags:
@@ -487,7 +513,7 @@ paths:
 
   /users/{user_id}/bans/:
     parameters:
-      - $ref: "#/components/parameters/userID"
+      - $ref: "#/components/parameters/user_id"
     
     get:
       tags:
@@ -517,8 +543,8 @@ paths:
 
   /users/{user_id}/bans/{ban_id}:
     parameters:
-      - $ref: "#/components/parameters/userID"
-      - name: banID
+      - $ref: "#/components/parameters/user_id"
+      - name: ban_id
         in: path
         required: true
         description: User who is banning
@@ -565,7 +591,7 @@ paths:
 
   /users/{user_id}/photos/:
     parameters:
-      - $ref: "#/components/parameters/userID"
+      - $ref: "#/components/parameters/user_id"
     
     get:
       tags:
@@ -644,7 +670,7 @@ paths:
       Each photo is identified by a numeric `ID`.
       
     parameters:
-      - $ref: "#/components/parameters/photoID"
+      - $ref: "#/components/parameters/photo_id"
       
     get:
       tags:
@@ -681,7 +707,7 @@ paths:
   
   /photos/{photo_id}/likes/:
     parameters:
-      - $ref: '#/components/parameters/photoID'
+      - $ref: '#/components/parameters/photo_id'
     get:
       tags:
         - Likes
@@ -709,8 +735,8 @@ paths:
 
   /photos/{photo_id}/likes/{like_id}:
     parameters:
-      - $ref: "#/components/parameters/photoID"
-      - name: likeID
+      - $ref: "#/components/parameters/photo_id"
+      - name: like_id
         in: path
         required: true
         description: User who is liking the photo
@@ -757,7 +783,7 @@ paths:
       
   /photos/{photo_id}/comments/:
     parameters:
-      - $ref: "#/components/parameters/photoID"
+      - $ref: "#/components/parameters/photo_id"
       
     get:
       tags:
@@ -809,10 +835,9 @@ paths:
       security:
         - bearerAuth: []
   
-  /photos/{photo_id}/comments/{comment_id}:
+  /comments/{comment_id}:
     parameters:
-      - $ref: "#/components/parameters/photoID"
-      - $ref: "#/components/parameters/commentID"
+      - $ref: "#/components/parameters/comment_id"
     
     put:
       tags:
