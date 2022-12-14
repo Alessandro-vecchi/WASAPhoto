@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -15,7 +16,7 @@ func (db *appdbimpl) DoLogin(user_name string) (string, error) {
 		// profile already exists, returning user id of the existing profile
 		// return 200 OK
 		return p.ID, ErrUserExists
-	} else if err == ErrUserNotExists {
+	} else if errors.Is(err, ErrUserNotExists) {
 		// user does not exist, creating a new username
 		u4, err := uuid.NewV4()
 		if err != nil {

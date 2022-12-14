@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
@@ -24,7 +23,7 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	if r.URL.Query().Has("latitude") && r.URL.Query().Has("longitude") {
-		fmt.Println("hi")
+		w.WriteHeader(http.StatusOK)
 	} else {
 		// Request an unfiltered list of photos from the DB
 		listPhotos, err = rt.db.GetListUserPhotos(user_id)

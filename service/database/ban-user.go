@@ -15,7 +15,7 @@ func (db *appdbimpl) BanUser(banned_user string, banner_user string) error {
 		WHERE banner_id = ? AND banned_id = ?`
 
 	err := db.c.QueryRow(query, banner_user, banned_user).Scan()
-	fmt.Println(err)
+
 	if !errors.Is(err, sql.ErrNoRows) {
 		// user B already follows user A
 		return ErrBanAlreadyPresent

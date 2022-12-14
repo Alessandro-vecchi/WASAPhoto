@@ -15,7 +15,7 @@ FROM follow
 WHERE follower_id = ? AND followed_id = ?`
 
 	err := db.c.QueryRow(query, userId_A, followerId_B).Scan()
-	fmt.Println(err)
+
 	if !errors.Is(err, sql.ErrNoRows) {
 		// user B already follows user A
 		return ErrFollowerAlreadyPresent
