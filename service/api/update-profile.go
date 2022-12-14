@@ -19,14 +19,14 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// 2.. Check if the user is authenticated
+	// 2. Check if the user is authenticated
 	// We want to allow only to logged users in their own profile to modify the profile.
 	// Therefore the authentication token in the header should coincides with the id of the profile
 	authtoken := r.Header.Get("authToken")
 	log.Printf("The authentication token in the header is: %v", authtoken)
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -48,10 +48,7 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	p.ID = user_id
 	_, err = rt.db.UpdateUserProfile(false, p.ToDatabase())
 
-	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	} else if err != nil {
+	if err != nil {
 		ctx.Logger.WithError(err).WithField("user_id", user_id).Error("Can't update user profile")
 		w.WriteHeader(http.StatusInternalServerError)
 		return

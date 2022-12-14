@@ -3,9 +3,8 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"log"
 	"net/http"
-	"strings"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
@@ -13,18 +12,16 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// enrollNewUser enrolls a new student in the system, and provides the public key.
+// Get a single photo
 func (rt *_router) getUserPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	// The User ID in the path is a string
-	photo_id := ps.ByName("photo_id")
-	photo_id = strings.TrimPrefix(photo_id, ":photo_id=")
+	photo_id := rt.getPathParameter("photo_id", ps)
 	if photo_id == "" {
-		fmt.Println("there was no photo_id in the URL")
+		log.Println("invalid photo_id in the URL")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	photo, err := rt.db.GetUserPhoto(photo_id)
 	if errors.Is(err, database.ErrPhotoNotExists) {
 		// The photo (indicated by `id`) does not exist, reject the action indicating an error on the client side.
@@ -37,15 +34,15 @@ func (rt *_router) getUserPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// Send the user profile to the user
 	w.Header().Set("Content-Type", "application/json")
-	// translating from database to api
+	// Translating from database to api
 	var p models.Photo
 	p.FromDatabase(photo, rt.db)
 	// checking that the profile is valid
 	if p.IsValid() {
+		// Send the user profile to the user
+		w.WriteHeader(http.StatusOK)
 		_ = json.NewEncoder(w).Encode(p)
-		fmt.Println(p)
 	}
 
 }

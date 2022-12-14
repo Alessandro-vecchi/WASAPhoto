@@ -2,7 +2,7 @@ package api
 
 import (
 	"errors"
-	"fmt"
+	"log"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/database"
 )
@@ -15,7 +15,7 @@ func checkUserIdentity(authtoken string, user_id string, db database.AppDatabase
 	}
 	// user exists in the database
 	if authtoken != user_id {
-		fmt.Printf("authtoken %v doesn't match user_id %v: Unauthorized", authtoken, user_id)
+		log.Printf("authtoken %v doesn't match user_id %v: Unauthorized", authtoken, user_id)
 		return database.ErrAuthenticationFailed
 	}
 	return nil

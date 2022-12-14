@@ -18,7 +18,6 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 
 	// 1. Retrieve ID of the user profile from the path
 	user_id := rt.getPathParameter("user_id", ps)
-	fmt.Println(user_id)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -42,7 +41,6 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 		var m models.Photo
 		m.FromDatabase(element, rt.db)
 
-		fmt.Println(m.Username)
 		listPhotosAPI = append(listPhotosAPI, m)
 	}
 	// Send the list to the user.

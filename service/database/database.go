@@ -207,7 +207,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}
 
 	tableName = "follow"
-	sqlStmt = `CREATE TABLE ` + tableName + `(
+	sqlStmt = `CREATE TABLE ` + tableName + ` (
 		follower_id TEXT NOT NULL,
 		followed_id TEXT NOT NULL,
 		PRIMARY KEY (follower_id, followed_id),
@@ -220,7 +220,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}
 
 	tableName = "ban"
-	sqlStmt = `CREATE TABLE ` + tableName + `(
+	sqlStmt = `CREATE TABLE ` + tableName + ` (
 		banner_id TEXT NOT NULL,
 		banned_id TEXT NOT NULL,
 		PRIMARY KEY (banner_id, banned_id),
@@ -267,10 +267,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}
 
 	tableName = "likes"
-	sqlStmt = `CREATE TABLE ` + tableName + `(
+	sqlStmt = `CREATE TABLE ` + tableName + ` (
 		photo_id TEXT NOT NULL,
 		liker_id TEXT NOT NULL,
-		PRIMARY KEY (photo_id, user_id),
+		PRIMARY KEY (photo_id, liker_id),
 		FOREIGN KEY(photo_id) REFERENCES photo(photo_id) ON UPDATE CASCADE ON DELETE CASCADE,
 		FOREIGN KEY(liker_id) REFERENCES profile(user_id) ON UPDATE CASCADE ON DELETE CASCADE);`
 

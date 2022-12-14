@@ -11,8 +11,7 @@ func (db *appdbimpl) GetListUserPhotos(user_id string) ([]Photo_db, error) {
 	var photos []Photo_db
 
 	// Issue the query, using the user_id as filter
-	rows, err := db.c.Query(query,
-		user_id)
+	rows, err := db.c.Query(query, user_id)
 	if err != nil {
 		return []Photo_db{}, err
 	}

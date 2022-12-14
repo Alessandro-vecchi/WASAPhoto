@@ -34,14 +34,23 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	log.Printf("The authentication token in the header is: %v", authtoken)
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.WithError(database.ErrUserNotExists).Error("the user doesn't exist")
+		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	// 4. Check that the user is not putting like to an own photo
-	if models.IsLikingHimself(photo_id, user_id, rt.db) {
+	// 4. Check that the user is not putting like to an own photo, if the photo exists.
+	flag, err := models.IsLikingHimself(photo_id, user_id, rt.db)
+	if errors.Is(err, database.ErrPhotoNotExists) {
+		ctx.Logger.WithError(database.ErrPhotoNotExists).Error("the photo doesn't exist")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	} else if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	} else if flag {
 		ctx.Logger.WithError(database.ErrUserCantLikeHimself).Error("like not possible ")
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -50,10 +59,10 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	// 5. Add a like to the database if it's not present,
 	// 	  otherwise don't do anything
 	err = rt.db.LikePhoto(photo_id, user_id)
-	if errors.Is(err, database.ErrPhotoNotExists) {
-		// The photo (indicated by `id`) does not exist, reject the action indicating an error on the client side.
-		// 404 Not Found
-		w.WriteHeader(http.StatusNotFound)
+	if errors.Is(err, database.ErrLikeAlreadyPut) {
+		// The like already exists.
+		// 204 No Content for idempotency.
+		w.WriteHeader(http.StatusNoContent)
 		return
 	} else if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user

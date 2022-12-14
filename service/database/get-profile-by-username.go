@@ -14,12 +14,11 @@ WHERE username = ?`
 	userPage, err := db.c.Query(query, username)
 	if err != nil {
 
-		return Profile_db{}, err
+		return Profile_db{}, fmt.Errorf("error while querying the profile: %w", err)
 	}
 	// why not defer userPage.Close()
 	defer func() { _ = userPage.Close() }()
 
-	//fmt.Println(userPage.Err())
 	res := userPage.Next()
 	if !res {
 		return Profile_db{}, ErrUserNotExists

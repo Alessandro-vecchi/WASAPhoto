@@ -21,6 +21,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	// 2. Check if the user is authenticated
 	// We want to allow only to the owner of the profile to upload photo,
 	// Therefore the user_id must coincides with the authentication token in the header
@@ -62,7 +63,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	media.FromDatabase(media_db, rt.db)
-
+	// fmt.Println(media.LikesCount, media.Timestamp)
 	// 5. Set the content type as application/json and encode the media written
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(media)

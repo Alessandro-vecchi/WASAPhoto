@@ -16,7 +16,7 @@ var (
 type Profile struct {
 
 	// ID of the user
-	ID string `json:"userID"`
+	ID string `json:"user_id"`
 	// Name of the user
 	Username string `json:"username"`
 	// Number of photos in the profile of the user
@@ -63,8 +63,6 @@ func (profile *Profile) ToDatabase() database.Profile_db {
 // status should be either FountainStatusGood or FountainStatusFaulty. Note that the ID is not checked, as fountains
 // read from requests have zero IDs as the user won't send us the ID in that way.
 func (p *Profile) IsValid() bool {
-	//fmt.Println(p.ID, len(p.ID) >= 1, len(p.ID) <= 32, usernameRx.MatchString(p.ID), len(p.Username) >= 3, len(p.Username) <= 16, usernameRx.MatchString(p.Username), len(*p.ProfilePictureUrl) <= 150, ppURLRx.MatchString(*p.ProfilePictureUrl), len(*p.Bio) <= 150, bioRx.MatchString(*p.Bio))
-	//len(p.ID) >= 1 && len(p.ID) <= 32 && usernameRx.MatchString(p.ID) &&
 	return len(p.Username) >= 3 && len(p.Username) <= 16 && usernameRx.MatchString(p.Username) &&
 		len(p.ProfilePictureUrl) <= 150 && ppURLRx.MatchString(p.ProfilePictureUrl) &&
 		len(p.Bio) <= 150 && bioRx.MatchString(p.Bio)

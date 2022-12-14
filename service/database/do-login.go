@@ -13,7 +13,8 @@ func (db *appdbimpl) DoLogin(user_name string) (string, error) {
 
 	if err == nil {
 		// profile already exists, returning user id of the existing profile
-		return p.ID, nil
+		// return 200 OK
+		return p.ID, ErrUserExists
 	} else if err == ErrUserNotExists {
 		// user does not exist, creating a new username
 		u4, err := uuid.NewV4()
@@ -23,10 +24,11 @@ func (db *appdbimpl) DoLogin(user_name string) (string, error) {
 		log.Printf("generated Version 4 UUID: %v", u4)
 		uid := u4.String()
 		_, err = db.c.Exec(`INSERT INTO profile (user_id, username) VALUES (?,?)`, uid, user_name)
-		fmt.Println(err)
+
 		if err != nil {
 			return "", fmt.Errorf("userID could not be created: %w", err)
 		}
+		// return 201 created
 		return uid, nil
 	}
 	// scan error

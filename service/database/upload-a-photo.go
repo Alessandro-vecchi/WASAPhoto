@@ -18,8 +18,7 @@ func (db *appdbimpl) UploadPhoto(userId string, p Photo_db) (Photo_db, error) {
 	log.Printf("generated Version 4 UUID: %v", rawPhotoId)
 	photoId := rawPhotoId.String()
 	p.Timestamp = time.Now().Format(time.RFC3339)
-	fmt.Println(p.Timestamp)
-	_, err = db.c.Exec(`INSERT INTO photos (user_id, photo_id, timestamp, likesCount, commentsCount, caption, image) VALUES (?,?,?,?,?,?,?)`, userId, photoId, p.Timestamp, 0, 0, p.Caption, p.Image)
+	_, err = db.c.Exec(`INSERT INTO photos (user_id, photo_id, timestamp, caption, image) VALUES (?,?,?,?,?)`, userId, photoId, p.Timestamp, p.Caption, p.Image)
 	if err != nil {
 		return Photo_db{}, fmt.Errorf("photo could not be created: %w", err)
 	}

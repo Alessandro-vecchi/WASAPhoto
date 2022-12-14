@@ -89,19 +89,19 @@ components:
   parameters:
     user_id:
       description: User whose profile belongs to. 
-      name: userID
+      name: user_id
       in: path
       required: true
       schema: { $ref: "#/components/schemas/UserID" }
     photo_id:
       description: ID of the picture considered
-      name: photoID
+      name: photo_id
       in: path
       required: true
       schema: { $ref: "#/components/schemas/PhotoID" }
     comment_id:
       description: Unique comment identifier
-      name: commentID
+      name: comment_id
       in: path
       schema: { $ref: "#/components/schemas/CommentID" }
       required: true
@@ -296,12 +296,20 @@ paths:
                 $ref: '#/components/schemas/Username'
         required: true
       responses:
-        '201':
-          description: User log-in action successful
+        '200':
+          description: User already existed. Returning user ID present in the database.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserID'
+        '201':
+          description: User created. Log-in action successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserID'
+        '400': {description: Bad request. Invalid username or not parseable JSON}
+        '500': {$ref: "#/components/responses/InternalServerError" }
   
   
   /users/:
@@ -329,6 +337,7 @@ paths:
                   $ref: '#/components/schemas/Profile'
         "400": { description: Invalid username supplied }
         "404": { description: User not found }
+        "500": { $ref: "#/components/responses/InternalServerError" }
       security:
         - bearerAuth: []
 
@@ -357,10 +366,8 @@ paths:
         "204":
           description: No content. Update occured but didn't send back any representation or description.
         "400": { description: Invalid username supplied }
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        "409":
-          description: Conflict. Inserting an old username.
+        "401": {$ref: '#/components/responses/UnauthorizedError'}
+        "500": { $ref: "#/components/responses/InternalServerError" }
       security:
         - bearerAuth: []
     

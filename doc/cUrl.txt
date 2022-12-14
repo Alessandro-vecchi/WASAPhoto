@@ -26,3 +26,8 @@ GetFollowers
 curl -X GET "http://localhost:3001/users/:user_id=3587230e-17cc-48da-b930-6738465261f5/followers/"
 GetFollowed
 curl -X GET "http://localhost:3001/users/:user_id=8f3549a7-4d62-416c-9755-0fa01b17f2cd/following/"
+
+miss-selfie03
+paola_blackeye68
+alevecchi
+enzovecchi

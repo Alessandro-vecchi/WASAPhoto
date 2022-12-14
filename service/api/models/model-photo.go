@@ -15,9 +15,9 @@ type Photo struct {
 	// Date and time of creation following RFC3339
 	Timestamp string `json:"timestamp,omitempty"`
 	// Number of likes
-	LikesCount uint32 `json:"likes_count,omitempty"`
+	LikesCount uint32 `json:"likes_count"`
 	// Number of comments
-	CommentsCount uint32 `json:"comments_count,omitempty"`
+	CommentsCount uint32 `json:"comments_count"`
 	// URL of the image just uploaded. | Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
 	Image string `json:"image,omitempty"`
 	// A written description or explanation about a photo to provide more context

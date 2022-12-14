@@ -2,25 +2,40 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
+	"github.com/Alessandro-vecchi/WASAPhoto/service/database"
 	jsonpatch "github.com/evanphx/json-patch/v5"
 	"github.com/julienschmidt/httprouter"
 )
 
 func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
-	// The User ID in the path is a string
+	// 1. Get ID of the user that want to change name
 	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// read new username from request body
-	// var username string
+	// 2. Check if the user is authenticated
+	// We want to allow only to the owner of the profile to upload photo,
+	// Therefore the user_id must coincides with the authentication token in the header
+	authtoken := r.Header.Get("authToken")
+	log.Printf("The authentication token in the header is: %v", authtoken)
+
+	err := checkUserIdentity(authtoken, user_id, rt.db)
+	if errors.Is(err, database.ErrUserNotExists) {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	// 3. Read new username from request body
 	var p models.Profile
 	p.ID = user_id
 
@@ -72,14 +87,15 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		log.Println("Error unmarshaling patch json ", err.Error())
 		return
 	}
-	// updating profile in the database
+	// Updating profile in the database
 	_, err = rt.db.UpdateUserProfile(true, jsonProfile.ToDatabase())
 	if err != nil {
 		log.Println("Error UPDATING the database ", err.Error())
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
+	// Send updated username in response
+	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(jsonProfile)
 }

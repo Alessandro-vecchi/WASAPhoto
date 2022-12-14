@@ -38,8 +38,16 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	// 4. Check that the user is not deleting a like to an own photo
-	if models.IsLikingHimself(photo_id, user_id, rt.db) {
+	// 4. Check that the user is not putting like to an own photo, if the photo exists.
+	flag, err := models.IsLikingHimself(photo_id, user_id, rt.db)
+	if errors.Is(err, database.ErrPhotoNotExists) {
+		ctx.Logger.WithError(database.ErrPhotoNotExists).Error("the photo doesn't exist")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	} else if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	} else if flag {
 		ctx.Logger.WithError(database.ErrUserCantLikeHimself).Error("like not possible ")
 		w.WriteHeader(http.StatusBadRequest)
 		return
