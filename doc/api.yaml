@@ -871,7 +871,7 @@ paths:
   /comments/{comment_id}:
     parameters:
       - $ref: "#/components/parameters/comment_id"
-    
+
     put:
       tags:
         - Comments

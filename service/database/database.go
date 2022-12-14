@@ -131,6 +131,8 @@ type AppDatabase interface {
 	CommentPhoto(photoId string, c Comment_db) (Comment_db, error)
 	// Get list of comments
 	GetComments(photoId string) ([]Comment_db, error)
+	// Get single comment
+	GetSingleComment(commentId string) (Comment_db, error)
 	// Modify a comment
 	ModifyComment(c Comment_db) (Comment_db, error)
 	// Uncomment a photo
@@ -248,7 +250,6 @@ func New(db *sql.DB) (AppDatabase, error) {
 	tableName = "comments"
 	// SQLite does not have a separate Boolean storage class.
 	// Instead, Boolean values are stored as integers 0 (false) and 1 (true).
-
 	sqlStmt = `CREATE TABLE comments (
 		user_id TEXT NOT NULL,
 		comment_id TEXT NOT NULL PRIMARY KEY,
@@ -257,7 +258,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 		photo_id TEXT NOT NULL,
 		modified_in TEXT DEFAULT "" NOT NULL,
 		is_reply_comment INTEGER DEFAULT 0 NOT NULL,
-		parent_id TEXT NOT NULL,
+		parent_id TEXT DEFAULT "" NOT NULL,
 		FOREIGN KEY(user_id) REFERENCES profile(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
 		FOREIGN KEY(photo_id) REFERENCES photos(photoId) ON UPDATE CASCADE ON DELETE CASCADE);`
 

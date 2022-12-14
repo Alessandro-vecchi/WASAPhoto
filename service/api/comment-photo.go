@@ -23,7 +23,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 	// 2. Get comment from request body
-	// If comment is a reply comment, parentId will contain the comment id of parent comment.
+	// If comment is a reply comment, parentId will contain the comment id of parent comment;
 	// "" otherwise
 	var comment models.Comment
 	err := json.NewDecoder(r.Body).Decode(&comment)
@@ -45,7 +45,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	id, _ := rt.db.GetIdByName(comment.Author)
 	err = checkUserIdentity(authtoken, id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
 		w.WriteHeader(http.StatusUnauthorized)

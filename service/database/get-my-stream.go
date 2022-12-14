@@ -26,7 +26,7 @@ func (db *appdbimpl) GetMyStream(user_id string) ([]Photo_db, error) {
 
 	rows, err := db.c.Query(query, user_id)
 	if err != nil {
-		return []Photo_db{}, fmt.Errorf("error encountered while querying: %v", err)
+		return []Photo_db{}, fmt.Errorf("error encountered while querying: %w", err)
 	}
 	defer func() { _ = rows.Close() }()
 

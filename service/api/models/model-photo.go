@@ -22,7 +22,7 @@ type Photo struct {
 	Image string `json:"image,omitempty"`
 	// A written description or explanation about a photo to provide more context
 	Caption string `json:"caption,omitempty"`
-
+	// Username of the user
 	Username string `json:"username,omitempty"`
 }
 

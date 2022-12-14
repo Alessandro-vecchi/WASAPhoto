@@ -28,7 +28,7 @@ func (c *Comment) FromDatabase(comment database.Comment_db, db database.AppDatab
 	c.CommentId = comment.CommentId
 	c.Created_in = comment.Created_in
 	c.Modified_in = comment.Modified_in
-	c.IsReplyComment = comment.IsReplyComment
+	c.IsReplyComment = bool(comment.IsReplyComment)
 	c.Body = comment.Body
 	c.Author, _ = db.GetNameById(comment.UserId)
 	c.ParentId = comment.ParentId

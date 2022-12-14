@@ -1,12 +1,10 @@
 package api
 
 import (
-	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
 
-	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/database"
 	"github.com/julienschmidt/httprouter"
@@ -19,25 +17,19 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// 2. Get comment from request body
-	var comment models.Comment
-	err := json.NewDecoder(r.Body).Decode(&comment)
-	if err != nil {
-		// The body was not a parseable JSON, reject it
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	} else if !comment.IsValid() {
-		// Here we validated the comment structure is valid
-		w.WriteHeader(http.StatusBadRequest)
+	// 2. Check if the comment exists.
+	comment_db, err := rt.db.GetSingleComment(comment_id)
+	if errors.Is(err, database.ErrCommentNotExists) {
+		log.Println(err)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	// 3. Check if user who want to delete comment is the same who wrote it.
 	authtoken := r.Header.Get("authToken")
 	log.Printf("The authentication token in the header is: %v", authtoken)
-	id, _ := rt.db.GetIdByName(comment.Author)
-	err = checkUserIdentity(authtoken, id, rt.db)
+	err = checkUserIdentity(authtoken, comment_db.UserId, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
 		w.WriteHeader(http.StatusUnauthorized)

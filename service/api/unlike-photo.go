@@ -56,8 +56,9 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// 5. Remove a like from the database if it's present,
 	// 	  otherwise don't do anything
 	err = rt.db.UnlikePhoto(photo_id, user_id)
-	if errors.Is(err, database.ErrPhotoNotExists) {
+	if errors.Is(err, database.ErrLikeNotPresent) {
 		// The photo (indicated by `id`) does not exist, reject the action indicating an error on the client side.
+		ctx.Logger.WithError(database.ErrLikeNotPresent).Error("like already not present")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {
@@ -65,7 +66,7 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
 		// Note (2): we are adding the error and an additional field (`id`) to the log entry, so that we will receive
 		// the identifier of the photo that triggered the error.
-		ctx.Logger.WithError(err).WithField("id", photo_id).Error("can't unlike photo")
+		ctx.Logger.WithError(err).WithField("id", photo_id).Error("database error. Can't unlike photo")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
