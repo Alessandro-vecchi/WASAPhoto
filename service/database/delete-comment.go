@@ -6,7 +6,7 @@ func (db *appdbimpl) UncommentPhoto(commentId string) error {
 	res, err := db.c.Exec("DELETE FROM comments WHERE comment_id =?", commentId)
 	if err != nil {
 		// error deleting the photo
-		return fmt.Errorf("error deleting the comment: %v", err)
+		return fmt.Errorf("error deleting the comment: %w", err)
 	}
 
 	affected, err := res.RowsAffected()

@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -23,7 +22,6 @@ func (rt *_router) modifyComment(w http.ResponseWriter, r *http.Request, ps http
 	// 2. Get comment from request body (comment body, author name)
 	var comment models.Comment
 	err := json.NewDecoder(r.Body).Decode(&comment)
-	fmt.Println(comment)
 	if err != nil {
 		// The body was not a parseable JSON, reject it
 		w.WriteHeader(http.StatusBadRequest)
