@@ -29,14 +29,8 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// 3. Check that user is not following himself
-	if models.AreTheSame(user_id_A, user_id_B) {
-		// A user can't follow himself
-		ctx.Logger.WithError(database.ErrUserCantFollowHimself).Error("a user can't follow himself ")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	// 4. Check if the user B is authenticated
+
+	// 3. Check if the user B is authenticated
 	// We want to allow only to a logged in user to follow another user,
 	// Therefore the user_id of the user that want to follow must coincide with the authentication token in the header
 	authtoken := r.Header.Get("authToken")
@@ -50,8 +44,30 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+	// 4. Check that user is not following himself
+	if models.AreTheSame(user_id_A, user_id_B) {
+		// A user can't follow himself
+		ctx.Logger.WithError(database.ErrUserCantFollowHimself).Error("a user can't follow himself ")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	// 5 - getting users being banned from user A
+	banned, err := rt.db.GetBannedUsers(user_id_A)
+	if err != nil {
+		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
+		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
+		ctx.Logger.WithError(err).Error("can't list banned users")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	// check if logged user has been banned by requested user profile
+	if contains(banned, user_id_B) {
+		ctx.Logger.Error("error: user could not follow the user because it's been banned")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 
-	// 4. Follow user A
+	// 6. Follow user A
 	err = rt.db.FollowUser(user_id_A, user_id_B)
 	if !errors.Is(err, database.ErrFollowerAlreadyPresent) {
 		// user B already follows user A
@@ -65,10 +81,10 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	// 5. The follow is created
+	// 7. The follow is created
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
-	// 6. Encode the name
+	// 8. Encode the name
 	_, name_B, err := models.Conversion(user_id_A, user_id_B, rt.db)
 	if err != nil {
 		ctx.Logger.WithError(err).Error("error while converting user_id in username")

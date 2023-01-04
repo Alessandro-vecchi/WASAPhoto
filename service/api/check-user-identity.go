@@ -21,3 +21,12 @@ func checkUserIdentity(authtoken string, user_id string, db database.AppDatabase
 	return nil
 
 }
+
+func contains(list []string, filter string) bool {
+	for _, item := range list {
+		if item == filter {
+			return true
+		}
+	}
+	return false
+}

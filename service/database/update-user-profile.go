@@ -17,6 +17,9 @@ func (db *appdbimpl) UpdateUserProfile(isPatch bool, p Profile_db) (Profile_db, 
 	if isPatch {
 		_, err = db.c.Exec(`UPDATE profile SET username = ? WHERE user_id = ?`, p.Username, p.ID)
 	} else {
+		if p.Username == "" {
+			p.Username = old.Username
+		}
 		_, err = db.c.Exec(`UPDATE profile SET username = ?, profilePictureUrl = ?, bio = ?  WHERE user_id = ?;`, p.Username, p.ProfilePictureUrl, p.Bio, p.ID)
 
 	}

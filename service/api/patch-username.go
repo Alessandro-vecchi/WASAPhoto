@@ -43,6 +43,11 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		// The body was not a parseable JSON object, reject it
 		w.WriteHeader(http.StatusBadRequest)
 		return
+	} else if rt.db.CountStuffs("username", "profile", p.Username) > 0 {
+		// User Already Exists
+		ctx.Logger.WithError(err).WithField("username", p.Username).Error("Cannot use username that already exists")
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	} else if !p.IsValid() {
 		// Profile data is invalid
 		w.WriteHeader(http.StatusBadRequest)

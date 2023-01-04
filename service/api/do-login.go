@@ -24,6 +24,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	} else if !username.IsValid() {
 		// Checking if the username match its regex
 		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.WithError(err).Error("invalid characters in username")
 		return
 	}
 

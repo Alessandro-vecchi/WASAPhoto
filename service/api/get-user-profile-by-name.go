@@ -27,7 +27,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if errors.Is(err, database.ErrUserExists) {
+	if errors.Is(err, database.ErrUserNotExists) {
 		// User not found in the database
 		w.WriteHeader(http.StatusNotFound)
 		return

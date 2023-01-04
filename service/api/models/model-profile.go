@@ -63,7 +63,7 @@ func (profile *Profile) ToDatabase() database.Profile_db {
 // status should be either FountainStatusGood or FountainStatusFaulty. Note that the ID is not checked, as fountains
 // read from requests have zero IDs as the user won't send us the ID in that way.
 func (p *Profile) IsValid() bool {
-	return len(p.Username) >= 3 && len(p.Username) <= 16 && usernameRx.MatchString(p.Username) &&
+	return ((len(p.Username) >= 3 && len(p.Username) <= 16 && usernameRx.MatchString(p.Username)) || p.Username == "") &&
 		len(p.ProfilePictureUrl) <= 150 && ppURLRx.MatchString(p.ProfilePictureUrl) &&
 		len(p.Bio) <= 150 && bioRx.MatchString(p.Bio)
 
