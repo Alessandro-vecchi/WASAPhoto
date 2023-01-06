@@ -1,0 +1,42 @@
+:root {
+    --background-color: rgb(6, 12, 24);
+    --border-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  a {
+    font-family: "Rubik", sans-serif;
+    font-weight: 400;
+    color: white;
+    text-decoration: none;
+  }
+  
+  nav {
+    background-color: var(--background-color);
+    display: flex;
+    flex-direction: row;
+    width: 50vh;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    position: fixed;
+    bottom: 0;
+    left: 33%;
+  }
+  
+  nav > .nav-section {
+    padding: 3rem 2rem;
+    display: flex;
+    gap: 1rem;
+    border-left: 1px solid var(--border-color);
+    justify-content: center;
+  }
+  
+  #nav-home-section,
+  #nav-search-section,
+  #nav-profile-section {
+    flex-basis: calc(100% / 3);
+  }
+  
+  font-awesome-icon {
+    text-decoration: none;
+    color: white;
+  }
