@@ -1,6 +1,8 @@
 <script>
+import Search from "./SearchView.vue"
 export default {
-	data: function() {
+
+	data: function () {
 		return {
 			errormsg: null,
 			loading: false,
@@ -22,6 +24,17 @@ export default {
 			}
 			this.loading = false;
 		},
+		rect() {
+			//const s = document.getElementById('nav-search-section');
+
+			//s.addEventListener('click', toggleActive);
+
+			//function toggleActive() {
+				const rectangle = document.querySelector('.rectangle');
+				rectangle.classList.toggle('active')
+			
+		}
+
 	},
 	mounted() {
 		this.refresh()
@@ -30,62 +43,133 @@ export default {
 </script>
 
 <template>
-  <nav>
-    
-    <div id="nav-home-section" class="nav-section">
-      <router-link to="/stream/"><font-awesome-icon icon="fa-solid fa-house" inverse/></router-link>
-      <router-link to="/stream/">Home</router-link>
-    </div>
-    <div id="nav-search-section" class="nav-section">
-      <router-link to="#" role="link"><font-awesome-icon icon="fa-solid fa-magnifying-glass" inverse/></router-link>
-    </div>
-    <div id="nav-profile-section" class="nav-section">
-      <!-- profile picture-->
-    </div>
-  </nav>
+	<nav>
+		<div class="nav-wrapper">
+
+			<div id="nav-home-section" class="nav-section">
+				<router-link to="/stream/"><font-awesome-icon icon="fa-solid fa-house" size="xl" inverse /></router-link>
+				<router-link to="/stream/" class="font-style">Home</router-link>
+			</div>
+			<div id="nav-search-section" class="nav-section" @click="rect">
+				<font-awesome-icon icon="fa-solid fa-magnifying-glass" size="xl" inverse />
+			</div>
+			<div id="nav-profile-section" class="nav-section">
+				<!-- profile picture-->
+				<router-link to="/users/:username" role="link"><font-awesome-icon class="user-icon"
+						icon="fa-solid fa-user" size="xl" inverse /></router-link>
+			</div>
+		</div>
+		<div class="rectangle">
+			<p class="title">Search</p>
+			<div class="input-wrapper">
+				<font-awesome-icon icon="fa-solid fa-magnifying-glass" inverse />
+				<input class="search" type="text" placeholder="Search" />
+				<font-awesome-icon icon="fa-solid fa-xmark" />
+			</div>
+		</div>
+	</nav>
 </template>
 
 <style>
 :root {
-    --background-color: rgb(6, 12, 24);
-    --border-color: rgba(255, 255, 255, 0.2);
-  }
-  
-  a {
+	--background-color: rgb(6, 12, 24);
+	--border-color: rgba(255, 255, 255, 0.2);
+}
+
+.font-style {
+	font-size: 1.5em;
+    font-family: "Rubik", sans-serif;
+	font-weight: 400;
+	color: white;
+	text-decoration: none;
+}
+
+.nav-wrapper {
+	background-color: var(--background-color);
+	display: flex;
+	flex-direction: row;
+	width: 25vw;
+	border: 1px solid var(--border-color);
+	overflow: hidden;
+	position: fixed;
+	bottom: 0;
+	left: 33%;
+}
+
+.nav-wrapper>.nav-section {
+	padding: 3rem 2rem;
+	display: flex;
+	gap: 1rem;
+	border-left: 1px solid var(--border-color);
+	justify-content: center;
+}
+
+#nav-home-section,
+#nav-search-section,
+#nav-profile-section {
+	flex-basis: calc(100% / 3);
+}
+
+font-awesome-icon {
+	text-decoration: none;
+	color: white;
+}
+
+.rectangle {
+	background-color: rgb(10, 12, 24);
+	width: 25vw;
+	height: 17vh;
+	position: absolute;
+	bottom: -5vh;
+	left: 33%;
+	border-radius: 10px 10px 0 0;
+	transition-duration: 4s;
+	transition: transform 2s ease-in-out;
+	z-index: -1;
+}
+
+
+.rectangle.active {
+	bottom: calc(12vh);
+	transition: transform 2s ease-in-out;
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgb(100, 100, 100);
+	width: 75%;
+	height: 40px;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    color: white;
+    box-shadow: 0.25rem 0.25rem 0rem rgb(189, 189, 189);
+	position: absolute;
+	left: 6%;
+	top: 50%;
+	
+}
+
+.search {
+    margin: 0 0.5rem 0 0.5rem;
+    width: 100%;
+	height: 20px;
+    padding: 0.5rem;
+    border: none;
+    outline: none;
+    background: rgb(34, 34, 34);
+    color: white;
+	font-size: 1.5rem;
+}
+.title {
+	font-size: 1.8em;
     font-family: "Rubik", sans-serif;
     font-weight: 400;
     color: white;
-    text-decoration: none;
-  }
-  
-  nav {
-    background-color: var(--background-color);
-    display: flex;
-    flex-direction: row;
-    width: 50vh;
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-    position: fixed;
-    bottom: 0;
-    left: 33%;
-  }
-  
-  nav > .nav-section {
-    padding: 3rem 2rem;
-    display: flex;
-    gap: 1rem;
-    border-left: 1px solid var(--border-color);
-    justify-content: center;
-  }
-  
-  #nav-home-section,
-  #nav-search-section,
-  #nav-profile-section {
-    flex-basis: calc(100% / 3);
-  }
-  
-  font-awesome-icon {
-    text-decoration: none;
-    color: white;
-  }
+	position: absolute;
+	top: -10px;
+	left: 8%;
+
+}
 </style>

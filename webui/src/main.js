@@ -4,7 +4,6 @@ import router from './router/routers'
 import axios from './services/axios.js'
 
 import './assets/main.css'
-import './assets/bottom-nav.css'
 
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -13,12 +12,10 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 /* import specific icons */
-import { faUser } from '@fortawesome/free-solid-svg-icons'
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
-import { faHouse } from '@fortawesome/free-solid-svg-icons'
+import { faUser, faMagnifyingGlass, faHouse, faXmark } from '@fortawesome/free-solid-svg-icons'
 
 /* add icons to the library */
-library.add(faUser, faMagnifyingGlass, faHouse)
+library.add(faUser, faMagnifyingGlass, faHouse, faXmark)
 
 const app = createApp(App)
 

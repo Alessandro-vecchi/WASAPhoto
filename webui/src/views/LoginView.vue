@@ -42,7 +42,7 @@ export default {
             <div class="register">
                 <font-awesome-icon class="user-icon" icon="fa-solid fa-user" size="xl"/>
                 <input type="text" v-model="Username" placeholder="Enter Username">
-                <button v-if="!loading" type="button" @click="LoginUser">LOGIN</button>
+                <button v-if="!loading" class="hover-transition" type="button" @click="LoginUser">LOGIN</button>
                 <LoadingSpinner v-if="loading"></LoadingSpinner>
             </div>
         </div>
@@ -76,7 +76,7 @@ export default {
     padding-left: 20px; 
     border: 1px solid skyblue;
 }
-.register button{
+.hover-transition{
     width: 70%;
     height: 40px;
     border: 1px solid skyblue;
@@ -87,8 +87,15 @@ export default {
     margin-top: 80px;
     font-family: "Rubik", sans-serif;
     font-weight: 400;
-    color: white;
+    letter-spacing: 4px;
+    text-transform: uppercase;
     text-decoration: none;
+    transition: 0.5s;
+    font-size: 14px;
+}
+
+.hover-transition:hover{
+    letter-spacing: 8px;
 }
 
 .login-container {
@@ -97,7 +104,6 @@ export default {
     height: 450px;
     background-color: aliceblue;
 }
-
 .user-icon {
     position: relative;
     top: 2px;

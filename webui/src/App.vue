@@ -1,7 +1,6 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import Login from './views/LoginView.vue'
-import StreamView from './views/StreamView.vue'
 </script>
 <script>
   export default {}
