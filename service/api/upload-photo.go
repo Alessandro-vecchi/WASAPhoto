@@ -3,12 +3,17 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/database"
+	"github.com/gofrs/uuid"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -38,20 +43,69 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// 3. Get photo from the request body
-	// Decode information inserted by the user in the request body and check validity
-	var media models.Photo
-	err = json.NewDecoder(r.Body).Decode(&media)
+	// Decode information inserted by the user in the request body
+	photo, fileHeader, err := r.FormFile("image")
 	if err != nil {
-		// The body was not a parseable JSON, reject it
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	} else if !media.IsValid() {
-		// Here we validated the fountain structure content (e.g., location coordinates in correct range, etc.), and we
-		// discovered that the fountain data are not valid.
-		// Note: the IsValid() function skips the ID check (see below).
+		ctx.Logger.WithError(err).Error("error: could not parse photo")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	defer photo.Close()
+	buff := make([]byte, 512)
+	_, err = photo.Read(buff)
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error: could not read photo")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// 4 - Check if the photo is valid
+	filetype := http.DetectContentType(buff)
+	if filetype != "image/jpeg" && filetype != "image/png" && filetype != "image/jpg" {
+		ctx.Logger.WithError(err).Error("error: The provided file format is not allowed. Please upload a JPEG,JPG or PNG image")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	_, err = photo.Seek(0, io.SeekStart)
+	if err != nil {
+		ctx.Logger.WithError(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	// 5 - Generate an ID that univoquely identifies the image
+	rawPhotoId, err := uuid.NewV4()
+	if err != nil {
+		log.Fatalf("failed to get UUID: %v", err)
+	}
+	log.Printf("generated Version 4 UUID: %v", rawPhotoId)
+	photoId := rawPhotoId.String()
+
+	// 6 - Save the photo in the images folder exploiting the image id
+	f, err := os.Create(fmt.Sprintf("./images/%s%s", photoId, filepath.Ext(fileHeader.Filename)))
+	if err != nil {
+		ctx.Logger.WithError(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer f.Close()
+	_, err = io.Copy(f, photo)
+	if err != nil {
+		ctx.Logger.WithError(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// 7 - create picture url
+	picURL := fmt.Sprintf("http://localhost:3000/images/%s%s", photoId, filepath.Ext(fileHeader.Filename))
+
+	// 8 - take caption
+	caption := r.FormValue("cap")
+
+	// 9 - create media object
+	var media models.Photo
+	media.PhotoId = photoId
+	media.Caption = caption
+	media.Image = picURL
 
 	// 4. Upload the photo given by the user in the database
 	media_db, err := rt.db.UploadPhoto(user_id, media.ToDatabase(rt.db))

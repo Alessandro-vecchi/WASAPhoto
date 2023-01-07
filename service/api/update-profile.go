@@ -3,12 +3,17 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/database"
+	"github.com/gofrs/uuid"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -34,23 +39,81 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	}
 	// 3. Read new profile information from request body
 	var p models.Profile
-	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
-		// The body was not a parseable JSON object, reject it
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	} else if rt.db.CountStuffs("username", "profile", p.Username) > 0 {
+	// Get bio
+	p.Bio = r.FormValue("bio")
+	// Get Username
+	p.Username = r.FormValue("username")
+	if rt.db.CountStuffs("username", "profile", p.Username) > 0 {
 		// User Already Exists
 		ctx.Logger.WithError(err).WithField("username", p.Username).Error("Username already exists")
 		w.WriteHeader(http.StatusBadRequest)
 		return
-	} else if !p.IsValid() {
-		// Profile data is invalid
+	}
+
+	// 4. Get photo from the request body
+	// Decode information inserted by the user in the request body
+	photo, fileHeader, err := r.FormFile("image")
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error: could not parse photo")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	defer photo.Close()
+	buff := make([]byte, 512)
+	_, err = photo.Read(buff)
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error: could not read photo")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// 5 - Check if the photo is valid
+	filetype := http.DetectContentType(buff)
+	if filetype != "image/jpeg" && filetype != "image/png" && filetype != "image/jpg" {
+		ctx.Logger.WithError(err).Error("error: The provided file format is not allowed. Please upload a JPEG,JPG or PNG image")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	_, err = photo.Seek(0, io.SeekStart)
+	if err != nil {
+		ctx.Logger.WithError(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	// 6 - Generate an ID that univoquely identifies the image
+	rawPhotoId, err := uuid.NewV4()
+	if err != nil {
+		log.Fatalf("failed to get UUID: %v", err)
+	}
+	log.Printf("generated Version 4 UUID: %v", rawPhotoId)
+	photoId := rawPhotoId.String()
+
+	// 7 - Save the photo in the images folder exploiting the image id
+	f, err := os.Create(fmt.Sprintf("./images/%s%s", photoId, filepath.Ext(fileHeader.Filename)))
+	if err != nil {
+		ctx.Logger.WithError(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer f.Close()
+	_, err = io.Copy(f, photo)
+	if err != nil {
+		ctx.Logger.WithError(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// 8 - Create picture url
+	picURL := fmt.Sprintf("../../webui/src/assets/images/%s%s", photoId, filepath.Ext(fileHeader.Filename))
+
+	p.ProfilePictureUrl = picURL
+
+	// 9 - Update user_id
 	// The client is not supposed to send us the ID in the body, as the fountain ID is already specified in the path,
 	// and it's immutable. So, here we overwrite the ID in the JSON with the `id` variable (that comes from the URL).
 	p.ID = user_id
+
+	// 10 - Save the profile information in the database
 	_, err = rt.db.UpdateUserProfile(false, p.ToDatabase())
 
 	if err != nil {
