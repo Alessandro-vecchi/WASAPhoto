@@ -42,7 +42,7 @@ export default {
             <div class="register">
                 <font-awesome-icon class="user-icon" icon="fa-solid fa-user" size="xl"/>
                 <input type="text" v-model="Username" placeholder="Enter Username">
-                <button v-if="!loading" class="hover-transition" type="button" @click="LoginUser">LOGIN</button>
+                <button v-if="!loading" class="login-button" type="button" @click="LoginUser">LOGIN</button>
                 <LoadingSpinner v-if="loading"></LoadingSpinner>
             </div>
         </div>
@@ -60,6 +60,7 @@ export default {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  text-align: center;
 }
 .background div{
     margin-right: auto;
@@ -69,44 +70,51 @@ export default {
     width: 100px;
     margin-top: 50px;
 }
-.register input{
-    position: relative;
-    width: 70%;
-    height: 40px;
-    padding-left: 20px; 
-    border: 1px solid skyblue;
-}
-.hover-transition{
-    width: 70%;
-    height: 40px;
-    border: 1px solid skyblue;
-    background: linear-gradient(109.6deg, rgb(78, 62, 255) 11.2%, rgb(164, 69, 255) 91.1%);
-    color: white;
-    border-radius: 20px;
-    cursor: pointer;
-    margin-top: 80px;
-    font-family: "Rubik", sans-serif;
-    font-weight: 400;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    text-decoration: none;
-    transition: 0.5s;
-    font-size: 14px;
-}
-
-.hover-transition:hover{
-    letter-spacing: 8px;
-}
-
 .login-container {
     margin-top: 50px;
     width: 300px;
     height: 450px;
     background-color: aliceblue;
+    position: relative;
+}
+.login-container h1 {
+    margin-top: 15px;
+}
+.register input{
+    position: absolute;
+    top: 66px;
+    left: 45px;
+    width: 70%;
+    height: 40px;
+    padding-left: 15px; 
+    border: 1px solid skyblue;
 }
 .user-icon {
-    position: relative;
-    top: 2px;
-    left: -10px;
+    position: absolute;
+    top: 75px;
+    left: 15px;
+}
+.login-button{
+    border-radius: 20px;
+    margin-top: 80px;
+    width: 70%;
+    height: 40px;
+    border: 1px solid skyblue;
+    background: linear-gradient(109.6deg, rgb(78, 62, 255) 11.2%, rgb(164, 69, 255) 91.1%);
+
+    font-size: 14px;
+    font-family: "Rubik", sans-serif;
+    font-weight: 400;
+    color: white;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-decoration: none;
+
+    transition: 0.5s;
+    cursor: pointer;
+}
+
+.login-button:hover{
+    letter-spacing: 8px;
 }
 </style>

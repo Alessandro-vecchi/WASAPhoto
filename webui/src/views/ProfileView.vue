@@ -58,12 +58,10 @@ export default {
 </script>
 <template>
     <header>
-        <div class="wrapper">
-            <div class="profile">
-                <div class="profile-image">
-                    <!--<img :src="profile.profilePicUrl" alt="">-->
-                    <img :src="image" alt="Mickey Mouse" />
-                </div>
+        <div class="profile">
+            <div class="profile-image">
+                <!--<img :src="profile.profilePicUrl" alt="">-->
+                <img :src="image" alt="Mickey Mouse" />
             </div>
             <div class="profile-user-settings">
                 <h1 class="profile-user-name"> _alevecchi</h1>
@@ -107,78 +105,60 @@ export default {
 
 <style scoped>
 header {
-    min-height: 100vh;
-    padding-bottom: 3rem;
+    font-size: 10px;
+    height: 33vh;
+    background-color: black;
 }
-.img {
-    display: block;
-}
-
-.wrapper {
-    max-width: 93.5rem;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
-
-.edit-profile-button {
-    display: inline-block;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    font: inherit;
-    padding: 0;
-    cursor: pointer;
-}
-
-.edit-profile-button:focus {
-    outline: 0.5rem auto #4d90fe;
-}
-
-.visually-hidden {
-    position: absolute !important;
-    height: 1px;
-    width: 1px;
-    overflow: hidden;
-    clip: rect(1px, 1px, 1px, 1px);
-}
-
 /*Profile section */
 .profile {
-    padding: 5rem 0;
+    max-width: 93.5rem;
+    position: relative;
 }
 
 .profile::after {
-    display: block;
-    content: "";
-    clear: both;
+    box-sizing: border-box;
 }
-
 .profile-image {
-    display: flex;
-    float: left;
-    justify-content: center;
-    width: calc(33.33% - 1rem);
-    margin-right: 3rem;
+    position: absolute;
+    top: 25%;
+    left: 10%;
+    outline: dashed red;
 }
 
 .profile-image img {
-    width: 20vh;
+    width: 15vh;
     border-radius: 50%;
     cursor: pointer;
 }
 
+
+.profile-user-settings {
+    position: relative;
+    width: 65%;
+    top: 30px;
+    left: 30%;
+    outline: dashed red;
+}
+
 .profile-user-name {
-    display: inline-block;
+    position: absolute;
+    left: 10%;
+    
     font-size: 3rem;
 }
-
-.profile-user-setting,
-.profile-bio,
-.profile-stats {
-    float: right;
-    width: calc(66.66%-2rem);
+.edit-profile-button {
 }
 
-.profile-user-setting {
-    margin-top: 1.2rem;
+.edit-profile-button:focus {
 }
+
+.profile-stats{
+
+}
+.profile-bio {
+
+}
+.visually-hidden {
+}
+
 </style>
