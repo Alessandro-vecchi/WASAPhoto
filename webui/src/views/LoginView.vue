@@ -53,7 +53,7 @@ export default {
 
 </template>
 
-<style>
+<style scoped>
 .background {
   background-color: rgba(18, 23, 29);
   margin: -10px;

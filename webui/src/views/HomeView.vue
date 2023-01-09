@@ -1,16 +1,18 @@
 <script>
 import Post from '@/components/Post.vue'
-// import NavBar from '@/components/NavBar.vue'
+import NavBar from '@/components/NavBar.vue'
 
 export default {
 	name: 'Home',
 	components: {
 		Post,
-	}	
+		NavBar
+	}
 }
 </script>
 
 <template>
+	<NavBar />
 	<div class="Home">
 		<div class="timeline">
 			<Post />
@@ -18,17 +20,16 @@ export default {
 			<Post />
 		</div>
 		<div class="sidebar">
-			<side-bar />
+			<NavBar />
 		</div>
 	</div>
 </template>
 
 <style>
 .Home {
-	max-width: 605px;
+	max-width: 604px;
 	margin-left: auto;
 	margin-right: auto;
-	position: relative;
 }
 
 @media (--t) {
@@ -52,7 +53,7 @@ export default {
 
 	.sidebar p {
 		position: sticky;
-		top: calc(var(--header-height) + 30px + 18px);
+		top: calc(53px + 30px + 18px);
 	}
 }
 </style>

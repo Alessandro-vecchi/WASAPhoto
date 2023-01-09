@@ -1,14 +1,160 @@
 <template>
-  <svg
-    aria-label="Activity Feed"
-    class="_8-yf5"
-    fill="#262626"
-    height="22"
-    viewBox="0 0 48 48"
-    width="22"
-  >
-    <path
-      d="M34.6 6.1c5.7 0 10.4 5.2 10.4 11.5 0 6.8-5.9 11-11.5 16S25 41.3 24 41.9c-1.1-.7-4.7-4-9.5-8.3-5.7-5-11.5-9.2-11.5-16C3 11.3 7.7 6.1 13.4 6.1c4.2 0 6.5 2 8.1 4.3 1.9 2.6 2.2 3.9 2.5 3.9.3 0 .6-1.3 2.5-3.9 1.6-2.3 3.9-4.3 8.1-4.3m0-3c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5.6 0 1.1-.2 1.6-.5 1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"
-    ></path>
-  </svg>
+  <p>Hi</p>
+  <header class="header">
+    <Container class="header-inner">
+      <!-- Logo -->
+      <router-link to="/" class="logo">
+        <div class="logo">
+          <img alt="Instagram" src="../img/instagram-logo.png" />
+        </div>
+      </router-link>
+      <!-- search -->
+      <form class="search" action="#">
+        <input type="text" placeholder="Search" />
+      </form>
+      <!-- navigation -->
+      <nav class="navigation">
+        <router-link to="/">
+          <IconHomeFill v-if="$route.name === 'Home'" />
+          <IconHome v-else />
+        </router-link>
+        <router-link to="/direct">
+          <IconDirectFill v-if="$route.name === 'Direct'" />
+          <IconDirect v-else />
+        </router-link>
+        <router-link to="/explore">
+          <IconExploreFill v-if="$route.name === 'Explore'" />
+          <IconExplore v-else />
+        </router-link>
+        <router-link to="/heart">
+          <IconHeartFill v-if="$route.name === 'Heart'" />
+          <IconHeart v-else />
+        </router-link>
+        <router-link to="/profile">
+          <Avatar :size="20"/>
+        </router-link>
+        <icon />
+      </nav>
+    </Container>
+  </header>
 </template>
+
+<script>
+import Avatar from '@/components/Avatar'
+export default {
+  name: 'MainHeader',
+  components: {
+    Avatar,
+  }
+}
+</script>
+
+<style scoped>
+.header {
+z-index: 99;
+position: fixed;
+left: 0;
+top: 0;
+right: 0;
+background-color: white;
+border-bottom: 1px solid rgb(var(--b6a));
+}
+
+.header-inner {
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+@media (--t) {
+.header-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  height: var(--header-height);
+  align-items: center;
+}
+}
+
+.logo {
+display: flex;
+align-items: center;
+height: 36px;
+}
+
+.logo img {
+height: 29px;
+margin-top: 8px;
+}
+
+.search {
+display: none;
+}
+
+@media (--t) {
+.search {
+  display: block;
+  text-align: center;
+}
+
+.search input {
+  border: 1px solid rgb(var(--b6a));
+  border-radius: 4px;
+  background-color: rgb(var(--b3f));
+  width: 215px;
+  height: 28px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.search input::placeholder {
+  display: flex;
+  text-align: center;
+}
+
+.search input:focus {
+  outline: none;
+}
+}
+
+.navigation {
+z-index: 99;
+position: fixed;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: white;
+border-top: 1px solid rgb(var(--b6a));
+display: flex;
+align-items: center;
+justify-content: space-around;
+height: 44px;
+}
+
+.navigation a {
+margin-left: auto;
+margin-right: auto;
+}
+
+@media (--t) {
+.navigation {
+  border: none;
+  position: static;
+  justify-content: flex-end;
+  align-items: flex-start;
+  height: 22px;
+}
+
+.navigation a {
+  margin-left: 22px;
+  margin-right: 0;
+}
+}
+
+.user-photo {
+width: 22px;
+height: 22px;
+border-radius: 50%;
+background-color: black;
+}
+
+</style>
