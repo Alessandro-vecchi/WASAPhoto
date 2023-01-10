@@ -109,7 +109,10 @@ export default {
 .post .header-more {
     margin-left: auto;
 }
-
+.post .post-media {
+    width: 600px;
+    height: 400px;
+}
 .post .two-col  {
     display: flex;
     align-items: center;
@@ -136,8 +139,8 @@ export default {
     padding-left: 8px;
     font-size: 15px;
     font-weight: 600;
-    font-variant-numeric: oldstyle-nums;
-    color: rgb(04,40,40);
+    font-family:Georgia, 'Times New Roman', Times, serif;
+    color: rgb(40,40,40);
 }
 
 .post .action-buttons .icon-like {

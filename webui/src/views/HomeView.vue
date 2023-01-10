@@ -27,9 +27,10 @@ export default {
 
 <style>
 .Home {
-	max-width: 604px;
+	max-width: 601px;
 	margin-left: auto;
 	margin-right: auto;
+	padding-bottom: 10vh;
 }
 
 @media (--t) {

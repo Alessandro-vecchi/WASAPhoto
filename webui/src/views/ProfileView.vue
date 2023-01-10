@@ -1,128 +1,156 @@
 <script>
 import image from "../assets/images/552480.jpeg"
-export default {
-    data: function () {
-        return {
-            loading: false,
-            errmsg: null,
-            profile: {
-                user_id: "",
-                username: "",
-                pictures_count: 0,
-                followers_count: 0,
-                following_count: 0,
-                bio: "",
-                profile_picture: "",
+import GalleryItem from "@/components/GalleryItem.vue"
 
+export default
+    {
+        components: {
+            GalleryItem,
+        },
+        data: function () {
+            return {
+                loading: false,
+                errmsg: null,
+                profile: {
+                    user_id: "",
+                    username: "",
+                    pictures_count: 0,
+                    followers_count: 0,
+                    following_count: 0,
+                    bio: "",
+                    profile_picture: "",
+
+                },
+                media: [],
+                image,
+            }
+        },
+        methods: {
+            async GetProfile() {
+                this.loading = true;
+                this.errormsg = null;
+                try {
+                    this.$axios.get("/users/?username=" + this.$route.params.username).then(response => (this.profile = response.data));
+                } catch (e) {
+                    this.errormsg = e.toString();
+                }
+                this.loading = false;
             },
-            media: [],
-            image: image,
-        }
-    },
-    methods: {
-        async GetProfile() {
-            this.loading = true;
-            this.errormsg = null;
-            try {
-                this.$axios.get("/users/?username=" + this.$route.params.username).then(response => (this.profile = response.data));
-            } catch (e) {
-                this.errormsg = e.toString();
+            async GetMedia() {
+                this.loading = true;
+                this.errormsg = null;
+                try {
+                    this.$axios.get("/users/:userid=" + localStorage.getItem('Authorization') + "/photos/").then(response => (this.media = response.data));
+                } catch (e) {
+                    this.errormsg = e.toString();
+                }
+                this.loading = false;
+            },
+            createMedia: async function () {
+                this.$router.push({ path: '/users/' + this.profile.userid + "/photos/" })
+            },
+            updateProfile: async function () {
+                this.$router.push({ path: '/users/' + this.profile.username + "/updateProfile" })
+            },
+            changeUsername: async function () {
+                this.$router.push({ path: '/users/' + this.profile.username + "/changeUsername" })
             }
-            this.loading = false;
         },
-        async GetMedia() {
-            this.loading = true;
-            this.errormsg = null;
-            try {
-                this.$axios.get("/users/:userid=" + localStorage.getItem('Authorization') + "/photos/").then(response => (this.media = response.data));
-            } catch (e) {
-                this.errormsg = e.toString();
-            }
-            this.loading = false;
-        },
-        createMedia: async function () {
-            this.$router.push({ path: '/users/' + this.profile.userid + "/photos/" })
-        },
-        updateProfile: async function () {
-            this.$router.push({ path: '/users/' + this.profile.username + "/updateProfile" })
-        },
-        changeUsername: async function () {
-            this.$router.push({ path: '/users/' + this.profile.username + "/changeUsername" })
+        mounted() {
+            this.GetMedia();
+            this.GetProfile();
         }
-    },
-    mounted() {
-        this.GetMedia();
-        this.GetProfile();
     }
-}
 </script>
 <template>
-    <header>
-        <div class="profile">
-            <div class="profile-image">
-                <!--<img :src="profile.profilePicUrl" alt="">-->
-                <img :src="image" alt="Mickey Mouse" />
+    <header class="header">
+        <div class="wrapper">
+            <div class="profile">
+                <div class="profile-image">
+                    <!--<img :src="profile.profilePicUrl" alt="">-->
+                    <img src="https://picsum.photos/500/500" alt="Mickey Mouse" />
+                </div>
+                <div class="profile-user-settings">
+                    <h1 class="profile-user-name"> _alevecchi</h1>
+                    <button type="button" class="btn edit-profile-button">Edit profile</button>
+                </div>
+                <div class="profile-stats">
+                    <ul>
+                        <li><span class="profile-stat-count">100</span> Posts</li>
+                        <li><span class="profile-stat-count">456</span> Followers</li>
+                        <li><span class="profile-stat-count">789</span> Following</li>
+                    </ul>
+                </div>
+                <div class="profile-bio">
+                    <p class="profile-bio-text">
+                        Hi! My name is John and I'm here to kill you.
+                        <!--{{ profile.bio }}-->
+                    </p>
+                </div>
+
+                <div class="upload-image">
+                    <font-awesome-icon class="upload-image-button" icon="fa-solid fa-plus" size="3x" />
+                </div>
+                <!--End of profile section-->
             </div>
-            <div class="profile-user-settings">
-                <h1 class="profile-user-name"> _alevecchi</h1>
-                <button type="button" class="edit-profile-button">Edit profile</button>
-            </div>
-            <div class="profile-stats">
-                <ul>
-                    <li><span class="profile-stat-count">100</span> Posts</li>
-                    <li><span class="profile-stat-count">456</span> Followers</li>
-                    <li><span class="profile-stat-count">789</span> Following</li>
-                </ul>
-            </div>
-            <div class="profile-bio">
-                <!--<h2 class="profile-bio-name">
-                {{ profile.name }}
-            </h2>-->
-                <p class="profile-bio-text">
-                    {{ profile.bio }}
-                </p>
-            </div>
-            <!--End of profile section-->
         </div>
     </header>
 
-    <main>
-        <div class="wrapper">
-            <div class="gallery">
-                <div class="gallery-item" tabindex="0">
-                    <img src="{{ profile.photo }}" alt="" class="gallery-image">
-                    <div class="gallery-item-info">
-                        <ul>
-                            <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span></li>
-                            <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+    <div class="wrapper">
+        <div class="gallery">
+            <GalleryItem />
+            <GalleryItem />
+            <GalleryItem />
+            <GalleryItem />
+            <GalleryItem />
+            <GalleryItem />
+            <GalleryItem />
+            <GalleryItem />
         </div>
-    </main>
+    </div>
 </template>
 
 <style scoped>
-header {
+.header {
     font-size: 10px;
-    height: 33vh;
-    background-color: black;
+    min-height: 25vh;
+    background-color: #fafafa;
+    padding-bottom: 1rem;
 }
+
+.wrapper {
+    max-width: 93.5rem;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.wrapper::after {
+    box-sizing: border-box;
+}
+
+img {
+    display: block;
+}
+
 /*Profile section */
 .profile {
-    max-width: 93.5rem;
+    padding: 5rem 0;
     position: relative;
 }
 
 .profile::after {
-    box-sizing: border-box;
+    content: '';
+    display: block;
+    clear: both;
 }
+
 .profile-image {
-    position: absolute;
-    top: 25%;
-    left: 10%;
-    outline: dashed red;
+    float: left;
+    width: calc(33.33% - 1rem);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 3rem;
 }
 
 .profile-image img {
@@ -132,33 +160,106 @@ header {
 }
 
 
-.profile-user-settings {
-    position: relative;
-    width: 65%;
-    top: 30px;
-    left: 30%;
-    outline: dashed red;
+.profile-user-settings,
+.profile-stats,
+.profile-bio {
+    float: left;
+    width: calc(66.66% -2rem);
 }
 
 .profile-user-name {
-    position: absolute;
-    left: 10%;
-    
+    display: inline-block;
     font-size: 3rem;
 }
+
+.btn {
+    display: inline-block;
+    font: inherit;
+    background: none;
+    border: none;
+    color: inherit;
+    padding: 0;
+    cursor: pointer;
+}
+
+.btn:hover {
+    font-size: 1.5rem;
+}
+
 .edit-profile-button {
+    font-size: 1.4rem;
+    line-height: 1.7;
+    border: 0.1rem solid #dbdbdb;
+    border-radius: 0.3rem;
+    padding: 0 2.4rem;
+    margin-left: 2rem;
 }
 
-.edit-profile-button:focus {
+.profile-stats {
+    margin-top: 2.3rem;
 }
 
-.profile-stats{
-
+.profile-stats li {
+    display: inline-block;
+    font-size: 1.6rem;
+    line-height: 1.5;
+    margin-right: 4rem;
+    cursor: pointer;
 }
+
+.profile-stats li:last-of-type {
+    margin-right: 0;
+}
+
 .profile-bio {
-
+    font-size: 1.6rem;
+    font-weight: 400;
+    line-height: 1.5;
+    margin-top: 2.3rem;
 }
-.visually-hidden {
+
+.profile-stat-count,
+.edit-profile-button {
+    font-weight: 600;
+}
+.upload-image {
+    position: absolute;
+    right:0;
+    bottom:0;
+}
+.upload-image-button {
+    width: 30px;
+    height: 30px;
+	border-radius: 50%;
+
+	background: rgb(255,255,255);
+	transition: background 0.2s, color 0.2s;
+}
+.upload-image-button:hover {
+	cursor: pointer;
+	background: rgba(39, 55, 69, 1);
+	color: #fafafa;
+}
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    padding-bottom: 3rem;
+    margin: -1rem -1rem;
 }
 
+
+@supports (display:grid) {
+
+    .gallery {
+        display: grid;
+        grid-template-columns: repeat(3, auto);
+        grid-gap: 1rem;
+    }
+
+    .gallery {
+        width: auto;
+        margin: 0;
+
+    }
+}
 </style>

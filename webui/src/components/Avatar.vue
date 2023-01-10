@@ -31,7 +31,7 @@ export default {
   padding: 2px;
   border-radius: 50%;
   display: inline-flex;
-  background: linear-gradient(219deg, rgba(184, 63, 140, 1) 0%, rgba(237, 158, 90, 1) 100%);
+  /*background: linear-gradient(219deg, rgba(184, 63, 140, 1) 0%, rgba(237, 158, 90, 1) 100%);*/
 }
 .avatar img {
   border: 2px solid white;

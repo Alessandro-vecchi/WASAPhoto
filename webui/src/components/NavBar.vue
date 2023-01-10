@@ -80,7 +80,12 @@ export default {
     --ba1: rgb(6, 12, 24);
     --bo1: rgba(255, 255, 255, 0.2);
 }
+nav{
+	max-width: 604px;
+	margin-left: auto;
+	margin-right: auto;
 
+}
 .font-style {
     font-size: 1.5em;
     font-family: "Rubik", sans-serif;
@@ -94,13 +99,12 @@ export default {
     border: 2px solid var(--bo1);
     overflow: hidden;
     position: fixed;
-    left:18%;
-    right: 18%;
+	width: 604px;
+    height: 12vh;
     bottom: 0;
 
     display: flex;
     align-items: center;
-    height: 12vh;
     z-index: 99;
 }
 
