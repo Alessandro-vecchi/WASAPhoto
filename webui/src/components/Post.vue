@@ -9,7 +9,6 @@ export default {
     }
 }
 </script>
-    CustomText
 
 <template>
     <div class="post">

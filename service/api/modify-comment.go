@@ -14,7 +14,7 @@ import (
 
 func (rt *_router) modifyComment(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1. Retrieve Id of the comment the user want to modify.
-	comment_id := rt.getPathParameter("comment_id", ps)
+	comment_id := rt.getPathParameter("comments", ps)
 	if comment_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -32,7 +32,7 @@ func (rt *_router) modifyComment(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 	// 3. Check if user who want to modify comment is the same who wrote it.
-	authtoken := r.Header.Get("authToken")
+	authtoken := r.Header.Get("Authorization")
 	log.Printf("The authentication token in the header is: %v", authtoken)
 	id, _ := rt.db.GetIdByName(comment.Author)
 	err = checkUserIdentity(authtoken, id, rt.db)

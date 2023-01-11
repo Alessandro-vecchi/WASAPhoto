@@ -11,16 +11,7 @@ export default
             return {
                 loading: false,
                 errmsg: null,
-                profile: {
-                    user_id: "",
-                    username: "",
-                    pictures_count: 0,
-                    followers_count: 0,
-                    following_count: 0,
-                    bio: "",
-                    profile_picture: "",
-
-                },
+                profile: {},
                 media: [],
                 image,
             }
@@ -29,16 +20,27 @@ export default
             async GetProfile() {
                 this.loading = true;
                 this.errormsg = null;
+                /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
+                If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
+                */
+                console.log(this.profile, localStorage.getItem('Authorization'))
+                this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+                error => {return Promise.reject(error);});
                 try {
-                    this.$axios.get("/users/?username=" + this.$route.params.username).then(response => (this.profile = response.data));
+                    let response = await this.$axios.get("/users/?username=")
+                    this.profile = response.data
                 } catch (e) {
                     this.errormsg = e.toString();
                 }
                 this.loading = false;
+               console.log(this.profile)
             },
-            async GetMedia() {
+
+            async GetUserPhotos() {
                 this.loading = true;
                 this.errormsg = null;
+                //this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+                //error => {return Promise.reject(error);});
                 try {
                     this.$axios.get("/users/:userid=" + localStorage.getItem('Authorization') + "/photos/").then(response => (this.media = response.data));
                 } catch (e) {
@@ -46,6 +48,11 @@ export default
                 }
                 this.loading = false;
             },
+                
+            refresh() {
+			this.GetProfile();
+			//this.GetUserPhotos();
+		    },
             createMedia: async function () {
                 this.$router.push({ path: '/users/' + this.profile.userid + "/photos/" })
             },
@@ -57,8 +64,7 @@ export default
             }
         },
         mounted() {
-            this.GetMedia();
-            this.GetProfile();
+            this.refresh();
         }
     }
 </script>
@@ -68,10 +74,10 @@ export default
             <div class="profile">
                 <div class="profile-image">
                     <!--<img :src="profile.profilePicUrl" alt="">-->
-                    <img src="https://picsum.photos/500/500" alt="Mickey Mouse" />
+                    <img :src=profile.profile_picture_url alt="Mickey Mouse" />
                 </div>
                 <div class="profile-user-settings">
-                    <h1 class="profile-user-name"> _alevecchi</h1>
+                    <h1 class="profile-user-name"> {{ profile.username }}</h1>
                     <button type="button" class="btn edit-profile-button">Edit profile</button>
                 </div>
                 <div class="profile-stats">
@@ -83,8 +89,8 @@ export default
                 </div>
                 <div class="profile-bio">
                     <p class="profile-bio-text">
-                        Hi! My name is John and I'm here to kill you.
-                        <!--{{ profile.bio }}-->
+                        <!-- Hi! My name is John and I'm here to kill you. -->
+                        {{ profile.bio }}
                     </p>
                 </div>
 

@@ -17,7 +17,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 
 	// 1. Get photoID from path
 	// The Photo ID in the path is a string and coincides with the photo we are commenting
-	photo_id := rt.getPathParameter("photo_id", ps)
+	photo_id := rt.getPathParameter("photos", ps)
 	if photo_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -40,7 +40,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	// 3. Check if the user is authenticated
 	// We want to allow only to logged users to write comments.
 	// Therefore the authentication token in the header should coincides with the username of the writer
-	authtoken := r.Header.Get("authToken")
+	authtoken := r.Header.Get("Authorization")
 	log.Printf("The authentication token in the header is: %v", authtoken)
 	id, _ := rt.db.GetIdByName(comment.Author)
 	err = checkUserIdentity(authtoken, id, rt.db)

@@ -16,7 +16,7 @@ import (
 func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	// 1. Get ID of the user that want to change name
-	user_id := rt.getPathParameter("user_id", ps)
+	user_id := rt.getPathParameter("users", ps)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -24,7 +24,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	// 2. Check if the user is authenticated
 	// We want to allow only to the owner of the profile to upload photo,
 	// Therefore the user_id must coincides with the authentication token in the header
-	authtoken := r.Header.Get("authToken")
+	authtoken := r.Header.Get("Authorization")
 	log.Printf("The authentication token in the header is: %v", authtoken)
 
 	err := checkUserIdentity(authtoken, user_id, rt.db)

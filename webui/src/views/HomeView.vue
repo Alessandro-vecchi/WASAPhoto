@@ -7,11 +7,21 @@ export default {
 	components: {
 		Post,
 		NavBar
-	}
+	},
+	data: function () {
+        return {
+            errormsg: null,
+            loading: false,
+            username: "",
+            stream: [],
+			logged: localStorage.getItem('Authorization'),
+        }
+    },
 }
 </script>
 
 <template>
+
 	<NavBar />
 	<div class="Home">
 		<div class="timeline">

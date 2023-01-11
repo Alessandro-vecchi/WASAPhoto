@@ -3,6 +3,8 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
@@ -14,19 +16,23 @@ import (
 // Get the profile of a user
 func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
-	var err error
-	var profile database.Profile_db
+	var name string
 	// 1. Retrieve username searched from the URL query, if properly formed.
 	if r.URL.Query().Has("username") {
-		name := r.URL.Query().Get("username")
-		profile, err = rt.db.GetUserProfileByUsername(name)
+		name = r.URL.Query().Get("username")
+		// If the username is "" it means that we are in our own profile page
+		if name == "" {
+			user_id := r.Header.Get("Authorization")
+			name, _ = rt.db.GetNameById(user_id)
+		}
 
 	} else {
 		// No username field founded
-		ctx.Logger.WithError(err).Error("query has no field username")
+		log.Printf("query has no field username")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	profile, err := rt.db.GetUserProfileByUsername(name)
 	if errors.Is(err, database.ErrUserNotExists) {
 		// User not found in the database
 		w.WriteHeader(http.StatusNotFound)
@@ -38,19 +44,13 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
+	fmt.Println(profile)
 	// 2. Translating from database to api
 	var p models.Profile
 	p.FromDatabase(profile, rt.db)
 	// Checking that the profile is valid
-	if p.IsValid() {
-		w.WriteHeader(http.StatusOK)
-		// Send the user profile to the user
-		_ = json.NewEncoder(w).Encode(p)
-	} else {
-		// Invalid user profile
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	w.WriteHeader(http.StatusOK)
+	// Send the user profile to the user
+	_ = json.NewEncoder(w).Encode(p)
 
 }

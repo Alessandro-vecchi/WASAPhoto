@@ -36,7 +36,6 @@ export default {
 			<h1 class="h2">New Fountain</h1>
 		</div>
 
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 
 		<div class="mb-3">
 			<label for="description" class="form-label">Latitude</label>

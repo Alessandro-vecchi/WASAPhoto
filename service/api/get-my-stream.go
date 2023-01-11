@@ -14,7 +14,7 @@ import (
 
 func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1. Retrieve ID of the user whose stream belongs to.
-	user_id := rt.getPathParameter("like_id", ps)
+	user_id := rt.getPathParameter("likes", ps)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -22,7 +22,7 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 	// 2. Check if the user is authenticated
 	// Since a non authenticated user can't follow anyone, the stream can be present only if the user is logged in.
 	// Therefore the user_id must coincides with the authentication token in the header
-	authtoken := r.Header.Get("authToken")
+	authtoken := r.Header.Get("Authorization")
 	log.Printf("The authentication token in the header is: %v", authtoken)
 
 	err := checkUserIdentity(authtoken, user_id, rt.db)

@@ -7,10 +7,10 @@ import (
 // Handler returns an instance of httprouter.Router that handle APIs registered here
 func (rt *_router) Handler() http.Handler {
 
-	// LOGIN
+	/* LOGIN */
 	rt.router.POST("/session/", rt.wrap(rt.doLogin))
 
-	// USER PROFILE
+	/* USER PROFILE */
 	// Get user profile by username
 	rt.router.GET("/users/", rt.wrap(rt.getUserProfile))
 	// Update username
@@ -20,7 +20,7 @@ func (rt *_router) Handler() http.Handler {
 	// Delete user profile
 	rt.router.DELETE("/users/:user_id", rt.wrap(rt.deleteUserProfile))
 
-	// PHOTO
+	/* PHOTO */
 	// Upload a photo
 	rt.router.POST("/users/:user_id/photos/", rt.wrap(rt.uploadPhoto))
 	// Get a single user photo
@@ -30,7 +30,7 @@ func (rt *_router) Handler() http.Handler {
 	// Delete a single user photo
 	rt.router.DELETE("/photos/:photo_id", rt.wrap(rt.deletePhoto))
 
-	// COMMENTS
+	/* COMMENTS */
 	// Upload a comment
 	rt.router.POST("/photos/:photo_id/comments/", rt.wrap(rt.commentPhoto))
 	// Retrieve list of comments under a photo
@@ -40,7 +40,7 @@ func (rt *_router) Handler() http.Handler {
 	// Delete a comment
 	rt.router.DELETE("/comments/:comment_id", rt.wrap(rt.uncommentPhoto))
 
-	// LIKES
+	/* LIKES */
 	// Put a like to a photo
 	rt.router.PUT("/photos/:photo_id/likes/:like_id", rt.wrap(rt.likePhoto))
 	// Get list of the users that added a like
@@ -48,7 +48,7 @@ func (rt *_router) Handler() http.Handler {
 	// Unlike a photo
 	rt.router.DELETE("/photos/:photo_id/likes/:like_id", rt.wrap(rt.unlikePhoto))
 
-	// FOLLOWERS
+	/* FOLLOWERS */
 	// Follow a user
 	rt.router.PUT("/users/:user_id/followers/:follower_id", rt.wrap(rt.followUser))
 	// Get list followers
@@ -58,7 +58,7 @@ func (rt *_router) Handler() http.Handler {
 	// Unfollow a user
 	rt.router.DELETE("/users/:user_id/followers/:follower_id", rt.wrap(rt.unfollowUser))
 
-	// BANS
+	/* BANS */
 	// Ban a user
 	rt.router.PUT("/users/:user_id/bans/:ban_id", rt.wrap(rt.banUser))
 	// Get list of banned users
@@ -66,7 +66,7 @@ func (rt *_router) Handler() http.Handler {
 	// Unban a user
 	rt.router.DELETE("/users/:user_id/bans/:ban_id", rt.wrap(rt.unbanUser))
 
-	// STREAM
+	/* STREAM */
 	// Get stream of the user
 	rt.router.GET("/users/:user_id/stream/", rt.wrap(rt.getMyStream))
 

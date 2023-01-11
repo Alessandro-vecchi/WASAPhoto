@@ -16,7 +16,7 @@ import (
 func (rt *_router) getUserPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	// The User ID in the path is a string
-	photo_id := rt.getPathParameter("photo_id", ps)
+	photo_id := rt.getPathParameter("photos", ps)
 	if photo_id == "" {
 		log.Println("invalid photo_id in the URL")
 		w.WriteHeader(http.StatusBadRequest)

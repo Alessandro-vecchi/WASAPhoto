@@ -30,7 +30,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// 2. Check if the user is authenticated
 	// We want to allow only to the owner of the profile to upload photo,
 	// Therefore the user_id must coincides with the authentication token in the header
-	authtoken := r.Header.Get("authToken")
+	authtoken := r.Header.Get("Authorization")
 	log.Printf("The authentication token in the header is: %v", authtoken)
 
 	err := checkUserIdentity(authtoken, user_id, rt.db)
@@ -38,7 +38,8 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-		w.WriteHeader(http.StatusUnauthorized)
+
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 

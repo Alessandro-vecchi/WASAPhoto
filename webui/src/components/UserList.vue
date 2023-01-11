@@ -57,7 +57,7 @@ export default {
     </div>
 </template>
 
-<style scoped>
+<style>
 :root {
     --background-likes: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     --background-header-likes: linear-gradient(112.1deg, rgb(32, 38, 57) 11.4%, rgb(63, 76, 119) 70.2%);

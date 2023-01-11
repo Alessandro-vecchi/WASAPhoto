@@ -3,7 +3,6 @@ export default {
     data: function() {
         return {
             errormsg: null,
-            detailedmsg: null,
             loading: false,
             User: {
                 UserID: null,
@@ -21,7 +20,7 @@ export default {
                 });
 				this.UserID  = response.data,
                 localStorage.setItem('Authorization', this.UserID),
-                this.$router.push({ name: "stream" })
+                this.$router.push({ path: '/users/' + this.UserID + '/stream/' })
             } catch (e) {
                 this.errormsg = e.toString();
             }
@@ -111,10 +110,10 @@ export default {
     text-decoration: none;
 
     transition: 0.5s;
-    cursor: pointer;
 }
 
 .login-button:hover{
     letter-spacing: 8px;
+    cursor: pointer;
 }
 </style>

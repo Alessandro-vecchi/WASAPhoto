@@ -11,7 +11,7 @@ import (
 
 func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// The photo ID in the path is a string. Let's parse it.
-	photo_id := rt.getPathParameter("photo_id", ps)
+	photo_id := rt.getPathParameter("photos", ps)
 	if photo_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

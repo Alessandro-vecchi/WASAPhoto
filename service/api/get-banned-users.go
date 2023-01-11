@@ -12,7 +12,7 @@ func (rt *_router) getBannedUsers(w http.ResponseWriter, r *http.Request, ps htt
 
 	// The only person who can see the banned users is the person who banned them.
 	// 1. Retrieve ID of our profile from the path
-	user_id := rt.getPathParameter("user_id", ps)
+	user_id := rt.getPathParameter("users", ps)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

@@ -16,7 +16,7 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 	var listPhotos []database.Photo_db
 
 	// 1. Retrieve ID of the user profile from the path
-	user_id := rt.getPathParameter("user_id", ps)
+	user_id := rt.getPathParameter("users", ps)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

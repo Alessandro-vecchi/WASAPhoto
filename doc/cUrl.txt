@@ -4,6 +4,8 @@ GetUserProfileByUsername
 curl "http://localhost:3001/users/?username=valentina"
 ModifyUsername
 curl -X PATCH http://localhost:3001/users/:user_id=2Idw46q6s1oYd9xk8Uy0iB9bc8g -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"username":"paola"}'
+ModifyProfile
+curl -X PUT http://localhost:3000/users/962753d5-aee8-4bc0-9b1b-90ecc0289219 -H "Content-Type: application/x-www-form-urlencoded" -H 'Authorization: 962753d5-aee8-4bc0-9b1b-90ecc0289219' -d "bio=Hi mom I'm mickey mouse, how are you?&profile_picture_url=@/webui/src/assets/images/552480.jpeg" 
 DeleteUserProfile
 curl -X DELETE "http://localhost:3001/users/:user_id=5e9b1511-f78c-4163-a436-9e19fed724ad"
 UploadPhoto

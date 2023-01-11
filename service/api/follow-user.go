@@ -17,14 +17,14 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 
 	// 1. Get user ID of user A from path
 	// The User ID in the path is a string and coincides with the profile we watching
-	user_id_A := rt.getPathParameter("user_id", ps)
+	user_id_A := rt.getPathParameter("users", ps)
 	if user_id_A == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	// 2. Get user ID of user B from path
 	// It coincides with the user that want to follow
-	user_id_B := rt.getPathParameter("followers_id", ps)
+	user_id_B := rt.getPathParameter("followers", ps)
 	if user_id_B == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -33,7 +33,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	// 3. Check if the user B is authenticated
 	// We want to allow only to a logged in user to follow another user,
 	// Therefore the user_id of the user that want to follow must coincide with the authentication token in the header
-	authtoken := r.Header.Get("authToken")
+	authtoken := r.Header.Get("Authorization")
 	log.Printf("The authentication token in the header is: %v", authtoken)
 
 	err := checkUserIdentity(authtoken, user_id_B, rt.db)
