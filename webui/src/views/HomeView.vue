@@ -12,9 +12,9 @@ export default {
         return {
             errormsg: null,
             loading: false,
-            username: "",
-            stream: [],
-			logged: localStorage.getItem('Authorization'),
+            //username: "",
+            //stream: [],
+			//logged: localStorage.getItem('Authorization')
         }
     },
 }

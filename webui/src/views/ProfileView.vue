@@ -2,71 +2,106 @@
 import image from "../assets/images/552480.jpeg"
 import GalleryItem from "@/components/GalleryItem.vue"
 
-export default
-    {
-        components: {
-            GalleryItem,
+export default {
+    props: {
+        user_id: {
+            type: String,
+            required: true
         },
-        data: function () {
-            return {
-                loading: false,
-                errmsg: null,
-                profile: {},
-                media: [],
-                image,
-            }
-        },
-        methods: {
-            async GetProfile() {
-                this.loading = true;
-                this.errormsg = null;
-                /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
-                If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
-                */
-                console.log(this.profile, localStorage.getItem('Authorization'))
-                this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-                error => {return Promise.reject(error);});
-                try {
-                    let response = await this.$axios.get("/users/?username=")
-                    this.profile = response.data
-                } catch (e) {
-                    this.errormsg = e.toString();
-                }
-                this.loading = false;
-               console.log(this.profile)
-            },
-
-            async GetUserPhotos() {
-                this.loading = true;
-                this.errormsg = null;
-                //this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-                //error => {return Promise.reject(error);});
-                try {
-                    this.$axios.get("/users/:userid=" + localStorage.getItem('Authorization') + "/photos/").then(response => (this.media = response.data));
-                } catch (e) {
-                    this.errormsg = e.toString();
-                }
-                this.loading = false;
-            },
-                
-            refresh() {
-			this.GetProfile();
-			//this.GetUserPhotos();
-		    },
-            createMedia: async function () {
-                this.$router.push({ path: '/users/' + this.profile.userid + "/photos/" })
-            },
-            updateProfile: async function () {
-                this.$router.push({ path: '/users/' + this.profile.username + "/updateProfile" })
-            },
-            changeUsername: async function () {
-                this.$router.push({ path: '/users/' + this.profile.username + "/changeUsername" })
-            }
-        },
-        mounted() {
-            this.refresh();
+    },
+    components: {
+        GalleryItem,
+    },
+    data: function () {
+        return {
+            loading: false,
+            errmsg: null,
+            profile: {},
+            media: [],
+            image,
+            isFollowing: false,
+            isBanned: false,
+            logged: true,
+            //logged: localStorage.getItem('Authorization')===this.user_id,
         }
+    },
+    methods: {
+        async GetProfile() {
+            this.loading = true;
+            this.errormsg = null;
+            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
+            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
+            */
+            console.log(this.profile, localStorage.getItem('Authorization'))
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            try {
+                let response = await this.$axios.get("/users/?username=")
+                this.profile = response.data
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+            console.log(this.profile)
+        },
+
+        async GetUserPhotos() {
+            this.loading = true;
+            this.errormsg = null;
+            //this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            //error => {return Promise.reject(error);});
+            try {
+                this.$axios.get("/users/" + this.profile.user_id + "/photos/").then(response => (this.media = response.data));
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+        },
+
+      /*   async handleClick(cond, func) {
+            this.loading = true;
+            this.errormsg = null;
+            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
+            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
+            
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            if (cond) {
+                await this.$axios.delete("/photos/" + this.media.photoid + func + this.media.authorname);
+            } else {
+                await this.$axios.put("/photos/" + this.media.photoid + func + this.media.authorname);
+            }
+            this.loading = false;
+
+        },
+        handleFollowClick() {
+            this.handleClick(this.isFollowing, "/followers/")
+            this.isFollowing = !this.isFollowing;
+        },
+
+        handleBanClick() {
+            this.handleClick(this.isBanned, "/bans/")
+            this.isBanned = !this.isBanned;
+        }, */
+
+        refresh() {
+            this.GetProfile();
+            //this.GetUserPhotos();
+        },
+        createMedia: async function () {
+            this.$router.push({ path: '/users/' + this.profile.userid + "/photos/" })
+        },
+        edit_profile: async function () {
+            this.$router.push({ path: '/users/' + this.profile.user_id + "/editProfile/", props: { user_id: this.profile.user_id } })
+        },
+        changeUsername: async function () {
+            this.$router.push({ path: '/users/' + this.profile.username + "/changeUsername" })
+        }
+    },
+    mounted() {
+        this.refresh();
     }
+}
 </script>
 <template>
     <header class="header">
@@ -78,11 +113,18 @@ export default
                 </div>
                 <div class="profile-user-settings">
                     <h1 class="profile-user-name"> {{ profile.username }}</h1>
-                    <button type="button" class="btn edit-profile-button">Edit profile</button>
+                    <button v-if=logged type="button" class="btn edit-profile-button" @click="edit_profile">Edit profile</button>
+                    <button v-if=!loading&!logged type="button" class="btn follow-button" @click="handleFollowClick">
+                        <font-awesome-icon v-if=isFollowing class="follow-check"
+                            icon="fa-solid fa-check" /><span>Follow</span></button>
+                    <button v-if=!loading&!logged type="button" class="btn ban-button" @click="handleBanClick">
+                        <font-awesome-icon v-if=isBanned class="ban-check"
+                            icon="fa-solid fa-ban" /><span>Ban</span></button>
+
                 </div>
                 <div class="profile-stats">
                     <ul>
-                        <li><span class="profile-stat-count">100</span> Posts</li>
+                        <li><span class="profile-stat-count">{{ profile.pictures_count }}</span> Posts</li>
                         <li><span class="profile-stat-count">456</span> Followers</li>
                         <li><span class="profile-stat-count">789</span> Following</li>
                     </ul>
@@ -139,28 +181,20 @@ img {
 }
 
 /*Profile section */
-.profile {
+.header .wrapper .profile {
     padding: 5rem 0;
     position: relative;
+    height: 300px;
 }
 
-.profile::after {
-    content: '';
-    display: block;
-    clear: both;
-}
-
-.profile-image {
-    float: left;
+.header .wrapper .profile .profile-image {
     width: calc(33.33% - 1rem);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-right: 3rem;
+    position: absolute;
+    left: 15%;
 }
 
-.profile-image img {
-    width: 15vh;
+.header .wrapper .profile .profile-image img {
+    width: 20vh;
     border-radius: 50%;
     cursor: pointer;
 }
@@ -169,16 +203,17 @@ img {
 .profile-user-settings,
 .profile-stats,
 .profile-bio {
-    float: left;
+    position: absolute;
+    left: 40%;
     width: calc(66.66% -2rem);
 }
 
-.profile-user-name {
+.profile-user-settings .profile-user-name {
     display: inline-block;
     font-size: 3rem;
 }
 
-.btn {
+.profile-user-settings .btn {
     display: inline-block;
     font: inherit;
     background: none;
@@ -188,21 +223,59 @@ img {
     cursor: pointer;
 }
 
-.btn:hover {
+.profile-user-settings .btn:hover {
     font-size: 1.5rem;
 }
 
-.edit-profile-button {
+.profile-user-settings {
+    top: 2rem;
+}
+
+.profile-user-settings .edit-profile-button {
     font-size: 1.4rem;
     line-height: 1.7;
     border: 0.1rem solid #dbdbdb;
     border-radius: 0.3rem;
     padding: 0 2.4rem;
-    margin-left: 2rem;
+    margin-left: 5rem;
+}
+
+.profile-user-settings .follow-button {
+    background-color: #00acee;
+    /* Twitter blu */
+    border: none;
+    border-radius: 0.3rem;
+    padding: 0 1.5rem;
+    margin-left: 5rem;
+    font-size: 16px;
+}
+
+.profile-user-settings .follow-button:hover {
+    background-color: #050b85;
+    /* Darker blu on hover */
+    color: #fafafa;
+}
+.profile-user-settings .ban-button {
+    background-color: #ec7b7b;
+    /* Twitter blu */
+    border: none;
+    border-radius: 0.3rem;
+    padding: 0 1.5rem;
+    margin-left: 5rem;
+    font-size: 16px;
+}
+
+.profile-user-settings .ban-button:hover {
+    background-color: #b50707;
+    /* Darker blu on hover */
+    color: #fafafa;
+}
+.profile-user-settings .follow-button .follow-check {
+    margin-left: 0;
 }
 
 .profile-stats {
-    margin-top: 2.3rem;
+    top: 7.5rem;
 }
 
 .profile-stats li {
@@ -221,31 +294,35 @@ img {
     font-size: 1.6rem;
     font-weight: 400;
     line-height: 1.5;
-    margin-top: 2.3rem;
+    margin-top: 7rem;
 }
 
 .profile-stat-count,
 .edit-profile-button {
     font-weight: 600;
 }
+
 .upload-image {
     position: absolute;
-    right:0;
-    bottom:0;
+    right: 0;
+    bottom: 0;
 }
+
 .upload-image-button {
     width: 30px;
     height: 30px;
-	border-radius: 50%;
+    border-radius: 50%;
 
-	background: rgb(255,255,255);
-	transition: background 0.2s, color 0.2s;
+    background: rgb(255, 255, 255);
+    transition: background 0.2s, color 0.2s;
 }
+
 .upload-image-button:hover {
-	cursor: pointer;
-	background: rgba(39, 55, 69, 1);
-	color: #fafafa;
+    cursor: pointer;
+    background: rgba(39, 55, 69, 1);
+    color: #fafafa;
 }
+
 .gallery {
     display: flex;
     flex-wrap: wrap;

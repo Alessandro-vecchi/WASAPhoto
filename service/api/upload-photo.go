@@ -43,8 +43,19 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	// 3. Get photo from the request body
-	// Decode information inserted by the user in the request body
+	// 3. Decode information inserted by the user in the request body
+	err = r.ParseMultipartForm(32 << 20) // 32MB is the maximum file size
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error: could not parse form")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// 4. Read new photo info from request body
+	// Get caption
+	caption := r.FormValue("caption")
+
+	// Get photo from the request body
 	photo, fileHeader, err := r.FormFile("image")
 	if err != nil {
 		ctx.Logger.WithError(err).Error("error: could not parse photo")
@@ -60,7 +71,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	// 4 - Check if the photo is valid
+	// 5 - Check if the photo is valid
 	filetype := http.DetectContentType(buff)
 	if filetype != "image/jpeg" && filetype != "image/png" && filetype != "image/jpg" {
 		ctx.Logger.WithError(err).Error("error: The provided file format is not allowed. Please upload a JPEG,JPG or PNG image")
@@ -73,16 +84,17 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// 5 - Generate an ID that univoquely identifies the image
+	// 6 - Generate an ID that univoquely identifies the image
 	rawPhotoId, err := uuid.NewV4()
 	if err != nil {
 		log.Fatalf("failed to get UUID: %v", err)
 	}
-	log.Printf("generated Version 4 UUID: %v", rawPhotoId)
+	log.Printf("generated Version 4 photoID: %v", rawPhotoId)
 	photoId := rawPhotoId.String()
 
-	// 6 - Save the photo in the images folder exploiting the image id
-	f, err := os.Create(fmt.Sprintf("./images/%s%s", photoId, filepath.Ext(fileHeader.Filename)))
+	// 7 - Save the photo in the images folder exploiting the image id
+	f, err := os.Create(fmt.Sprintf("./webui/src/assets/images/%s%s", photoId, filepath.Ext(fileHeader.Filename)))
+
 	if err != nil {
 		ctx.Logger.WithError(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -96,11 +108,9 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	// 7 - create picture url
-	picURL := fmt.Sprintf("http://localhost:3000/images/%s%s", photoId, filepath.Ext(fileHeader.Filename))
-
-	// 8 - take caption
-	caption := r.FormValue("cap")
+	// 8 - Create picture url
+	picURL := fmt.Sprintf("http://localhost:3000/webui/src/assets/images/%s%s", photoId, filepath.Ext(fileHeader.Filename))
+	log.Printf("image path name: %s", picURL)
 
 	// 9 - create media object
 	var media models.Photo
