@@ -16,15 +16,17 @@ export default {
         async submit() {
             this.loading = true;
             this.error = null;
-            this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-            error => {return Promise.reject(error);});
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
             try {
                 let formData = new FormData();
                 formData.append('username', this.username);
                 formData.append('bio', this.bio);
+                if (!this.$refs.avatar) return
                 formData.append('image', this.$refs.avatar.files[0]);
                 console.log(this.username, this.avatar, this.bio)
-                await this.$axios.put('/users/' + this.$route.params.user_id, formData, { headers: { 'Content-Type': 'multipart/form-data'}
+                await this.$axios.put('/users/' + this.$route.params.user_id, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 this.$router.push({ path: "/users/", query: { username: this.username } });
             } catch (error) {
@@ -65,7 +67,9 @@ export default {
         <div class="edit-profile-title">
             <h2>Edit your profile</h2>
         </div>
-        <form>
+    <!--     The .prevent modifier tells Vue to call event.preventDefault() before the method, which stops the browser's
+        default form submission behavior. -->
+        <form @submit.prevent="submit">
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" v-model="username">
@@ -80,7 +84,7 @@ export default {
                 <img :src="avatar" alt="Avatar" v-if="avatar">
             </div>
             <div class="form-group">
-                <button v-if="!loading" type="submit" @click="submit">Save</button>
+                <button v-if="!loading" :disabled="!username || !bio" type="submit">Save</button>
                 <button v-if="!loading" type="go-back" @click="cancel">Cancel</button>
                 <button v-if="!loading" type="delete" @click="deleteProfile">Delete Profile</button>
             </div>

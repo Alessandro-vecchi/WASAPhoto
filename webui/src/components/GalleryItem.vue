@@ -1,12 +1,21 @@
 <script>
 export default {
     name: 'GalleryItem',
+    data: function () {
+        return {
+            loading: false,
+            error: false,
+            
+        }
+
+    },
 }
 </script>
 
 <template>
     <div class="gallery-item" tabindex="0">
-        <img src="https://picsum.photos/600/400" alt="" class="gallery-image">
+        <!-- "https://picsum.photos/600/400" -->
+        <img :src=photos.photo alt="" class="gallery-image">
         <div class="gallery-item-info">
             <ul>
                 <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><font-awesome-icon
@@ -19,7 +28,6 @@ export default {
 </template>
 
 <style>
-
 .gallery-item {
     position: relative;
     flex-grow: 1;

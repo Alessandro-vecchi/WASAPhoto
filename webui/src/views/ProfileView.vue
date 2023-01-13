@@ -10,11 +10,9 @@ export default {
             loading: false,
             errmsg: null,
             profile: {},
-            // media: [],
+            media: [],
             isFollowing: false,
             isBanned: false,
-            logged: true,
-            //logged: localStorage.getItem('Authorization')===this.user_id,
         }
     },
     methods: {
@@ -24,9 +22,7 @@ export default {
             /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
             If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
             */
-            console.log(this.profile, localStorage.getItem('Authorization'))
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
+            console.log("header:", localStorage.getItem('Authorization'))
             try {
                 let response = await this.$axios.get("/users/?username=")
                 this.profile = response.data
@@ -34,20 +30,20 @@ export default {
                 this.errormsg = e.toString();
             }
             this.loading = false;
-            console.log(this.profile)
+            console.log("profile1:", this.profile)
         },
 
         async GetUserPhotos() {
             this.loading = true;
             this.errormsg = null;
-            //this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-            //error => {return Promise.reject(error);});
+            console.log('profile:', this.profile)
             try {
-                this.$axios.get("/users/" + this.profile.user_id + "/photos/").then(response => (this.media = response.data));
+                await this.$axios.get("/users/" + this.profile.user_id + "/photos/").then(response => (this.media = response.data));
             } catch (e) {
                 this.errormsg = e.toString();
             }
             this.loading = false;
+            console.log("media:", this.media)
         },
 
       /*   async handleClick(cond, func) {
@@ -77,8 +73,9 @@ export default {
         }, */
 
         refresh() {
-            this.GetProfile();
-            //this.GetUserPhotos();
+            this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            this.GetProfile().then(() => this.GetUserPhotos());
         },
         uploadImage: async function () {
             this.$router.push({ path: '/users/' + this.profile.user_id + "/form/"})
@@ -88,6 +85,13 @@ export default {
         },
         change_username: async function () {
             this.$router.push({ path: '/users/' + this.profile.user_id + "/changeUsername" })
+        }
+    },
+    computed: {
+        logged() {
+            // console.log(this.profile.user_id, localStorage.getItem('Authorization'))
+            console.log("logged:", this.logged, this.profile.user_id)
+            return localStorage.getItem('Authorization')==this.profile.user_id
         }
     },
     mounted() {
