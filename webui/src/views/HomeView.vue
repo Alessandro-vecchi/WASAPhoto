@@ -9,20 +9,42 @@ export default {
 		NavBar
 	},
 	data: function () {
-        return {
-            errormsg: null,
-            loading: false,
-            //username: "",
-            //stream: [],
+		return {
+			errormsg: null,
+			loading: false,
+			user_id: this.$route.params.user_id,
+			//username: "",
+			//stream: [],
 			//logged: localStorage.getItem('Authorization')
-        }
-    },
+		}
+	},
+	methods: {
+		async refresh() {
+			this.loading = true;
+			this.errormsg = null;
+			/* try {
+				let response = await this.$axios.get("/users/" + logged + "/stream/");
+				this.stream = response.data;
+			} catch (e) {
+				this.errormsg = e.toString();
+			}  */
+			this.loading = false;
+		},
+
+	},
+	beforeMount(){
+    //console.log(this.user_id)
+},
+
+	mounted() {
+		this.refresh()
+	}
 }
 </script>
 
 <template>
 
-	<NavBar />
+	<NavBar :user_id="user_id" />
 	<div class="Home">
 		<div class="timeline">
 			<Post />
@@ -42,7 +64,6 @@ export default {
 	margin-right: auto;
 	padding-bottom: 10vh;
 }
-
 @media (--t) {
 	.Home {
 		max-width: none;
@@ -51,17 +72,14 @@ export default {
 		grid-gap: 28px;
 	}
 }
-
 .sidebar {
 	display: none;
 }
-
 @media (--t) {
 	.sidebar {
 		display: block;
 		margin-top: 16px;
 	}
-
 	.sidebar p {
 		position: sticky;
 		top: calc(53px + 30px + 18px);

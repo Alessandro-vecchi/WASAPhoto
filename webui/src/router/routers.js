@@ -7,23 +7,26 @@ import comments from '../components/Comments.vue'
 import search from '../components/GalleryItem.vue'
 import Home from '../views/HomeView.vue'
 import Edit from '../components/EditPage.vue'
+import changed from '../components/ChangeUsername.vue'
+import NavBar from '../components/NavBar.vue'
+import Post from '@/components/Post.vue'
 
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
 	routes: [
 		{ path: '/', component: Login, name: 'Login', alias: "/login" },
-		{ path: '/users/:user_id/stream/', component: Home, name: 'Home' },
+		{ path: '/users/:user_id/stream/', component: Home, name: 'Home'},
 		// get user profile by name
-		{ path: '/users/', component: ProfileView, name: 'Profile', query: { username: { type: String, default: '' } } },
+		{ path: '/users/', component: ProfileView, name: 'Profile', query: { username: { type: String, default: '' } }},
 		// change username
-		{ path: '/users/:user_id/changeName/', component: search, name: 'username', props: true },
+		{ path: '/users/:user_id/changeUsername/', component: changed, name: 'username'},
 		// change profile
-		{ path: '/users/:user_id/editProfile/', component: Edit, name: 'EditPage', props: true },
+		{ path: '/users/:user_id/editProfile/', component: Edit, name: 'EditPage'},
 		// delete profile
 
 		/* Photo */
 		// upload a photo
-		{ path: '/users/:user_id/form/', component: PostForm, name: 'PostForm', props: true },
+		{ path: '/users/:user_id/form/', component: PostForm, name: 'PostForm'},
 
 		// delete a photo
 

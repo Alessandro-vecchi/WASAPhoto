@@ -5,8 +5,8 @@ export default {
             errormsg: null,
             loading: false,
             User: {
-                UserID: null,
-                Username: null,
+                UserID: "",
+                Username: "",
             }
         }
     },
@@ -16,11 +16,11 @@ export default {
             this.errormsg = null;
             try {
                 let response = await this.$axios.post("/session/", {
-                    username: this.Username,
+                    username: this.User.Username,
                 });
-				this.UserID  = response.data,
-                localStorage.setItem('Authorization', this.UserID),
-                this.$router.push({ path: '/users/' + this.UserID + '/stream/' })
+				this.User.UserID  = response.data,
+                localStorage.setItem('Authorization', this.User.UserID),
+                this.$router.push({ path: '/users/' + this.User.UserID + '/stream/'})
             } catch (e) {
                 this.errormsg = e.toString();
             }
@@ -40,7 +40,7 @@ export default {
             <h1> Welcome </h1>
             <div class="register">
                 <font-awesome-icon class="user-icon" icon="fa-solid fa-user" size="xl"/>
-                <input type="text" v-model="Username" placeholder="Enter Username">
+                <input type="text" v-model="User.Username" placeholder="Enter Username">
                 <button v-if="!loading" class="login-button" type="button" @click="LoginUser">LOGIN</button>
                 <LoadingSpinner v-if="loading"></LoadingSpinner>
             </div>

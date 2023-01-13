@@ -9,7 +9,7 @@ export default {
         return {
             loading: false,
             errmsg: null,
-            profile: {},
+            profile: "",
             // media: [],
             isFollowing: false,
             isBanned: false,
@@ -24,11 +24,11 @@ export default {
             /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
             If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
             */
-            console.log(this.profile, localStorage.getItem('Authorization'))
+            console.log(localStorage.getItem("Authorization"));
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             try {
-                let response = await this.$axios.get("/users/?username=")
+                let response = await this.$axios.get("/users/?username=" + this.$route.query.username)
                 this.profile = response.data
             } catch (e) {
                 this.errormsg = e.toString();
@@ -50,47 +50,50 @@ export default {
             this.loading = false;
         },
 
-      /*   async handleClick(cond, func) {
-            this.loading = true;
-            this.errormsg = null;
-            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
-            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
-            
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
-            if (cond) {
-                await this.$axios.delete("/photos/" + this.media.photoid + func + this.media.authorname);
-            } else {
-                await this.$axios.put("/photos/" + this.media.photoid + func + this.media.authorname);
-            }
-            this.loading = false;
-
-        },
-        handleFollowClick() {
-            this.handleClick(this.isFollowing, "/followers/")
-            this.isFollowing = !this.isFollowing;
-        },
-
-        handleBanClick() {
-            this.handleClick(this.isBanned, "/bans/")
-            this.isBanned = !this.isBanned;
-        }, */
+        /*   async handleClick(cond, func) {
+              this.loading = true;
+              this.errormsg = null;
+              /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
+              If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
+              
+              this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                  error => { return Promise.reject(error); });
+              if (cond) {
+                  await this.$axios.delete("/photos/" + this.media.photoid + func + this.media.authorname);
+              } else {
+                  await this.$axios.put("/photos/" + this.media.photoid + func + this.media.authorname);
+              }
+              this.loading = false;
+  
+          },
+          handleFollowClick() {
+              this.handleClick(this.isFollowing, "/followers/")
+              this.isFollowing = !this.isFollowing;
+          },
+  
+          handleBanClick() {
+              this.handleClick(this.isBanned, "/bans/")
+              this.isBanned = !this.isBanned;
+          }, */
 
         refresh() {
+
             this.GetProfile();
             //this.GetUserPhotos();
         },
         uploadImage: async function () {
-            this.$router.push({ path: '/users/' + this.profile.user_id + "/form/"})
+            this.$router.push({ path: '/users/' + this.profile.user_id + "/form/" })
         },
         edit_profile: async function () {
-            this.$router.push({ path: '/users/' + this.profile.user_id + "/editProfile/"})
+            this.$router.push({ path: '/users/' + this.profile.user_id + "/editProfile/" })
         },
         change_username: async function () {
-            this.$router.push({ path: '/users/' + this.profile.user_id + "/changeUsername" })
+            this.$router.push({ path: '/users/' + this.profile.username + "/changeUsername/" })
         }
     },
     mounted() {
+        console.log(this.$props)
+        console.log(this.$route.query)
         this.refresh();
     }
 }
@@ -105,13 +108,14 @@ export default {
                 </div>
                 <div class="profile-user-settings">
                     <h1 class="profile-user-name"> {{ profile.username }}</h1>
-                    <button v-if=logged type="button" class="btn edit-profile-button" @click="edit_profile">Edit profile</button>
+                    <button v-if=logged type="button" class="btn edit-profile-button" @click="edit_profile">Edit
+                        profile</button>
                     <button v-if=logged type="button" class="btn change-username-button" @click="change_username">Change
                         Username</button>
-                    <button v-if=!loading&!logged type="button" class="btn follow-button" @click="handleFollowClick">
+                    <button v-if=!loading & !logged type="button" class="btn follow-button" @click="handleFollowClick">
                         <font-awesome-icon v-if=isFollowing class="follow-check"
                             icon="fa-solid fa-check" /><span>Follow</span></button>
-                    <button v-if=!loading&!logged type="button" class="btn ban-button" @click="handleBanClick">
+                    <button v-if=!loading & !logged type="button" class="btn ban-button" @click="handleBanClick">
                         <font-awesome-icon v-if=isBanned class="ban-check"
                             icon="fa-solid fa-ban" /><span>Ban</span></button>
 
@@ -131,7 +135,8 @@ export default {
                 </div>
 
                 <div class="upload-image">
-                    <font-awesome-icon class="upload-image-button" icon="fa-solid fa-plus" size="3x" @click="uploadImage" />
+                    <font-awesome-icon class="upload-image-button" icon="fa-solid fa-plus" size="3x"
+                        @click="uploadImage" />
                 </div>
                 <!--End of profile section-->
             </div>
@@ -352,6 +357,7 @@ img {
     .gallery {
         width: auto;
         margin: 0;
+
     }
 }
 </style>

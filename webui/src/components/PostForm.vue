@@ -1,11 +1,5 @@
 <script>
 export default {
-    props: {
-        user_id: {
-            type: String,
-            required: true
-        },
-    },
     data() {
         return {
             postCaption: '',
@@ -18,7 +12,6 @@ export default {
     },
     methods: {
         handleImageUpload(event) {
-
             this.previewImage(event)
             this.uploadImage(event)
         },
@@ -44,10 +37,10 @@ export default {
             let formData = new FormData();
             formData.append('caption', this.postCaption);
             formData.append('image', this.postImage);
-            console.log(this.user_id, this.postCaption)
+            console.log(this.$route.params.user_id, this.postCaption)
 
             try {
-                let response = await this.$axios.post('/users/' + this.user_id + '/photos/', formData, {
+                let response = await this.$axios.post('/users/' + this.$route.params.user_id + '/photos/', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
@@ -75,11 +68,11 @@ export default {
         <form>
             <div class="form-group">
                 <input type="file" id="post-image" @change="handleImageUpload" accept="image/*">
-                <img id="preview" v-if="previewUrl" :src="previewUrl" style="max-width: 300px;">
                 <label for="post-image" class="upload-label">
                     <span>Add a photo</span>
                     <font-awesome-icon icon="fa-regular fa-image" size="xl" />
                 </label>
+                <img id="preview-image" v-if="previewUrl" :src="previewUrl">
             </div>
             <div class="form-group">
                 <textarea placeholder="What's on your mind?" id="post-caption" v-model="postCaption"></textarea>
@@ -93,7 +86,7 @@ export default {
 
 </template>
 
-<style>
+<style scoped>
 .upload-post {
     max-width: 600px;
     margin: auto;
@@ -117,6 +110,14 @@ export default {
 #post-image {
     display: none;
     /* Don't wanna see the SELEZIONA FILE button */
+}
+
+#preview-image {
+    max-width: 400px;
+    border: 1px solid #ccc;
+    padding: 2px;
+    margin: 10px 0;
+    margin-left: calc((600px - 400px - 40px - 4px - 2px) / 2); /* max-width parent - max width child - padding parent - padding child - border */
 }
 
 .upload-label {

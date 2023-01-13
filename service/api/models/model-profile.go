@@ -20,11 +20,11 @@ type Profile struct {
 	// Name of the user
 	Username string `json:"username"`
 	// Number of photos in the profile of the user
-	PicturesCount uint32 `json:"pictures_count,omitempty"`
+	PicturesCount uint32 `json:"pictures_count"`
 	// Number of users that follow the profile
-	FollowersCount uint32 `json:"followers_count,omitempty"`
+	FollowersCount uint32 `json:"followers_count"`
 	// number of users that the user follows
-	FollowsCount uint32 `json:"follows_count,omitempty"`
+	FollowsCount uint32 `json:"follows_count"`
 	// URL of the profile picture. Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
 	ProfilePictureUrl string `json:"profile_picture_url,omitempty"`
 	// Biography of the profile. Just allowing alphanumeric characters and basic punctuation.

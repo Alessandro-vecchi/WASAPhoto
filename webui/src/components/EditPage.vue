@@ -1,11 +1,5 @@
 <script>
 export default {
-    props: {
-        user_id: {
-            type: String,
-            required: true
-        },
-    },
     data() {
         return {
             username: '',
@@ -30,7 +24,7 @@ export default {
                 formData.append('bio', this.bio);
                 formData.append('image', this.$refs.avatar.files[0]);
                 console.log(this.username, this.avatar, this.bio)
-                await this.$axios.put('/users/' + this.user_id, formData, { headers: { 'Content-Type': 'multipart/form-data'}
+                await this.$axios.put('/users/' + this.$route.params.user_id, formData, { headers: { 'Content-Type': 'multipart/form-data'}
                 });
                 this.$router.push({ path: "/users/", query: { username: this.username } });
             } catch (error) {
@@ -42,12 +36,15 @@ export default {
             this.$router.push({ path: "/users/", query: { username: this.username } });
         },
         async deleteProfile() {
+            this.loading = true;
+            this.error = null;
             try {
-                await this.$axios.delete('/users/' + this.user_id);
-                this.$router.push({ name: "Login" });
+                await this.$axios.delete('/users/' + this.$route.params.user_id);
+                this.$router.push({ path: "/login" });
             } catch (error) {
                 this.error = error;
             }
+            this.loading = false;
         }
     },
     mounted() {
