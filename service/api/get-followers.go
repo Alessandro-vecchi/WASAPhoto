@@ -11,7 +11,7 @@ import (
 func (rt *_router) getFollowers(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	//  1. Retrieve ID of the user profile we want to follow from the path
-	user_id := rt.getPathParameter("users", ps)
+	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

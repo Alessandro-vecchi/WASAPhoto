@@ -54,7 +54,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// 4. Read new photo info from request body
 	// Get caption
 	caption := r.FormValue("caption")
-
+	fmt.Println(caption)
 	// Get photo from the request body
 	photo, fileHeader, err := r.FormFile("image")
 	if err != nil {
@@ -109,7 +109,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// 8 - Create picture url
-	picURL := fmt.Sprintf("http://localhost:3000/webui/src/assets/images/%s%s", photoId, filepath.Ext(fileHeader.Filename))
+	picURL := fmt.Sprintf("./src/assets/images/%s%s", photoId, filepath.Ext(fileHeader.Filename))
 	log.Printf("image path name: %s", picURL)
 
 	// 9 - create media object

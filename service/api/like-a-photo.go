@@ -22,7 +22,7 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 	// 2. Retrieve ID of the user who want to put like from path.
-	user_id := rt.getPathParameter("likes", ps)
+	user_id := rt.getPathParameter("like_id", ps)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

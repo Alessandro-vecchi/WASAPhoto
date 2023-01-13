@@ -84,7 +84,7 @@ export default {
             </div>
             <div class="form-group">
                 <button v-if="!loading" type="submit" @click="submit">Save</button>
-                <button v-if="!loading" type="button" @click="cancel">Cancel</button>
+                <button v-if="!loading" type="go-back" @click="cancel">Cancel</button>
                 <button v-if="!loading" type="delete" @click="deleteProfile">Delete Profile</button>
             </div>
         </form>
@@ -147,7 +147,7 @@ export default {
     background-color: #4CAF50;
 }
 
-.form-group button[type="button"] {
+.form-group button[type="go-back"] {
     background-color: #f44336;
 }
 

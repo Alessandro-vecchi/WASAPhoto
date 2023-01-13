@@ -16,7 +16,7 @@ import (
 func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	// 1. Get ID of the user that want to change name
-	user_id := rt.getPathParameter("users", ps)
+	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

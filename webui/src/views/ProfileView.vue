@@ -88,8 +88,8 @@ export default {
             this.GetProfile();
             //this.GetUserPhotos();
         },
-        createMedia: async function () {
-            this.$router.push({ path: '/users/' + this.profile.userid + "/photos/" })
+        uploadImage: async function () {
+            this.$router.push({ path: '/users/' + this.profile.user_id + "/form/", props: { user_id: this.profile.user_id}  })
         },
         edit_profile: async function () {
             this.$router.push({ path: '/users/' + this.profile.user_id + "/editProfile/", props: { user_id: this.profile.user_id } })
@@ -109,7 +109,7 @@ export default {
             <div class="profile">
                 <div class="profile-image">
                     <!--<img :src="profile.profilePicUrl" alt="">-->
-                    <img :src=profile.profile_picture_url alt="Mickey Mouse" />
+                    <img :src=profile.profile_picture_url alt="Image" />
                 </div>
                 <div class="profile-user-settings">
                     <h1 class="profile-user-name"> {{ profile.username }}</h1>
@@ -137,7 +137,7 @@ export default {
                 </div>
 
                 <div class="upload-image">
-                    <font-awesome-icon class="upload-image-button" icon="fa-solid fa-plus" size="3x" />
+                    <font-awesome-icon class="upload-image-button" icon="fa-solid fa-plus" size="3x" @click="uploadImage" />
                 </div>
                 <!--End of profile section-->
             </div>

@@ -15,14 +15,14 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 
 	// 1. Get user ID of user A from path
 	// The User ID in the path is a string and coincides with the profile we watching
-	user_id_A := rt.getPathParameter("users", ps)
+	user_id_A := rt.getPathParameter("user_id", ps)
 	if user_id_A == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	// 2. Get user ID of user B from path
 	// It coincides with the user that want to follow
-	user_id_B := rt.getPathParameter("followers", ps)
+	user_id_B := rt.getPathParameter("followers_id", ps)
 	if user_id_B == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

@@ -117,7 +117,7 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	// 8 - Create picture url
-	picURL := fmt.Sprintf("http://localhost:3000/webui/src/assets/images/%s%s", photoId, filepath.Ext(fileHeader.Filename))
+	picURL := fmt.Sprintf("src/assets/images/%s%s", photoId, filepath.Ext(fileHeader.Filename))
 	log.Printf("image path name: %s", picURL)
 	p.ProfilePictureUrl = picURL
 	// 9 - Update user_id

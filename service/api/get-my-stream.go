@@ -14,7 +14,7 @@ import (
 
 func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1. Retrieve ID of the user whose stream belongs to.
-	user_id := rt.getPathParameter("likes", ps)
+	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

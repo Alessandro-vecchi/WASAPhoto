@@ -13,7 +13,7 @@ func (rt *_router) getFollowed(w http.ResponseWriter, r *http.Request, ps httpro
 	var err error
 
 	// The User ID in the path is a string
-	user_id := rt.getPathParameter("users", ps)
+	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

@@ -14,7 +14,7 @@ import (
 
 func (rt *_router) modifyComment(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1. Retrieve Id of the comment the user want to modify.
-	comment_id := rt.getPathParameter("comments", ps)
+	comment_id := rt.getPathParameter("comment_id", ps)
 	if comment_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

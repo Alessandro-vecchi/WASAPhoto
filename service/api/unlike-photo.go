@@ -13,7 +13,7 @@ import (
 
 func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1. Retrieve photo ID from path.
-	photo_id := rt.getPathParameter("photos", ps)
+	photo_id := rt.getPathParameter("photo_id", ps)
 	if photo_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

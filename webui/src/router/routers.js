@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Stream from '../views/StreamView.vue'
+import PostForm from '../components/PostForm.vue'
 import Login from '../views/LoginView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import list from '../components/UserList.vue'
@@ -23,6 +23,7 @@ const router = createRouter({
 
 		/* Photo */
 		// upload a photo
+		{ path: '/users/:user_id/form/', component: PostForm, name: 'PostForm', props: true },
 
 		// delete a photo
 

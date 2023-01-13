@@ -16,7 +16,7 @@ func (rt *_router) getPhotoComments(w http.ResponseWriter, r *http.Request, ps h
 	var listCommentsDb []database.Comment_db
 
 	// 1. Retrieve ID of the photo from the path
-	photo_id := rt.getPathParameter("photos", ps)
+	photo_id := rt.getPathParameter("photo_id", ps)
 	if photo_id == "" {
 		// If empty it's because the function returned a bad values
 		w.WriteHeader(http.StatusBadRequest)

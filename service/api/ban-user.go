@@ -17,14 +17,14 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	// 1. Get ID of the profile of user A from path
 	// The User ID in the path is a string and correspondes with the profile we're watching
-	user_id_A := rt.getPathParameter("users", ps)
+	user_id_A := rt.getPathParameter("user_id", ps)
 	if user_id_A == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	// 2. Get ID of user B from path
 	// It coincides with the user that want to ban
-	user_id_B := rt.getPathParameter("bans", ps)
+	user_id_B := rt.getPathParameter("ban_id", ps)
 	if user_id_B == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
