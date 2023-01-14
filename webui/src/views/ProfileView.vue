@@ -8,9 +8,10 @@ export default {
     data: function () {
         return {
             loading: false,
-            errmsg: null,
+            errormsg: null,
             profile: {},
             media: [],
+            username: "",
             isFollowing: false,
             isBanned: false,
         }
@@ -23,14 +24,20 @@ export default {
             If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
             */
             console.log("header:", localStorage.getItem('Authorization'))
+            console.log(this.$route.query.username, this.username)
+            /* if (this.$route.query.username != this.username) {
+
+            } */
             try {
-                let response = await this.$axios.get("/users/?username=")
+                let response = await this.$axios.get("/users/?username=" + this.$route.query.username)
                 this.profile = response.data
+                this.username = this.profile.username
             } catch (e) {
                 this.errormsg = e.toString();
             }
             this.loading = false;
             console.log("profile1:", this.profile)
+            
         },
 
         async GetUserPhotos() {
@@ -100,6 +107,7 @@ export default {
 }
 </script>
 <template>
+    <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
     <header class="header">
         <div class="wrapper">
             <div class="profile">
@@ -144,14 +152,14 @@ export default {
 
     <div class="wrapper">
         <div class="gallery">
+            <GalleryItem v-for="obj in media" :photo="obj"/>
+           <!--  <GalleryItem />
             <GalleryItem />
             <GalleryItem />
             <GalleryItem />
             <GalleryItem />
             <GalleryItem />
-            <GalleryItem />
-            <GalleryItem />
-            <GalleryItem />
+            <GalleryItem /> -->
         </div>
     </div>
 </template>

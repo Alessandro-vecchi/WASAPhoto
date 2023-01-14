@@ -1,11 +1,23 @@
 <script>
 export default {
+    /*    props: {
+           photo: {
+               photo_id: "",
+               owner: "",
+               image: "",
+               caption: "",
+               timestamp: "",
+               likes_count: 0,
+               comment_count: 0,
+   
+           }
+       }, */
+    props: ['photo'],
     name: 'GalleryItem',
     data: function () {
         return {
             loading: false,
-            error: false,
-            
+            error: false
         }
 
     },
@@ -14,14 +26,14 @@ export default {
 
 <template>
     <div class="gallery-item" tabindex="0">
-        <!-- "https://picsum.photos/600/400" -->
-        <img :src=photos.photo alt="" class="gallery-image">
+        <!-- src="https://picsum.photos/600/400" -->
+        <img :src="photo.image" alt="" class="gallery-image">
         <div class="gallery-item-info">
             <ul>
                 <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><font-awesome-icon
-                        icon="fa-solid fa-heart" size="xl" /> 13</li>
+                        icon="fa-solid fa-heart" size="xl" /> {{ photo.likes_count }}</li>
                 <li><span class="visually-hidden">Comments:</span><font-awesome-icon icon="fa-solid fa-comment"
-                        size="xl" /> 6</li>
+                        size="xl" /> {{ photo.comments_count }}</li>
             </ul>
         </div>
     </div>
@@ -62,6 +74,11 @@ export default {
     margin-right: 1.5rem;
 }
 
+/* .gallery-image {
+    max-width: 600px;
+    max-height: 400px;
+    object-fit: cover;
+} */
 .gallery-image {
     width: 100%;
     height: 100%;
