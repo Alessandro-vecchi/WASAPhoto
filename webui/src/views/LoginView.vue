@@ -18,10 +18,8 @@ export default {
                 let response = await this.$axios.post("/session/", {
                     username: this.User.Username,
                 });
-				this.User.UserID  = response.data,
-                console.log(localStorage.getItem('Authorization'))
+		this.User.UserID  = response.data,
                 localStorage.clear();
-                console.log(localStorage.getItem('Authorization'))
                 localStorage.setItem('Authorization', this.User.UserID),
                 this.$router.push({ path: '/users/' + this.User.UserID + '/stream/'})
             } catch (e) {
