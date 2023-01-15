@@ -22,7 +22,7 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	// 2. Get user ID of user B from path
 	// It coincides with the user that want to follow
-	user_id_B := rt.getPathParameter("followers_id", ps)
+	user_id_B := rt.getPathParameter("follower_id", ps)
 	if user_id_B == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

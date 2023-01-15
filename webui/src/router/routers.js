@@ -62,7 +62,7 @@ const router = createRouter({
 
 		// Unban user
 
-		{ path: '/list', component: list, name: 'list' },
+		{ path: '/users/:user_id/listUsers/', component: list, name: 'list' },
 		{ path: '/comments', component: comments, name: 'comments' },
 	], sensitive: true //, strict: true
 })

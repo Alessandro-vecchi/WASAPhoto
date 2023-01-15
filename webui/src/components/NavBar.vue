@@ -34,6 +34,7 @@ export default {
                 this.$router.push({ path: "/users/", query: { username: this.Username }})
                 console.log(this.profile)
             } catch (e) {
+                // console.log(e)
                 this.errormsg = e.toString();
             }
             this.loading = false;
