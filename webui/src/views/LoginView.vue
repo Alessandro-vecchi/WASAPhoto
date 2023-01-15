@@ -19,6 +19,9 @@ export default {
                     username: this.User.Username,
                 });
 				this.User.UserID  = response.data,
+                console.log(localStorage.getItem('Authorization'))
+                localStorage.clear();
+                console.log(localStorage.getItem('Authorization'))
                 localStorage.setItem('Authorization', this.User.UserID),
                 this.$router.push({ path: '/users/' + this.User.UserID + '/stream/'})
             } catch (e) {
