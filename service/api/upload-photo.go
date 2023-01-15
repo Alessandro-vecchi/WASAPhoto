@@ -54,7 +54,6 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// 4. Read new photo info from request body
 	// Get caption
 	caption := r.FormValue("caption")
-	fmt.Println(caption)
 	// Get photo from the request body
 	photo, fileHeader, err := r.FormFile("image")
 	if err != nil {

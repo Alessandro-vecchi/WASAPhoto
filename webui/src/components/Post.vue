@@ -2,6 +2,7 @@
 import Avatar from "@/components/Avatar.vue"
 import CustomText from "@/components/CustomText.vue"
 export default {
+    props: ['post'],
     name: 'Post',
     components: {
         Avatar,
@@ -15,9 +16,9 @@ export default {
         <!-- header -->
         <header class="header section">
             <div class="header-author">
-                <Avatar :size="40" />
+                <Avatar :size="40" /> <!-- :img: "post.image" -->
                 <div class="header-author-info">
-                    <CustomText tag="b">_alevecchi</CustomText>
+                    <CustomText tag="b">_alevecchi</CustomText> <!-- {{ post.username }} -->
                 </div>
             </div>
             <div class="header-more">
@@ -38,14 +39,14 @@ export default {
                 <ul>
                     <li>
                         <button type="button">
-                            <font-awesome-icon class="icon-like" icon="fa-regular fa-heart" size="2x" />
-                            <span class="num"> 897 </span>
+                            <font-awesome-icon class="icon-like" icon="fa-regular fa-heart" size="2x"/>
+                            <span class="num"> 897 </span> <!-- {{ post.likes_count }} -->
                         </button>
                     </li>
                     <li>
                         <button type="button">
                             <font-awesome-icon class="icon-comment" icon="fa-regular fa-comment" size="2x" />
-                            <span class="num"> 33 </span>
+                            <span class="num"> 33 </span> <!-- {{ post.comments_count }} -->
                         </button>
                     </li>
                 </ul>
@@ -53,8 +54,8 @@ export default {
 
             <div class="caption">
                 <li>
-                    <CustomText tag="b">_alevecchi</CustomText>
-                    <span class="caption-span">It's a wonderful day</span>
+                    <CustomText tag="b">_alevecchi</CustomText> <!-- {{ post.username }} -->
+                    <span class="caption-span">It's a wonderful day</span> <!-- {{ post.caption }} -->
                 </li>
             </div>
         </div>
@@ -62,7 +63,7 @@ export default {
         <div class="comments-list">
             <!-- datetime-->
             <div class="time section">
-                <CustomText size="xxsmall" class="time-ago">10 MINUTES AGO</CustomText>
+                <CustomText size="xxsmall" class="time-ago">10 MINUTES AGO</CustomText> <!-- {{ post.timestamp }} -->
             </div>
 
             <!-- comments form -->
@@ -146,10 +147,17 @@ export default {
     height: 25px;
     width: 25px;
 }
+.post .action-buttons .icon-like:hover {
+    color: #555;
+    /* background-color: rgb(232, 62, 79) */
+}
 
 .post .action-buttons .icon-comment {
     height: 25px;
     width: 25px;
+}
+.post .action-buttons .icon-comment:hover {
+    color: #555
 }
 .post .caption{
     display: flex;

@@ -6,7 +6,8 @@ export default {
     components: {
         Avatar,
         CustomText,
-    }
+    },
+    props: ['photo'],
 }
 </script>
 
@@ -24,7 +25,7 @@ export default {
             <ul>
                 <li>
                     <div class="short-profile">
-                        <Avatar :size="40" class="profile-photo" />
+                        <Avatar :src="photo.image" :size="40" class="profile-photo" />
                         <div class="author-username">
                             <CustomText tag="b">_alevecchi</CustomText>
                         </div>

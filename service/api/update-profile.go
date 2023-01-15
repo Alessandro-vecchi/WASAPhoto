@@ -21,7 +21,6 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 
 	// 1. Get Id of the user whose profile is being updated
 	user_id := rt.getPathParameter("user_id", ps)
-	fmt.Println(user_id)
 	if user_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -102,7 +101,6 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 
 	// 7 - Save the photo in the images folder exploiting the image id
 	f, err := os.Create(fmt.Sprintf("./webui/src/assets/images/%s%s", photoId, filepath.Ext(fileHeader.Filename)))
-	fmt.Println(f, err)
 	if err != nil {
 		ctx.Logger.WithError(err)
 		w.WriteHeader(http.StatusBadRequest)

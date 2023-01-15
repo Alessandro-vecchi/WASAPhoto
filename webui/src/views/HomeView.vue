@@ -44,10 +44,10 @@ export default {
 
 <template>
 
-	<NavBar :user_id="user_id" />
+	<NavBar />
 	<div class="Home">
 		<div class="timeline">
-			<Post />
+			<Post /> <!-- v-for="obj in stream" :post="obj" -->
 			<Post />
 			<Post />
 		</div>

@@ -64,6 +64,6 @@ func (profile *Profile) ToDatabase() database.Profile_db {
 // read from requests have zero IDs as the user won't send us the ID in that way.
 func (p *Profile) IsValid() bool {
 	return ((len(p.Username) >= 3 && len(p.Username) <= 16 && usernameRx.MatchString(p.Username)) || p.Username == "") &&
-		len(p.ProfilePictureUrl) <= 200 && //ppURLRx.MatchString(p.ProfilePictureUrl)  &&
+		len(p.ProfilePictureUrl) <= 200 && // ppURLRx.MatchString(p.ProfilePictureUrl)  &&
 		len(p.Bio) <= 200 && bioRx.MatchString(p.Bio)
 }
