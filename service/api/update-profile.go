@@ -94,7 +94,7 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	// 6 - Generate an ID that univoquely identifies the image
 	rawPhotoId, err := uuid.NewV4()
 	if err != nil {
-		log.Fatalf("failed to get UUID: %v", err)
+		ctx.Logger.WithError(err).Error("failed to get UUID:")
 	}
 	log.Printf("generated Version 4 photoID: %v", rawPhotoId)
 	photoId := rawPhotoId.String()
