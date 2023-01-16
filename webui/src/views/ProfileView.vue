@@ -17,8 +17,6 @@ export default {
             following: [],
             bans: [],
             header: localStorage.getItem('Authorization'),
-            isFollowing: false,
-            isBanned: false,
         }
     },
     methods: {
@@ -145,7 +143,7 @@ export default {
         refresh() {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-                this.GetProfile().then(() => this.GetBans(true)).then(() => this.getFollowers(true)).then(() => this.GetUserPhotos());
+            this.GetProfile().then(() => this.GetBans(true)).then(() => this.getFollowers(true)).then(() => this.GetUserPhotos());
         },
 
         uploadImage: async function () {
@@ -190,70 +188,63 @@ export default {
 }
 </script>
 <template>
-    <ErrorMsg v-if="errormsg" :msg="errormsg" />
-    <header class="header">
-        <div class="wrapper">
-            <div class="profile">
-                <font-awesome-icon class="previous-page" icon="fa-solid fa-chevron-left" size="5x" @click="cancel" />
-                <div class="profile-image">
-                    <Avatar :src="profile.profile_picture_url" :size="180" />
-                    <!-- <img :src=profile.profile_picture_url alt="Image" /> -->
-                </div>
-                <div class="profile-user-settings">
-                    <h1 class="profile-user-name"> {{ profile.username }}</h1>
-                    <button v-if=logged type="button" class="btn edit-profile-button" @click="edit_profile">Edit
-                        profile</button>
-                    <button v-if=logged type="button" class="btn change-username-button" @click="change_username">Change
-                        Username</button>
-                    <button v-if="!loading && !logged" type="button" class="btn follow-button"
-                        @click="handleFollowClick">
-                        <font-awesome-icon v-if=isFollowing class="check" icon="fa-solid fa-check" /><font-awesome-icon
-                            v-else class="check" icon="fa-solid fa-xmark" /><span class="action">Follow</span></button>
-                    <button v-if="!loading && !logged" type="button" class="btn ban-button" @click="handleBanClick">
-                        <font-awesome-icon v-if=isBanned class="check" icon="fa-solid fa-ban" /><span
-                            class="action">Ban</span></button>
-
-                </div>
-                <div class="profile-stats">
-                    <ul>
-                        <li><span class="profile-stat-count">{{ profile.pictures_count }}</span> Posts</li>
-                        <li><span class="profile-stat-count">{{ profile.followers_count }}</span> <span
-                                @click="getFollowers(false)">Followers</span></li>
-                        <li><span class="profile-stat-count">{{ profile.follows_count }}</span> <span
-                                @click="getFollowing(false)">Following</span></li>
-                    </ul>
-                </div>
-                <div class="profile-bio">
-                    <p class="profile-bio-text">
-                        <!-- Hi! My name is John and I'm here to kill you. -->
-                        {{ profile.bio }}
-                    </p>
-                </div>
-
-                <div class="upload-image">
-                    <font-awesome-icon class="upload-image-button" icon="fa-solid fa-plus" size="3x"
-                        @click="uploadImage" />
-                </div>
-                <!--End of profile section-->
-            </div>
-        </div>
-    </header>
-
     <div class="wrapper">
+        <div class="profile">
+            <ErrorMsg v-if="errormsg" :msg="errormsg" />
+            <font-awesome-icon class="previous-page" icon="fa-solid fa-chevron-left" size="5x" @click="cancel" />
+            <div class="profile-image">
+                <Avatar :src="profile.profile_picture_url" :size="180" />
+            </div>
+            <div class="profile-user-settings">
+                <h1 class="profile-user-name"> {{ profile.username }}</h1>
+                <button v-if=logged type="button" class="btn edit-profile-button" @click="edit_profile">Edit
+                    profile</button>
+                <button v-if=logged type="button" class="btn change-username-button" @click="change_username">Change
+                    Username</button>
+                <button v-if="(!loading && !logged)" type="button" class="btn follow-button" @click="handleFollowClick">
+                    <font-awesome-icon v-if=isFollowing class="check" icon="fa-solid fa-check" /><font-awesome-icon
+                        v-else class="check" icon="fa-solid fa-xmark" /><span class="action">Follow</span></button>
+                <button v-if="(!loading && !logged)" type="button" class="btn ban-button" @click="handleBanClick">
+                    <font-awesome-icon v-if=isBanned class="check" icon="fa-solid fa-ban" /><span
+                        class="action">Ban</span></button>
+
+            </div>
+            <div class="profile-stats">
+                <ul>
+                    <li><span class="profile-stat-count">{{ profile.pictures_count }}</span> Posts</li>
+                    <li><span class="profile-stat-count">{{ profile.followers_count }}</span> <span
+                            @click="getFollowers(false)">Followers</span></li>
+                    <li><span class="profile-stat-count">{{ profile.follows_count }}</span> <span
+                            @click="getFollowing(false)">Following</span></li>
+                </ul>
+            </div>
+            <div class="profile-bio">
+                <p class="profile-bio-text">
+                    {{ profile.bio }}
+                </p>
+            </div>
+
+            <div class="upload-image">
+                <font-awesome-icon class="upload-image-button" icon="fa-solid fa-plus" size="3x" @click="uploadImage" />
+            </div>
+            <!--End of profile section-->
+        </div>
         <div class="gallery">
-            <GalleryItem v-for="obj in media" :photo="obj" />
+            <GalleryItem v-for="obj in media" :key="obj.photo_id" :photo="obj" />
         </div>
     </div>
 </template>
 
 <style scoped>
-.header {
+/* .header {
     font-size: 10px;
     min-height: 25vh;
     padding-bottom: 1rem;
-}
+    outline: 1px red;
+} */
 
 .wrapper {
+    min-height: 25vh;
     max-width: 93.5rem;
     margin: 0 auto;
     padding: 0 2rem;
@@ -268,26 +259,27 @@ img {
 }
 
 /*Profile section */
-.header .wrapper .profile {
+.wrapper .profile {
     padding: 5rem 0;
     position: relative;
     height: 300px;
     background-color: #fafafa;
 }
 
-.header .wrapper .profile .previous-page {
+.wrapper .profile .previous-page {
     position: absolute;
     top: 25px;
     left: 25px;
     cursor: pointer;
 }
 
-.header .wrapper .profile .profile-image {
+.wrapper .profile .profile-image {
     width: calc(33.33% - 1rem);
     position: absolute;
     top: 8%;
     left: 14%;
 }
+
 /* 
 .header .wrapper .profile .profile-image img {
     width: 20vh;

@@ -45,12 +45,9 @@ export default {
 
 <template>
 
-	<NavBar />
 	<div class="Home">
 		<div class="timeline">
-			<Post v-for="obj in stream" :post="obj"/> <!-- v-for="obj in stream" :post="obj" -->
-			<!-- <Post />
-			<Post /> -->
+			<Post v-for="obj in stream" :key="obj.photo_id" :post="obj"/>
 		</div>
 		<div class="sidebar">
 			<NavBar />
@@ -74,7 +71,7 @@ export default {
 	}
 }
 .sidebar {
-	display: none;
+	display: contents;
 }
 @media (--t) {
 	.sidebar {
