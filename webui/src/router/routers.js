@@ -42,25 +42,13 @@ const router = createRouter({
 		/* LIKES */
 		// Get list of the users that added a like
 
-		// Like a photo
-
-		// Unlike a photo
-
 		/* FOLLOW */
 		// Get list of the followers
 
 		// Get list of the following
 
-		// Follow a user
-
-		// Unfollow a user
-
 		/* BAN */
 		// Get list of the banned users
-
-		// Ban user
-
-		// Unban user
 
 		{ path: '/users/:user_id/listUsers/', component: list, name: 'list' },
 		{ path: '/comments', component: comments, name: 'comments' },

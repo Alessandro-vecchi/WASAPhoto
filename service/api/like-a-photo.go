@@ -16,7 +16,7 @@ import (
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	// 1. Retrieve photo ID from path.
-	photo_id := rt.getPathParameter("photos", ps)
+	photo_id := rt.getPathParameter("photo_id", ps)
 	if photo_id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -79,5 +79,7 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 
-	_ = json.NewEncoder(w).Encode(user_id)
+	// Get name of the user who added the like
+	name, _ := rt.db.GetNameById(user_id)
+	_ = json.NewEncoder(w).Encode(name)
 }

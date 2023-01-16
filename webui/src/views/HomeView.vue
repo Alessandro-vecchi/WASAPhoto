@@ -18,7 +18,7 @@ export default {
 		}
 	},
 	methods: {
-		async refresh() {
+		async GetStream() {
 			this.loading = true;
 			this.errormsg = null;
 
@@ -33,6 +33,9 @@ export default {
 			}  
 			this.loading = false;
 		},
+		refresh() {
+			this.GetStream();
+		}
 
 	},
 
@@ -47,7 +50,7 @@ export default {
 
 	<div class="Home">
 		<div class="timeline">
-			<Post v-for="obj in stream" :key="obj.photo_id" :post="obj"/>
+			<Post v-on:refresh-parent="refresh" v-for="obj in stream" :key="obj.photo_id" :post="obj"/>
 		</div>
 		<div class="sidebar">
 			<NavBar />

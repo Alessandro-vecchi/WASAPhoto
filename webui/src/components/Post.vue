@@ -10,11 +10,70 @@ export default {
     },
     data: function () {
         return {
+            header: localStorage.getItem('Authorization'),
+            loading: false,
+            errormsg: null,
+            username: "",
+            isLiked: null,
+            myProfilePic: "",
+            likes: [],
         }
     },
     methods: {
         async get_user_profile() {
             this.$router.push({ path: "/users/", query: { username: this.post.username } })
+        },
+        async Get_my_profile() {
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            await this.$axios.get("/users/?username=" + this.username).then(response => (this.username=response.data.username, this.myProfilePic=response.data.profile_picture_url))
+        },
+        async LikeClick() {
+            this.loading = true;
+            this.errormsg = null;
+            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
+            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
+            */
+            console.log(this.isLiked)
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            if (this.isLiked) {
+                await this.$axios.delete("/photos/" + this.post.photoId + "/likes/" + this.header);
+            } else {
+                await this.$axios.put("/photos/" + this.post.photoId + "/likes/" + this.header).then(response => (this.username = response.data.name));
+            }
+            this.loading = false;
+            this.refresh()
+            this.$emit('refresh-parent');
+        },
+        async GetLikes(isRefresh) {
+            this.loading = true;
+            this.errormsg = null;
+            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
+            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
+            */
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            try {
+                let response = await this.$axios.get("/photos/" + this.post.photoId + "/likes/")
+                this.likes = response.data.short_profile
+                this.isLiked = response.data.cond
+                if (!isRefresh) {
+                    this.$router.push({ path: '/photos/' + this.post.photoId + "/listUsers/" })
+                }
+            } catch (e) {
+                console.error(e.message)
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+            console.log("likes:", this.likes, this.isLiked)
+            if (!isRefresh) {
+                this.refresh()
+            }
+        },
+
+        refresh() {
+            this.GetLikes(true) // .then(() => this.GetComments(true))
         },
     },
     computed: {
@@ -73,8 +132,7 @@ export default {
 
     },
     mounted() {
-        this.timeAgo
-        console.log(this.post.profile_pic)
+        this.Get_my_profile().then(() => this.refresh())
     }
 }
 </script>
@@ -106,15 +164,16 @@ export default {
             <div class="action-buttons">
                 <ul>
                     <li>
-                        <button type="button">
-                            <font-awesome-icon class="icon" id="like" icon="fa-regular fa-heart" size="2x" />
-                            <span class="num"> {{ post.likes_count }} </span> <!-- {{ post.likes_count }} -->
+                        <button v-if=!loading type="button">
+                            <font-awesome-icon v-if=!isLiked class="icon" id="like" icon="fa-regular fa-heart" @click="LikeClick" />
+                            <font-awesome-icon v-else class="icon" id="like" icon="fa-solid fa-heart" color="rgb(232, 62, 79)" @click="LikeClick" />
+                            <span class="num" @click="GetLikes(false)"> {{ post.likes_count }} </span>
                         </button>
                     </li>
                     <li>
-                        <button type="button">
-                            <font-awesome-icon class="icon" id="comment" icon="fa-regular fa-comment" size="2x" />
-                            <span class="num"> {{ post.comments_count }} </span> <!-- {{ post.comments_count }} -->
+                        <button v-if=!loading type="button">
+                            <font-awesome-icon class="icon" id="comment" icon="fa-regular fa-comment" />
+                            <span class="num"> {{ post.comments_count }} </span>
                         </button>
                     </li>
                 </ul>
@@ -122,8 +181,8 @@ export default {
 
             <div class="caption">
                 <li>
-                    <CustomText tag="b" @click="get_user_profile()">{{ post.username }}</CustomText> <!-- {{ post.username }} -->
-                    <span class="caption-span">{{ post.caption }}</span> <!-- {{ post.caption }} -->
+                    <CustomText tag="b" @click="get_user_profile()">{{ post.username }}</CustomText>
+                    <span class="caption-span">{{ post.caption }}</span>
                 </li>
             </div>
         </div>
@@ -131,12 +190,12 @@ export default {
         <div class="comments-list">
             <!-- datetime-->
             <div class="time section">
-                <CustomText size="xxsmall" class="time-ago">{{ timeAgo }}</CustomText> <!-- {{ post.timestamp }} -->
+                <CustomText size="xxsmall" class="time-ago">{{ timeAgo }}</CustomText>
             </div>
 
             <!-- comments form -->
             <div class="comment section">
-                <Avatar :src="post.profile_pic" :size="30" @click="get_user_profile()"/>
+                <Avatar :src="myProfilePic" :size="30" @click="get_user_profile()"/>
                 <input class="text-body" type="text" placeholder="Add a comment...">
                 <a href="#" type="button">Post</a>
             </div>

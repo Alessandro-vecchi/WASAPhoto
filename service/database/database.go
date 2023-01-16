@@ -153,7 +153,7 @@ type AppDatabase interface {
 	// Delete a like to a photo
 	UnlikePhoto(photoId string, userId string) error
 	// Get likes to a photo
-	GetLikes(photoId string) ([]string, error)
+	GetLikes(photoId string) ([]Short_profile_db, error)
 
 	// FOLLOWERS
 	// Follow a user
