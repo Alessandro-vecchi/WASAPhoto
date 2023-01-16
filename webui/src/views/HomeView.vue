@@ -13,28 +13,29 @@ export default {
 			errormsg: null,
 			loading: false,
 			user_id: this.$route.params.user_id,
-			//username: "",
-			//stream: [],
-			//logged: localStorage.getItem('Authorization')
+            header: localStorage.getItem('Authorization'),
+			stream: [],
 		}
 	},
 	methods: {
 		async refresh() {
 			this.loading = true;
 			this.errormsg = null;
-			/* try {
-				let response = await this.$axios.get("/users/" + logged + "/stream/");
+
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+			try {
+				let response = await this.$axios.get("/users/" + this.header + "/stream/");
 				this.stream = response.data;
+				console.log(this.stream);
 			} catch (e) {
 				this.errormsg = e.toString();
-			}  */
+			}  
 			this.loading = false;
 		},
 
 	},
-	beforeMount(){
-    //console.log(this.user_id)
-},
+
 
 	mounted() {
 		this.refresh()
@@ -47,9 +48,9 @@ export default {
 	<NavBar />
 	<div class="Home">
 		<div class="timeline">
-			<Post /> <!-- v-for="obj in stream" :post="obj" -->
-			<Post />
-			<Post />
+			<Post v-for="obj in stream" :post="obj"/> <!-- v-for="obj in stream" :post="obj" -->
+			<!-- <Post />
+			<Post /> -->
 		</div>
 		<div class="sidebar">
 			<NavBar />

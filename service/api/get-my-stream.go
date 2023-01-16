@@ -43,9 +43,9 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	// 4. Converting database photos to API photos
-	var myStream []models.Photo
+	var myStream []models.Post
 	for _, element := range listPhotosDb {
-		var p models.Photo
+		var p models.Post
 		p.FromDatabase(element, rt.db)
 
 		myStream = append(myStream, p)

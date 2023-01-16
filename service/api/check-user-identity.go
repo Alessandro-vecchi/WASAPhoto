@@ -22,9 +22,9 @@ func checkUserIdentity(authtoken string, user_id string, db database.AppDatabase
 
 }
 
-func contains(list []string, filter string) bool {
+func contains(list []database.Short_profile_db, filter string) bool {
 	for _, item := range list {
-		if item == filter {
+		if item.Username == filter {
 			return true
 		}
 	}

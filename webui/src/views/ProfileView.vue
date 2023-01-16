@@ -1,9 +1,11 @@
 <script>
 import GalleryItem from "@/components/GalleryItem.vue"
+import Avatar from "@/components/Avatar.vue"
 
 export default {
     components: {
         GalleryItem,
+        Avatar,
     },
     data: function () {
         return {
@@ -15,8 +17,8 @@ export default {
             following: [],
             bans: [],
             header: localStorage.getItem('Authorization'),
-            //isFollowing: false,
-            //isBanned: false,
+            isFollowing: false,
+            isBanned: false,
         }
     },
     methods: {
@@ -28,13 +30,11 @@ export default {
             */
             console.log("header:", localStorage.getItem('Authorization'))
             console.log("username:", this.$route.query.username, this.username)
-            /* if (this.$route.query.username != this.username) {
-
-            } */
             try {
                 let response = await this.$axios.get("/users/?username=" + this.$route.query.username)
                 this.profile = response.data
                 this.username = this.profile.username
+                // await this.GetBans(true)// .catch(e => (this.errormsg = e.toString()))
             } catch (e) {
                 this.errormsg = e.toString();
             }
@@ -73,19 +73,19 @@ export default {
             this.loading = false;
 
         },
-        handleFollowClick() {
-            this.HandleClick(this.isFollower(), "/followers/")
-            //this.isFollowing = !this.isFollowing;
+        async handleFollowClick() {
+            await this.HandleClick(this.isFollowing, "/followers/")
+            this.refresh()
         },
 
-        handleBanClick() {
-            this.HandleClick(this.isBanned(), "/bans/")
-            //this.isBanned = !this.isBanned;
+        async handleBanClick() {
+            await this.HandleClick(this.isBanned, "/bans/")
+            this.refresh()
         },
         async GetUsers(goal, isRefresh) {
             this.loading = true;
             this.errormsg = null;
-            let list = [];
+            let list = {};
             /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
             If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
             */
@@ -105,7 +105,10 @@ export default {
             return list;
         },
         async getFollowers(isRefresh) {
-            this.followers = await this.GetUsers("followers", isRefresh)
+            let list = await this.GetUsers("followers", isRefresh)
+            this.followers = list.short_profile
+            this.isFollowing = list.cond
+            console.log("follow:", list.short_profile, list.cond)
             if (!isRefresh) {
                 this.refresh()
             }
@@ -113,34 +116,38 @@ export default {
         async getFollowing() {
             this.following = await this.GetUsers("following", false)
         },
-        async getBans(isRefresh) {
-            this.bans = await this.GetUsers("bans", isRefresh)
+        async GetBans(isRefresh) {
+            console.log("hi")
+            this.loading = true;
+            this.errormsg = null;
+            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
+            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
+            */
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            try {
+                let response = await this.$axios.get("/users/" + this.profile.user_id + "/bans/")
+                this.bans = response.data.short_profile
+                this.isBanned = response.data.cond
+                if (!isRefresh) {
+                    this.$router.push({ path: '/users/' + this.header + "/listUsers/" })
+                }
+            } catch (e) {
+                console.error(e.message)
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+            console.log("banned:", this.bans, this.isBanned)
             if (!isRefresh) {
                 this.refresh()
             }
         },
-        isFollower() {
-            console.log("log follow:", this.logged)
-            if (this.logged) {
-                return false
-            }
-            console.log(this.username, "in", this.followers)
-            return this.username in this.followers
-        },
-        isBanned() {
-            console.log("log ban:", this.logged)
-            if (this.logged) {
-                return false
-            }
-            return this.username in this.bans
-        },
         refresh() {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-           /*  this.GetProfile().then(() => this.GetUserPhotos());
-            this.getBans(true).then(() => this.getFollowers(true)) */
-            this.GetProfile().then(() => this.getBans(true)).then(() => this.getFollowers(true)).then(() => this.GetUserPhotos());
+                this.GetProfile().then(() => this.GetBans(true)).then(() => this.getFollowers(true)).then(() => this.GetUserPhotos());
         },
+
         uploadImage: async function () {
             this.$router.push({ path: '/users/' + this.profile.user_id + "/form/" })
         },
@@ -163,6 +170,7 @@ export default {
                 // prevent the username from being changed once it has a value
                 if (!this.username) {
                     this.$set(this, 'username', value)
+                    console.log(this.username)
                 }
             },
         },
@@ -176,19 +184,20 @@ export default {
             return bool
         },
     },
-    created() {
+    mounted() {
         this.refresh();
     }
 }
 </script>
 <template>
-    <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+    <ErrorMsg v-if="errormsg" :msg="errormsg" />
     <header class="header">
         <div class="wrapper">
             <div class="profile">
                 <font-awesome-icon class="previous-page" icon="fa-solid fa-chevron-left" size="5x" @click="cancel" />
                 <div class="profile-image">
-                    <img :src=profile.profile_picture_url alt="Image" />
+                    <Avatar :src="profile.profile_picture_url" :size="180" />
+                    <!-- <img :src=profile.profile_picture_url alt="Image" /> -->
                 </div>
                 <div class="profile-user-settings">
                     <h1 class="profile-user-name"> {{ profile.username }}</h1>
@@ -198,10 +207,10 @@ export default {
                         Username</button>
                     <button v-if="!loading && !logged" type="button" class="btn follow-button"
                         @click="handleFollowClick">
-                        <font-awesome-icon v-if=isFollower() class="check" icon="fa-solid fa-check" /><font-awesome-icon
+                        <font-awesome-icon v-if=isFollowing class="check" icon="fa-solid fa-check" /><font-awesome-icon
                             v-else class="check" icon="fa-solid fa-xmark" /><span class="action">Follow</span></button>
                     <button v-if="!loading && !logged" type="button" class="btn ban-button" @click="handleBanClick">
-                        <font-awesome-icon v-if=isBanned() class="check" icon="fa-solid fa-ban" /><span
+                        <font-awesome-icon v-if=isBanned class="check" icon="fa-solid fa-ban" /><span
                             class="action">Ban</span></button>
 
                 </div>
@@ -209,9 +218,9 @@ export default {
                     <ul>
                         <li><span class="profile-stat-count">{{ profile.pictures_count }}</span> Posts</li>
                         <li><span class="profile-stat-count">{{ profile.followers_count }}</span> <span
-                                @click="getFollowers">Followers</span></li>
+                                @click="getFollowers(false)">Followers</span></li>
                         <li><span class="profile-stat-count">{{ profile.follows_count }}</span> <span
-                                @click="getFollowing">Following</span></li>
+                                @click="getFollowing(false)">Following</span></li>
                     </ul>
                 </div>
                 <div class="profile-bio">
@@ -276,14 +285,15 @@ img {
 .header .wrapper .profile .profile-image {
     width: calc(33.33% - 1rem);
     position: absolute;
-    left: 15%;
+    top: 8%;
+    left: 14%;
 }
-
+/* 
 .header .wrapper .profile .profile-image img {
     width: 20vh;
     border-radius: 50%;
     cursor: pointer;
-}
+} */
 
 
 .profile-user-settings,

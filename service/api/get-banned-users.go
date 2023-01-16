@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 )
@@ -26,7 +27,10 @@ func (rt *_router) getBannedUsers(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	name, _ := rt.db.GetNameById(r.Header.Get("Authorization"))
+	var short_prof models.Short_profile
+	short_prof.FromDatabase(banned, name)
 	// Send the list to the user.
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(banned)
+	_ = json.NewEncoder(w).Encode(short_prof)
 }

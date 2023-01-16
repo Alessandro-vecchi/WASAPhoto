@@ -7,6 +7,70 @@ export default {
     components: {
         Avatar,
         CustomText,
+    },
+    data: function () {
+        return {
+            time: 0,
+        }
+    },
+    computed: {
+        timeAgo() {
+            var dateString = this.post.timestamp;
+            var date = new Date(dateString);
+            var year = date.getFullYear();
+            var month = date.getMonth(); // getMonth() returns a number between 0 and 11
+            var day = date.getDate();
+            var hours = date.getHours();
+            var minutes = date.getMinutes();
+            var seconds = date.getSeconds();
+            /* console.log("Timestamp Year: " + year + " Month: " + month + " Day: " + day);
+            console.log("Timestamp Hours: " + hours + " Minutes: " + minutes + " Seconds: " + seconds); */
+
+            var currentDate = new Date();
+            var c_year = currentDate.getFullYear();// current year
+            var c_month = currentDate.getMonth();
+            var c_day = currentDate.getDate();
+            var c_hours = currentDate.getHours();
+            var c_minutes = currentDate.getMinutes();
+            var c_seconds = currentDate.getSeconds();
+            /* console.log("Current Year: " + c_year + " Month: " + c_month + " Day: " + c_day)
+            console.log("Current Hours:" + c_hours + " Minutes: " + c_minutes + " Seconds: " + c_seconds); */
+
+            var timeAgo = "";
+            var diffYear = c_year - year;
+            var diffMonth = c_month - month;
+            var diffDay = c_day - day;
+            var diffHour = c_hours - hours;
+            var diffMinutes = c_minutes - minutes;
+            var diffSeconds = c_seconds - seconds;
+
+            if (diffYear !== 0) {
+                timeAgo = diffYear + " years ago";
+            } else if (diffMonth !== 0) {
+                timeAgo = diffMonth + " months ago";
+            } else if (diffDay !== 0) {
+                timeAgo = diffDay + " days ago";
+            } else if (diffHour !== 0) {
+                timeAgo = diffHour + " hours ago";
+            } else if (diffMinutes !== 0) {
+                timeAgo = diffMinutes + " minutes ago";
+            } else if (diffSeconds !== 0) {
+                timeAgo = diffSeconds + " seconds ago";
+            } else {
+                timeAgo = "Just now";
+            }
+            /* console.log(timeAgo); */
+            return timeAgo;
+
+
+
+
+        },
+
+    },
+    mounted() {
+        this.timeAgo
+        console.log(this.post.profile_pic)
     }
 }
 </script>
@@ -16,9 +80,9 @@ export default {
         <!-- header -->
         <header class="header section">
             <div class="header-author">
-                <Avatar :size="40" /> <!-- :img: "post.image" -->
+                <Avatar :src="post.profile_pic" :size="40" /> <!-- :src= "post.profile_pic" -->
                 <div class="header-author-info">
-                    <CustomText tag="b">_alevecchi</CustomText> <!-- {{ post.username }} -->
+                    <CustomText tag="b">{{ post.username }}</CustomText> <!-- _alevecchi -->
                 </div>
             </div>
             <div class="header-more">
@@ -30,7 +94,7 @@ export default {
 
         <!-- media -->
         <div class="post-media">
-            <img src="https://picsum.photos/600/400?random=1" alt="" />
+            <img :src="post.image" alt="" class="post-image" /> <!-- src="https://picsum.photos/600/400?random=1" -->
         </div>
 
         <div class="two-col section">
@@ -39,14 +103,14 @@ export default {
                 <ul>
                     <li>
                         <button type="button">
-                            <font-awesome-icon class="icon-like" icon="fa-regular fa-heart" size="2x"/>
-                            <span class="num"> 897 </span> <!-- {{ post.likes_count }} -->
+                            <font-awesome-icon class="icon-like" icon="fa-regular fa-heart" size="2x" />
+                            <span class="num"> {{ post.likes_count }} </span> <!-- {{ post.likes_count }} -->
                         </button>
                     </li>
                     <li>
                         <button type="button">
                             <font-awesome-icon class="icon-comment" icon="fa-regular fa-comment" size="2x" />
-                            <span class="num"> 33 </span> <!-- {{ post.comments_count }} -->
+                            <span class="num"> {{ post.comments_count }} </span> <!-- {{ post.comments_count }} -->
                         </button>
                     </li>
                 </ul>
@@ -54,8 +118,8 @@ export default {
 
             <div class="caption">
                 <li>
-                    <CustomText tag="b">_alevecchi</CustomText> <!-- {{ post.username }} -->
-                    <span class="caption-span">It's a wonderful day</span> <!-- {{ post.caption }} -->
+                    <CustomText tag="b">{{ post.username }}</CustomText> <!-- {{ post.username }} -->
+                    <span class="caption-span">{{ post.caption }}</span> <!-- {{ post.caption }} -->
                 </li>
             </div>
         </div>
@@ -63,12 +127,12 @@ export default {
         <div class="comments-list">
             <!-- datetime-->
             <div class="time section">
-                <CustomText size="xxsmall" class="time-ago">10 MINUTES AGO</CustomText> <!-- {{ post.timestamp }} -->
+                <CustomText size="xsmall" class="time-ago">{{ timeAgo }}</CustomText> <!-- {{ post.timestamp }} -->
             </div>
 
             <!-- comments form -->
             <div class="comment section">
-                <Avatar :size="20" />
+                <Avatar :src="post.profile_pic" :size="20" />
                 <input class="text-body" type="text" placeholder="Add a comment...">
                 <a href="#" type="button">Post</a>
             </div>
@@ -109,14 +173,22 @@ export default {
 .post .header-more {
     margin-left: auto;
 }
+
 .post .post-media {
     width: 600px;
     height: 400px;
 }
-.post .two-col  {
+
+.post .post-media .post-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.post .two-col {
     display: flex;
     align-items: center;
-   /*outline: solid;*/
+    /*outline: solid;*/
 }
 
 .post .action-buttons {
@@ -130,7 +202,7 @@ export default {
     padding-top: 5px;
     display: flex;
     align-items: center;
-   /*outline: solid;*/
+    /*outline: solid;*/
 }
 
 .post .action-buttons .num {
@@ -139,14 +211,15 @@ export default {
     padding-left: 8px;
     font-size: 15px;
     font-weight: 600;
-    font-family:Georgia, 'Times New Roman', Times, serif;
-    color: rgb(40,40,40);
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    color: rgb(40, 40, 40);
 }
 
 .post .action-buttons .icon-like {
     height: 25px;
     width: 25px;
 }
+
 .post .action-buttons .icon-like:hover {
     color: #555;
     /* background-color: rgb(232, 62, 79) */
@@ -156,17 +229,20 @@ export default {
     height: 25px;
     width: 25px;
 }
+
 .post .action-buttons .icon-comment:hover {
     color: #555
 }
-.post .caption{
+
+.post .caption {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
-   /*outline: solid;*/
+    /*outline: solid;*/
     margin-bottom: 0%;
     margin-left: 10%;
 }
+
 .post .caption li b:hover {
     text-decoration: underline;
     cursor: pointer;
@@ -176,11 +252,14 @@ export default {
     margin-left: 4px;
     overflow: auto;
 }
+
 .post .comments-list .time {
     margin-top: 8px;
 }
+
 .post .comments-list .time-ago {
     color: rgba(142, 142, 142, 1);
+    text-transform: uppercase;
 }
 
 .post .comments-list .comment {

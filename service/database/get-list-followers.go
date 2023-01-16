@@ -3,39 +3,40 @@ package database
 import "fmt"
 
 // get the list of the users that follows a user
-func (db *appdbimpl) GetFollowers(followed_id string) ([]string, error) {
+func (db *appdbimpl) GetFollowers(followed_id string) ([]Short_profile_db, error) {
 
 	const query = `
-SELECT follower_id
-FROM follow
-WHERE followed_id =?`
+	SELECT profilePictureUrl, user_id 
+	FROM profile, ( SELECT follower_id FROM follow WHERE followed_id =? ) as followers 
+	WHERE profile.user_id = followers.follower_id;`
 
-	var followers []string
+	var short_profile []Short_profile_db
 
 	rows, err := db.c.Query(query, followed_id)
 	if err != nil {
-		return []string{}, fmt.Errorf("error fetching followers: %w", err)
+		return []Short_profile_db{}, fmt.Errorf("error fetching followers: %w", err)
 	}
 
 	defer func() { _ = rows.Close() }()
 
 	// Read all followers in the result set
 	for rows.Next() {
+		var s_p Short_profile_db
 		var follower_id string
-		err = rows.Scan(&follower_id)
+		err = rows.Scan(&s_p.ProfilePictureUrl, &follower_id)
 		if err != nil {
-			return []string{}, fmt.Errorf("error scanning followers: %w", err)
+			return []Short_profile_db{}, fmt.Errorf("error scanning followers: %w", err)
 		}
-		follower_name, err := db.GetNameById(follower_id)
+		s_p.Username, err = db.GetNameById(follower_id)
 		if err != nil {
-			return []string{}, err
+			return []Short_profile_db{}, err
 		}
-		followers = append(followers, follower_name)
+		short_profile = append(short_profile, s_p)
 	}
 	if err = rows.Err(); err != nil {
-		return []string{}, fmt.Errorf("error encountered during iteration: %w", err)
+		return []Short_profile_db{}, fmt.Errorf("error encountered during iteration: %w", err)
 	}
 	// successfully retrieved followers
-	return followers, nil
+	return short_profile, nil
 
 }

@@ -66,6 +66,15 @@ type Profile_db struct {
 	Bio string
 }
 
+// It's shown when viewing list of followers, likers...
+type Short_profile_db struct {
+
+	// Name of the user
+	Username string
+	// URL of the profile picture. Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
+	ProfilePictureUrl string
+}
+
 // Attributes of a photo
 type Photo_db struct {
 	PhotoId string
@@ -152,9 +161,9 @@ type AppDatabase interface {
 	// Unfollow a user
 	UnfollowUser(userId string, followerId string) error
 	// Get a list of followers of a specific user
-	GetFollowers(userId string) ([]string, error)
+	GetFollowers(userId string) ([]Short_profile_db, error)
 	// Get a list of the users the user is following
-	GetFollowing(userId string) ([]string, error)
+	GetFollowing(userId string) ([]Short_profile_db, error)
 
 	// BANS
 	// Ban a user
@@ -162,7 +171,7 @@ type AppDatabase interface {
 	// Unfollow a user
 	UnbanUser(userId string, followerId string) error
 	// Get the list of users banned by a specific user
-	GetBannedUsers(banner_id string) ([]string, error)
+	GetBannedUsers(banner_id string) ([]Short_profile_db, error)
 
 	// STREAM
 	// Get the stream of photos of the users we are following in reverse chronological order
@@ -179,6 +188,7 @@ type AppDatabase interface {
 	GetNameById(userId string) (string, error)
 	GetIdByName(username string) (string, error)
 	GetPhotoIdFromCommentId(comment_id string) (string, error)
+	GetProfilePic(user_id string) (string, error)
 
 	// check availability
 	Ping() error

@@ -52,3 +52,18 @@ func (db *appdbimpl) GetPhotoIdFromCommentId(comment_id string) (string, error) 
 	}
 	return photo_id, nil
 }
+func (db *appdbimpl) GetProfilePic(user_id string) (string, error) {
+
+	var profile_pic string
+	const query = `
+		SELECT profilePictureUrl
+		FROM profile
+		WHERE user_id = ?`
+
+	err := db.c.QueryRow(query, user_id).Scan(&profile_pic)
+	if errors.Is(err, sql.ErrNoRows) {
+
+		return "", ErrUserNotExists
+	}
+	return profile_pic, nil
+}

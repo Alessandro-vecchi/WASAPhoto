@@ -8,6 +8,8 @@ export default {
             previewUrl: null,
             error: null,
             loading: false,
+            username: '',
+            header: localStorage.getItem('Authorization'),
         }
     },
     methods: {
@@ -37,17 +39,16 @@ export default {
             let formData = new FormData();
             formData.append('caption', this.postCaption);
             formData.append('image', this.postImage);
-            console.log(this.$route.params.user_id, this.postCaption)
 
             try {
-                let response = await this.$axios.post('/users/' + this.$route.params.user_id + '/photos/', formData, {
+                let response = await this.$axios.post('/users/' + this.header + '/photos/', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
                 });
-                this.media = response
+                this.media = response.data
                 console.log(this.media, response)
-                //this.postCaption = response.caption
+
                 this.$router.push({ path: "/users/", query: { username: this.media.username } });
             } catch (e) {
                 this.error = e

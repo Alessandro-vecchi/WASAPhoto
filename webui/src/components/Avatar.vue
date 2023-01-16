@@ -36,6 +36,7 @@ export default {
 .avatar img {
   border: 2px solid white;
   border-radius: inherit;
+  cursor: pointer;
 }
 
 </style>

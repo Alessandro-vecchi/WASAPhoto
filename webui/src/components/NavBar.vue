@@ -6,7 +6,6 @@ export default {
             loading: false,
             logged: localStorage.getItem('Authorization'),
             Username: "",
-            profile: {} //this.get_user_profile()
         }
     },
     methods: {
@@ -22,35 +21,13 @@ export default {
             this.loading = false;
         },
         async get_user_profile() {
-            this.loading = true;
-            this.errormsg = null;
-
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
-            try {
-                let response = await this.$axios.get("/users/?username=" + this.Username)
-                this.profile = response.data
-                this.Username = this.profile.username
-                this.$router.push({ path: "/users/", query: { username: this.Username }})
-                console.log(this.profile)
-            } catch (e) {
-                // console.log(e)
-                this.errormsg = e.toString();
-            }
-            this.loading = false;
+            this.$router.push({ path: "/users/", query: { username: this.Username } })
         },
         rect() {
-            /*const s = document.getElementById('nav-search-section');
-            s.addEventListener('click', toggleActive);
-            function toggleActive() {*/
             const rectangle = document.querySelector('.rectangle');
             rectangle.classList.toggle('active')
 
         },
-      /*   restart_search() {
-            this.$route.params.username = ""
-            onclick = "document.getElementById('search').value = ''"
-        } */
 
     },
     mounted() {

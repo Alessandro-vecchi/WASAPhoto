@@ -9,9 +9,6 @@ import (
 )
 
 func (rt *_router) getFollowed(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-
-	var err error
-
 	// The User ID in the path is a string
 	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
@@ -19,7 +16,7 @@ func (rt *_router) getFollowed(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	followed, err := rt.db.GetFollowing(user_id)
+	following, err := rt.db.GetFollowing(user_id)
 	if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
 		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
@@ -27,7 +24,10 @@ func (rt *_router) getFollowed(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	/* name, _ := rt.db.GetNameById(r.Header.Get("Authorization"))
+	var short_prof models.Short_profile
+	short_prof.FromDatabase(following, name) */
 	// Send the list to the user.
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(followed)
+	_ = json.NewEncoder(w).Encode(following)
 }

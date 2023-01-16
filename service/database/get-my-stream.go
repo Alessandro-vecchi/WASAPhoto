@@ -14,13 +14,8 @@ func (db *appdbimpl) GetMyStream(user_id string) ([]Photo_db, error) {
 
 	*/
 	query := ` 
-	CREATE VIEW followed_users
-	AS
-	SELECT followed_id
-	FROM follow
-    WHERE follower_id = ?;
-	SELECT *
-	FROM photos, followed_users
+	SELECT photos.photo_id, photos.timestamp, photos.image, photos.caption, photos.user_id
+	FROM photos, ( SELECT followed_id FROM follow WHERE follower_id = ? ) as followed_users
     WHERE photos.user_id = followed_users.followed_id
 	ORDER BY photos.timestamp DESC;`
 
