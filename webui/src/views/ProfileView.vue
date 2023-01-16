@@ -471,7 +471,7 @@ img {
 
     .gallery {
         display: grid;
-        grid-template-columns: repeat(3, auto);
+        grid-template-columns: repeat(3, calc((93.5rem - 2rem - 4rem)/3));
         grid-gap: 1rem;
     }
 

@@ -11,8 +11,8 @@ export default {
         src: {
             type: String,
             default:
-                // 'https://placeimg.com/56/56/any'
-                `https://picsum.photos/${56}/${56}`
+                // `https://picsum.photos/${56}/${56}`
+                `https://cdn.pixabay.com/photo/2018/11/13/22/01/avatar-3814081__480.png`
         },
         alt: {
             type: String,

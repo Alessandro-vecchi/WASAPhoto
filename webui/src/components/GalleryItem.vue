@@ -41,6 +41,7 @@ export default {
 
 <style>
 .gallery-item {
+    /* max-width: calc((93.5rem - 2rem - 4rem)/3); */
     position: relative;
     flex-grow: 1;
     margin: 1rem;
