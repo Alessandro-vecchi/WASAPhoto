@@ -17,6 +17,8 @@ export default {
             following: [],
             bans: [],
             header: localStorage.getItem('Authorization'),
+            isFollowing: null,
+            isBanned: null,
         }
     },
     methods: {
@@ -225,7 +227,7 @@ export default {
             </div>
 
             <div class="upload-image">
-                <font-awesome-icon class="upload-image-button" icon="fa-solid fa-plus" size="3x" @click="uploadImage" />
+                <font-awesome-icon class="upload-image-button" icon="fa-solid fa-plus" @click="uploadImage" />
             </div>
             <!--End of profile section-->
         </div>
@@ -437,8 +439,8 @@ img {
 }
 
 .upload-image-button {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
 
     background: rgb(255, 255, 255);

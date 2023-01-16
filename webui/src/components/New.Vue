@@ -106,8 +106,8 @@ export default {
     }
 }
 </script>
-<template>
-    <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+<template><!-- 
+    <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg> -->
     <header class="header">
         <div class="wrapper">
             <div class="profile">

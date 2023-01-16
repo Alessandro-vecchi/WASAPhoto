@@ -10,8 +10,12 @@ export default {
     },
     data: function () {
         return {
-            time: 0,
         }
+    },
+    methods: {
+        async get_user_profile() {
+            this.$router.push({ path: "/users/", query: { username: this.post.username } })
+        },
     },
     computed: {
         timeAgo() {
@@ -80,9 +84,9 @@ export default {
         <!-- header -->
         <header class="header section">
             <div class="header-author">
-                <Avatar :src="post.profile_pic" :size="40" /> <!-- :src= "post.profile_pic" -->
+                <Avatar :src="post.profile_pic" :size="45" @click="get_user_profile()"/> <!-- :src= "post.profile_pic" -->
                 <div class="header-author-info">
-                    <CustomText tag="b">{{ post.username }}</CustomText> <!-- _alevecchi -->
+                    <CustomText tag="b" >{{ post.username }}</CustomText> <!-- _alevecchi -->
                 </div>
             </div>
             <div class="header-more">
@@ -103,13 +107,13 @@ export default {
                 <ul>
                     <li>
                         <button type="button">
-                            <font-awesome-icon class="icon-like" icon="fa-regular fa-heart" size="2x" />
+                            <font-awesome-icon class="icon" id="like" icon="fa-regular fa-heart" size="2x" />
                             <span class="num"> {{ post.likes_count }} </span> <!-- {{ post.likes_count }} -->
                         </button>
                     </li>
                     <li>
                         <button type="button">
-                            <font-awesome-icon class="icon-comment" icon="fa-regular fa-comment" size="2x" />
+                            <font-awesome-icon class="icon" id="comment" icon="fa-regular fa-comment" size="2x" />
                             <span class="num"> {{ post.comments_count }} </span> <!-- {{ post.comments_count }} -->
                         </button>
                     </li>
@@ -118,7 +122,7 @@ export default {
 
             <div class="caption">
                 <li>
-                    <CustomText tag="b">{{ post.username }}</CustomText> <!-- {{ post.username }} -->
+                    <CustomText tag="b" @click="get_user_profile()">{{ post.username }}</CustomText> <!-- {{ post.username }} -->
                     <span class="caption-span">{{ post.caption }}</span> <!-- {{ post.caption }} -->
                 </li>
             </div>
@@ -127,12 +131,12 @@ export default {
         <div class="comments-list">
             <!-- datetime-->
             <div class="time section">
-                <CustomText size="xsmall" class="time-ago">{{ timeAgo }}</CustomText> <!-- {{ post.timestamp }} -->
+                <CustomText size="xxsmall" class="time-ago">{{ timeAgo }}</CustomText> <!-- {{ post.timestamp }} -->
             </div>
 
             <!-- comments form -->
             <div class="comment section">
-                <Avatar :src="post.profile_pic" :size="20" />
+                <Avatar :src="post.profile_pic" :size="30" @click="get_user_profile()"/>
                 <input class="text-body" type="text" placeholder="Add a comment...">
                 <a href="#" type="button">Post</a>
             </div>
@@ -187,19 +191,16 @@ export default {
 
 .post .two-col {
     display: flex;
-    align-items: center;
     /*outline: solid;*/
 }
 
 .post .action-buttons {
     margin-top: 0px;
     height: 60px;
-    display: flex;
-    align-items: center;
 }
 
 .post .action-buttons button {
-    padding-top: 5px;
+    padding-top: 6px;
     display: flex;
     align-items: center;
     /*outline: solid;*/
@@ -212,35 +213,26 @@ export default {
     font-size: 15px;
     font-weight: 600;
     font-family: Georgia, 'Times New Roman', Times, serif;
-    color: rgb(40, 40, 40);
+    color: #333;
 }
-
-.post .action-buttons .icon-like {
+.post .action-buttons .icon {
     height: 25px;
     width: 25px;
 }
-
-.post .action-buttons .icon-like:hover {
+#like:hover {
     color: #555;
     /* background-color: rgb(232, 62, 79) */
 }
 
-.post .action-buttons .icon-comment {
-    height: 25px;
-    width: 25px;
-}
 
-.post .action-buttons .icon-comment:hover {
+#comment:hover {
     color: #555
 }
 
 .post .caption {
-    display: flex;
     flex-wrap: wrap;
-    align-items: flex-start;
-    /*outline: solid;*/
-    margin-bottom: 0%;
-    margin-left: 10%;
+    margin-top: 9px;
+    margin-left: 10rem;
 }
 
 .post .caption li b:hover {
