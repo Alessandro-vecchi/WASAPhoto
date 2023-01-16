@@ -293,7 +293,7 @@ img {
 .profile-bio {
     position: absolute;
     left: 40%;
-    width: calc(66.66% -2rem);
+    width: calc(66.66% - 2rem);
 }
 
 .profile-user-settings .profile-user-name {
