@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 )
@@ -24,10 +25,10 @@ func (rt *_router) getFollowed(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	/* name, _ := rt.db.GetNameById(r.Header.Get("Authorization"))
+	name, _ := rt.db.GetNameById(r.Header.Get("Authorization"))
 	var short_prof models.Short_profile
-	short_prof.FromDatabase(following, name) */
+	short_prof.FromDatabase(following, name)
 	// Send the list to the user.
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(following)
+	_ = json.NewEncoder(w).Encode(short_prof)
 }

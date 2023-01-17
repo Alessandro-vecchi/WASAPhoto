@@ -1,55 +1,51 @@
 <script>
 import Avatar from "@/components/Avatar.vue"
 import CustomText from "@/components/CustomText.vue"
+import { eventBus } from "@/main.js"
+
 export default {
-    name: 'list',
     components: {
         Avatar,
         CustomText,
     },
-    props: ['photo'],
+    data: function () {
+        return {
+            short_profiles: eventBus.getShortProfiles,
+            title: eventBus.getTitle,
+            header: localStorage.getItem('Authorization'),
+        }
+    },
+    methods: {
+
+        goBack() {
+            this.$router.push({ path: "/users/" + this.header + "/stream/" });
+        },
+    }
+
+
 }
 </script>
 
 <template>
     <div class="container">
         <div class="head section">
-            <div class="list-title">Likes</div>
+            <div class="list-title">{{ title }}</div>
             <div class="header-more">
                 <button type="button">
-                    <font-awesome-icon icon="fa-solid fa-xmark" size="2x" />
+                    <font-awesome-icon icon="fa-solid fa-xmark" size="2x" @click="goBack" />
                 </button>
             </div>
         </div>
         <div class="content section">
             <ul>
-                <li>
+                <li v-for="s_p in short_profiles">
                     <div class="short-profile">
-                        <Avatar :src="photo.image" :size="40" class="profile-photo" />
+                        <!-- <Avatar :src="s_p.profilePictureUrl" :size="40" class="profile-photo" /> -->
+                        <Avatar v-if=s_p.profilePictureUrl :src="s_p.profilePictureUrl" :size="40"
+                            class="profile-photo" />
+                        <Avatar v-else :size="40" class="profile-photo" />
                         <div class="author-username">
-                            <CustomText tag="b">_alevecchi</CustomText>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="short-profile">
-                        <Avatar :size="40" class="profile-photo" />
-                        <div class="author-username">
-                            <CustomText tag="b">_alevecchi</CustomText>
-                        </div>
-                    </div>
-                    <div class="short-profile">
-                        <Avatar :size="40" class="profile-photo" />
-                        <div class="author-username">
-                            <CustomText tag="b">_alevecchi</CustomText>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="short-profile">
-                        <Avatar :size="40" class="profile-photo" />
-                        <div class="author-username">
-                            <CustomText tag="b">_alevecchi</CustomText>
+                            <CustomText tag="b">{{ s_p.username }}</CustomText>
                         </div>
                     </div>
                 </li>
@@ -63,8 +59,13 @@ export default {
     --background-likes: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     --background-header-likes: linear-gradient(112.1deg, rgb(32, 38, 57) 11.4%, rgb(63, 76, 119) 70.2%);
 }
+
 .container {
     max-width: 300px;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .container .section {
@@ -101,6 +102,7 @@ export default {
     height: 300px;
     border-radius: 0 0 20px 20px;
     background: var(--background-likes);
+    overflow: auto;
 }
 
 .container .content .short-profile {

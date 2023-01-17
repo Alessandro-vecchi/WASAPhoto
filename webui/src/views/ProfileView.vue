@@ -1,6 +1,7 @@
 <script>
 import GalleryItem from "@/components/GalleryItem.vue"
 import Avatar from "@/components/Avatar.vue"
+import { eventBus} from "@/main.js"
 
 export default {
     components: {
@@ -95,9 +96,12 @@ export default {
                 let response = await this.$axios.get("/users/" + this.profile.user_id + "/" + goal + "/")
                 list = response.data
                 if (!isRefresh) {
-                    this.$router.push({ path: '/users/' + this.profile.user_id + "/listUsers/" })
+                    eventBus.getShortProfiles = list.short_profile
+                    eventBus.getTitle = goal
+                    this.$router.push({ path: '/' + goal + '/', });
                 }
             } catch (e) {
+                console.error(e.message)
                 this.errormsg = e.toString();
             }
             this.loading = false;

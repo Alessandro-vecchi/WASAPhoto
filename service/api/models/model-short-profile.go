@@ -5,19 +5,33 @@ import "github.com/Alessandro-vecchi/WASAPhoto/service/database"
 // It's shown when viewing list of followers, likers...
 type Short_profile struct {
 	// list of username + profile picture
-	S_p []database.Short_profile_db `json:"short_profile"`
+	S_p []Short_profile_api `json:"short_profile"`
 	// condition that assess whether the logged user follow the profile
 	Cond bool `json:"cond"`
 }
 
+// It's shown when viewing list of followers, likers...
+type Short_profile_api struct {
+
+	// Name of the user
+	Username string `json:"username"`
+	// URL of the profile picture. Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
+	ProfilePictureUrl string `json:"profilePictureUrl"`
+}
+
 func (p *Short_profile) FromDatabase(profile []database.Short_profile_db, my_name string) {
-	p.S_p = profile
+	var sp []Short_profile_api
 	p.Cond = false
 	for _, v := range profile {
 		if v.Username == my_name {
 			p.Cond = true
 		}
+		var s Short_profile_api
+		s.Username = v.Username
+		s.ProfilePictureUrl = v.ProfilePictureUrl
+		sp = append(sp, s)
 	}
+	p.S_p = sp
 }
 
 /*

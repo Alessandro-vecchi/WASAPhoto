@@ -19,6 +19,9 @@ import {faHeart as fa1, faComment as fa2, faImage as fai} from '@fortawesome/fre
 /* add icons to the library */
 library.add(faUser, faMagnifyingGlass, faHouse, faXmark, faHeart, fa1, faComment, fa2, faEllipsis, faClone, faPlusCircle, faPlus, faCheck, faBan, faImage, fai, faCL)
 
+const eventBus = new reactive({});
+export { eventBus }
+
 const app = createApp(App)
 
 app.config.globalProperties.$axios = axios;

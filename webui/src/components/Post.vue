@@ -1,6 +1,8 @@
 <script>
 import Avatar from "@/components/Avatar.vue"
 import CustomText from "@/components/CustomText.vue"
+import { eventBus} from "@/main.js"
+
 export default {
     props: ['post'],
     name: 'Post',
@@ -59,14 +61,18 @@ export default {
                 this.likes = response.data.short_profile
                 this.isLiked = response.data.cond
                 if (!isRefresh) {
-                    this.$router.push({ path: '/photos/' + this.post.photoId + "/listUsers/" })
+                    console.log(this.post)
+                    eventBus.getShortProfiles = this.likes
+                    eventBus.getTitle = "LIKES"
+                    this.$router.push({ path: '/likes/'})
+
                 }
             } catch (e) {
                 console.error(e.message)
                 this.errormsg = e.toString();
             }
             this.loading = false;
-            console.log("likes:", this.likes, this.isLiked)
+            // console.log("likes:", this.likes, this.isLiked)
             if (!isRefresh) {
                 this.refresh()
             }
