@@ -6,7 +6,7 @@ export default {
         return {
             loading: false,
             errormsg: null,
-            imgUrl: this.photo.image,
+            imgUrl: "",
         }
 
     },
@@ -24,8 +24,8 @@ export default {
 
                 // Create an object URL from the Blob object
                 this.imgUrl = URL.createObjectURL(imgBlob);
-            } catch {
-                console.log(error);
+            } catch(error) {
+                // console.log(error);
                 this.errormsg = error.message;
 
             }

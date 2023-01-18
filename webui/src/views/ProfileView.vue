@@ -20,6 +20,7 @@ export default {
             header: localStorage.getItem('Authorization'),
             isFollowing: null,
             isBanned: null,
+            ppUrl: "",
         }
     },
     methods: {
@@ -48,10 +49,14 @@ export default {
             this.loading = true;
             this.errormsg = null;
             console.log('profile:', this.profile)
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
             try {
                 await this.$axios.get("/users/" + this.profile.user_id + "/photos/").then(response => (this.media = response.data));
             } catch (e) {
+                // console.log(e)
                 this.errormsg = e.toString();
+                console.log(this.errormsg)
             }
             this.loading = false;
             console.log("media:", this.media)
@@ -146,20 +151,38 @@ export default {
                 this.refresh()
             }
         },
-        refresh() {
+        async getImage() {
+            this.loading = true;
+            this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-            this.GetProfile().then(() => this.GetBans(true)).then(() => this.getFollowers(true)).then(() => this.GetUserPhotos());
-            console.log("refresh:", this.media)
+            try {
+                let response = await this.$axios.get("/images/?image_name=" + this.profile.profile_picture_url, { responseType: 'blob' })
+                // Get the image data as a Blob object
+                var imgBlob = response.data;
+
+                // Create an object URL from the Blob object
+                this.ppUrl = URL.createObjectURL(imgBlob);
+            } catch {
+                this.errormsg = error.message;
+
+            }
+            this.loading = false;
+            console.log("profile_pic_URL:", this.ppUrl)
+        },
+        refresh() {
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });/* .then(() => this.GetBans(true)) */
+            this.GetProfile().then(() => this.getImage()).then(() => this.getFollowers(true)).then(() => this.GetUserPhotos()).then(() => console.log("refresh:", this.media))
         },
 
-        uploadImage: async function () {
+        uploadImage: function () {
             this.$router.push({ path: '/users/' + this.profile.user_id + "/form/" })
         },
-        edit_profile: async function () {
+        edit_profile: function () {
             this.$router.push({ path: '/users/' + this.profile.user_id + "/editProfile/" })
         },
-        change_username: async function () {
+        change_username: function () {
             this.$router.push({ path: '/users/' + this.profile.user_id + "/changeUsername/" })
         },
         cancel() {
@@ -200,7 +223,7 @@ export default {
             <ErrorMsg v-if="errormsg" :msg="errormsg" />
             <font-awesome-icon class="previous-page" icon="fa-solid fa-chevron-left" size="5x" @click="cancel" />
             <div class="profile-image">
-                <Avatar :src="profile.profile_picture_url" :size="180" />
+                <Avatar :src="ppUrl" :size="180" />
             </div>
             <div class="profile-user-settings">
                 <h1 class="profile-user-name"> {{ profile.username }}</h1>
@@ -231,13 +254,13 @@ export default {
                 </p>
             </div>
 
-            <div class="upload-image">
+            <div v-if=logged class="upload-image">
                 <font-awesome-icon class="upload-image-button" icon="fa-solid fa-plus" @click="uploadImage" />
             </div>
             <!--End of profile section-->
         </div>
         <div class="gallery">
-            <GalleryItem v-for="obj in media" :key="obj.photoId" :photo="obj" />
+            <GalleryItem v-if=media v-for="obj in media" :key="obj.photoId" :photo="obj" />
         </div>
     </div>
 </template>

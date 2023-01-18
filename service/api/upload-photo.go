@@ -93,7 +93,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	// 7 - Save the photo in the images folder exploiting the image id
 
-	f, err := os.Create(fmt.Sprintf("./service/images/%s%s", photoId, filepath.Ext(fileHeader.Filename)))
+	f, err := os.Create(fmt.Sprintf("./images/%s%s", photoId, filepath.Ext(fileHeader.Filename)))
 
 	if err != nil {
 		ctx.Logger.WithError(err)

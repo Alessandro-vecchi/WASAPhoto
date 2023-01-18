@@ -1,18 +1,21 @@
 <script>
 import Avatar from "@/components/Avatar.vue"
 import CustomText from "@/components/CustomText.vue"
+import ShortProfile from "@/components/ShortProfile.vue"
 import { eventBus } from "@/main.js"
 
 export default {
     components: {
         Avatar,
         CustomText,
+        ShortProfile,
     },
     data: function () {
         return {
             short_profiles: eventBus.getShortProfiles,
             title: eventBus.getTitle,
             header: localStorage.getItem('Authorization'),
+            ppUrl: "",
         }
     },
     methods: {
@@ -20,6 +23,29 @@ export default {
         goBack() {
             this.$router.push({ path: "/users/" + this.header + "/stream/" });
         },
+        async getImage() {
+            console.log("1", this.photo, "2", this.photo.image)
+            this.loading = true;
+            this.errormsg = null;
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = this.header; return config; },
+                error => { return Promise.reject(error); });
+            try {
+                let response = await this.$axios.get("/images/?image_name=" + this.photo.image, { responseType: 'blob' })
+                // Get the image data as a Blob object
+                var imgBlob = response.data;
+
+                // Create an object URL from the Blob object
+                this.imgUrl = URL.createObjectURL(imgBlob);
+            } catch(error) {
+                // console.log(error);
+                this.errormsg = error.message;
+
+            }
+            this.loading = false;
+        },
+    },
+    mounted() {
+        this.getImage()
     }
 
 
@@ -37,19 +63,7 @@ export default {
             </div>
         </div>
         <div class="content section">
-            <ul>
-                <li v-for="s_p in short_profiles" :key="s_p.username">
-                    <div class="short-profile">
-                        <!-- <Avatar :src="s_p.profilePictureUrl" :size="40" class="profile-photo" /> -->
-                        <Avatar v-if=s_p.profilePictureUrl :src="s_p.profilePictureUrl" :size="40"
-                            class="profile-photo" />
-                        <Avatar v-else :size="40" class="profile-photo" />
-                        <div class="author-username">
-                            <CustomText tag="b">{{ s_p.username }}</CustomText>
-                        </div>
-                    </div>
-                </li>
-            </ul>
+            <ShortProfile v-for="s_p in short_profiles" :key="s_p.username" :shortProfile="s_p"/>
         </div>
     </div>
 </template>
@@ -95,35 +109,10 @@ export default {
 }
 
 .container .content {
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
     width: 300px;
     height: 300px;
     border-radius: 0 0 20px 20px;
     background: var(--background-likes);
     overflow: auto;
-}
-
-.container .content .short-profile {
-    display: flex;
-    flex-direction: rows;
-    margin-top: 4px;
-}
-
-.container .content .short-profile .profile-photo:hover {
-    cursor: pointer;
-}
-
-.container .content .short-profile .author-username {
-    align-items: center;
-    margin-left: 8px;
-    font-size: 16px;
-    border-bottom: 1px solid #999;
-}
-
-.container .content .short-profile .author-username b:hover {
-    text-decoration: underline;
-    cursor: pointer;
 }
 </style>
