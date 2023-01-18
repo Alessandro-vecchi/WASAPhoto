@@ -92,7 +92,8 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	photoId := rawPhotoId.String()
 
 	// 7 - Save the photo in the images folder exploiting the image id
-	f, err := os.Create(fmt.Sprintf("./webui/src/assets/images/%s%s", photoId, filepath.Ext(fileHeader.Filename)))
+
+	f, err := os.Create(fmt.Sprintf("./service/images/%s%s", photoId, filepath.Ext(fileHeader.Filename)))
 
 	if err != nil {
 		ctx.Logger.WithError(err)
@@ -108,7 +109,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// 8 - Create picture url
-	picURL := fmt.Sprintf("./src/assets/images/%s%s", photoId, filepath.Ext(fileHeader.Filename))
+	picURL := fmt.Sprintf("%s%s", photoId, filepath.Ext(fileHeader.Filename))
 	log.Printf("image path name: %s", picURL)
 
 	// 9 - create media object

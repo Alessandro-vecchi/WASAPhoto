@@ -20,9 +20,9 @@ func (db *appdbimpl) CommentPhoto(photoId string, c Comment_db) (Comment_db, err
 	c.Created_in = time.Now().Format(time.RFC3339)
 	c.Modified_in = c.Created_in
 	if c.IsReplyComment {
-		_, err = db.c.Exec(`INSERT INTO comments (user_id, comment_id, created_in, body, photo_id, modified_in, is_reply_comment, parent_id) VALUES (?,?,?,?,?,?,?,?)`, c.UserId, commentId, c.Created_in, c.Body, photoId, c.Modified_in, c.IsReplyComment, "")
-	} else {
 		_, err = db.c.Exec(`INSERT INTO comments (user_id, comment_id, created_in, body, photo_id, modified_in, is_reply_comment, parent_id) VALUES (?,?,?,?,?,?,?,?)`, c.UserId, commentId, c.Created_in, c.Body, photoId, c.Modified_in, c.IsReplyComment, c.ParentId)
+	} else {
+		_, err = db.c.Exec(`INSERT INTO comments (user_id, comment_id, created_in, body, photo_id, modified_in, is_reply_comment, parent_id) VALUES (?,?,?,?,?,?,?,?)`, c.UserId, commentId, c.Created_in, c.Body, photoId, c.Modified_in, c.IsReplyComment, "")
 	}
 	if err != nil {
 		return Comment_db{}, fmt.Errorf("comment could not be created: %w", err)

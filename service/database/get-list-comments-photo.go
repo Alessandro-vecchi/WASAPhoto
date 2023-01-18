@@ -5,7 +5,8 @@ func (db *appdbimpl) GetComments(photoId string) ([]Comment_db, error) {
 	const query = `
         SELECT user_id, comment_id, created_in, body, modified_in, is_reply_comment
         FROM comments
-        WHERE photo_id =?`
+        WHERE photo_id =?
+		ORDER BY created_in DESC;`
 
 	var comments []Comment_db
 

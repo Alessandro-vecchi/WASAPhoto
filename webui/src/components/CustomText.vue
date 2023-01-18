@@ -11,6 +11,9 @@ export default {
             default: 'normal', //normal: 14, small: 12, xsmall:11, xxsmal: 10
             validator: function (value) {
                 return [
+                    'xxlarge',
+                    'xlarge',
+                    'large',
                     'normal',
                     'small',
                     'xsmall',
@@ -29,6 +32,15 @@ export default {
 </template>
 
 <style>
+.xxlarge {
+    font-size: 24px;
+}
+.xlarge {
+    font-size: 18 px;
+}
+.large{
+    font-size: 16px;
+}
 .small {
     font-size: 12px;
 }

@@ -12,7 +12,6 @@ export default {
 		return {
 			errormsg: null,
 			loading: false,
-			user_id: this.$route.params.user_id,
             header: localStorage.getItem('Authorization'),
 			stream: [],
 		}
@@ -41,6 +40,7 @@ export default {
 
 
 	mounted() {
+		console.log("bela")
 		this.refresh()
 	}
 }

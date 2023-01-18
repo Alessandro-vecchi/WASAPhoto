@@ -4,6 +4,7 @@ import Login from '../views/LoginView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import list from '../components/UserList.vue'
 import comments from '../components/Comments.vue'
+import comment from '../components/Comment.vue'
 /* import search from '../components/GalleryItem.vue' */
 import Home from '../views/HomeView.vue'
 import prof from '../views/placeholder.vue'
@@ -32,6 +33,7 @@ const router = createRouter({
 
 		/* COMMENTS */
 		// See comments
+		{ path: '/comment/comm', component: comment },
 
 		// Upload a comment
 
@@ -52,7 +54,7 @@ const router = createRouter({
 
 		/* BAN */
 		// Get list of the banned users
-		{ path: '/comments', component: comments, name: 'comments' },
+		{ path: '/photos/:photo_id/comments/', component: comments},
 	], sensitive: true //, strict: true
 })
 

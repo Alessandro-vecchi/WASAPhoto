@@ -22,6 +22,8 @@ type Comment struct {
 	IsReplyComment bool `json:"isReplyComment,omitempty"`
 	// Id of the parent comment, "" if top-level comment
 	ParentId string `json:"parentId,omitempty"`
+	// Profile picture of the author
+	Profile_pic string `json:"profile_pic,omitempty"`
 }
 
 func (c *Comment) FromDatabase(comment database.Comment_db, db database.AppDatabase) {
@@ -32,6 +34,7 @@ func (c *Comment) FromDatabase(comment database.Comment_db, db database.AppDatab
 	c.Body = comment.Body
 	c.Author, _ = db.GetNameById(comment.UserId)
 	c.ParentId = comment.ParentId
+	c.Profile_pic, _ = db.GetProfilePic(comment.UserId)
 }
 
 // ToDatabase returns the profile in a database-compatible representation

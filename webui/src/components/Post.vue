@@ -1,7 +1,7 @@
 <script>
 import Avatar from "@/components/Avatar.vue"
 import CustomText from "@/components/CustomText.vue"
-import { eventBus} from "@/main.js"
+import { eventBus } from "@/main.js"
 
 export default {
     props: ['post'],
@@ -16,9 +16,12 @@ export default {
             loading: false,
             errormsg: null,
             username: "",
+            textComment: "",
             isLiked: null,
             myProfilePic: "",
             likes: [],
+            comments: [],
+            imgUrl: "",
         }
     },
     methods: {
@@ -28,7 +31,7 @@ export default {
         async Get_my_profile() {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-            await this.$axios.get("/users/?username=" + this.username).then(response => (this.username=response.data.username, this.myProfilePic=response.data.profile_picture_url))
+            await this.$axios.get("/users/?username=" + this.username).then(response => (this.username = response.data.username, this.myProfilePic = response.data.profile_picture_url))
         },
         async LikeClick() {
             this.loading = true;
@@ -64,7 +67,7 @@ export default {
                     console.log(this.post)
                     eventBus.getShortProfiles = this.likes
                     eventBus.getTitle = "LIKES"
-                    this.$router.push({ path: '/likes/'})
+                    this.$router.push({ path: '/likes/' })
 
                 }
             } catch (e) {
@@ -78,6 +81,66 @@ export default {
             }
         },
 
+        async GetComments(isRefresh) {
+            this.loading = true;
+            this.errormsg = null;
+            console.log(this.post)
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            try {
+                await this.$axios.get("/photos/" + this.post.photoId + "/comments/").then(response => (this.comments = response.data));
+                if (!isRefresh) {
+                    eventBus.getComments = this.comments
+                    this.$router.push({ path: '/photos/' + this.post.photoId + "/comments/" })
+                }
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+            console.log("comments:", this.comments)
+            if (!isRefresh) {
+                this.refresh()
+            }
+        },
+        async submitComment() {
+            this.loading = true;
+            this.error = null;
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+
+            try {
+                let response = await this.$axios.post('/photos/' + this.post.photoId + '/comments/', {
+                    body: this.textComment, isReplyComment: false, author: this.username,
+                });
+                console.log(response.data)
+
+                this.$router.push({ path: '/photos/' + this.post.photoId + "/comments/" });
+            } catch (e) {
+                this.error = e
+            }
+            this.loading = false;
+        },
+        async GetImage(url) {
+            this.loading = true;
+            this.errormsg = null;
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+
+            await this.$axios.get("/images/?image_name=" + url, { responseType: 'blob' }).then(response => {
+                // Get the image data as a Blob object
+                var imgBlob = response.data;
+
+                // Create an object URL from the Blob object
+                this.imgUrl = URL.createObjectURL(imgBlob);
+                console.log(this.imgUrl)
+            })
+                .catch(error => {
+                    // console.log(error);
+                    this.errormsg = error.message;
+                });
+            this.loading = false;
+            return imgUrl
+        },
         refresh() {
             this.GetLikes(true) // .then(() => this.GetComments(true))
         },
@@ -138,6 +201,7 @@ export default {
 
     },
     mounted() {
+        console.log(this.$props, post.profile_pic)
         this.Get_my_profile().then(() => this.refresh())
     }
 }
@@ -148,9 +212,10 @@ export default {
         <!-- header -->
         <header class="header section">
             <div class="header-author">
-                <Avatar :src="post.profile_pic" :size="45" @click="get_user_profile()"/> <!-- :src= "post.profile_pic" -->
+                <Avatar v-if=post.profile_pic :src=GetImage(post.profile_pic) :size="45" @click="get_user_profile()" />
+                <!-- :src= "post.profile_pic" -->
                 <div class="header-author-info">
-                    <CustomText tag="b" >{{ post.username }}</CustomText> <!-- _alevecchi -->
+                    <CustomText tag="b">{{ post.username }}</CustomText> <!-- _alevecchi -->
                 </div>
             </div>
             <div class="header-more">
@@ -162,7 +227,8 @@ export default {
 
         <!-- media -->
         <div class="post-media">
-            <img :src="post.image" alt="" class="post-image" /> <!-- src="https://picsum.photos/600/400?random=1" -->
+            <img v-if=post.image :src="GetImage(post.image)" alt="" class="post-image" />
+            <!-- src="https://picsum.photos/600/400?random=1" -->
         </div>
 
         <div class="two-col section">
@@ -171,13 +237,15 @@ export default {
                 <ul>
                     <li>
                         <button v-if=!loading type="button">
-                            <font-awesome-icon v-if=!isLiked class="icon" id="like" icon="fa-regular fa-heart" @click="LikeClick" />
-                            <font-awesome-icon v-else class="icon" id="like" icon="fa-solid fa-heart" color="rgb(232, 62, 79)" @click="LikeClick" />
+                            <font-awesome-icon v-if=!isLiked class="icon" id="like" icon="fa-regular fa-heart"
+                                @click="LikeClick" />
+                            <font-awesome-icon v-else class="icon" id="like" icon="fa-solid fa-heart"
+                                color="rgb(232, 62, 79)" @click="LikeClick" />
                             <span class="num" @click="GetLikes(false)"> {{ post.likes_count }} </span>
                         </button>
                     </li>
                     <li>
-                        <button v-if=!loading type="button">
+                        <button v-if=!loading type="button" @click="GetComments(false)">
                             <font-awesome-icon class="icon" id="comment" icon="fa-regular fa-comment" />
                             <span class="num"> {{ post.comments_count }} </span>
                         </button>
@@ -201,9 +269,9 @@ export default {
 
             <!-- comments form -->
             <div class="comment section">
-                <Avatar :src="myProfilePic" :size="30" @click="get_user_profile()"/>
-                <input class="text-body" type="text" placeholder="Add a comment...">
-                <a href="#" type="button">Post</a>
+                <Avatar v-if=myProfilePic :src=GetImage(myProfilePic) :size="30" @click="get_user_profile()" />
+                <input class="text-body" type="text" placeholder="Add a comment..." v-model="textComment">
+                <button v-if="!loading" type="submit" @click="submitComment">Post</button>
             </div>
         </div>
     </div>
@@ -280,10 +348,12 @@ export default {
     font-family: Georgia, 'Times New Roman', Times, serif;
     color: #333;
 }
+
 .post .action-buttons .icon {
     height: 25px;
     width: 25px;
 }
+
 #like:hover {
     color: #555;
     /* background-color: rgb(232, 62, 79) */
@@ -344,13 +414,14 @@ export default {
     background-color: -internal-light-dark(rgb(255, 255, 255), rgb(59, 59, 59));
 }
 
-.post .comments-list .comment a {
+.post .comments-list .comment button[type="submit"] {
+    background-color: #fafafa;
     margin-left: 16px;
     font-size: 16px;
     color: rgba(0, 160, 230, 1);
 }
 
-.post .comments-list .comment a:hover {
+.post .comments-list .comment button[type="submit"]:hover {
     text-decoration: underline;
     cursor: pointer;
 }

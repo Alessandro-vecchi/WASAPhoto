@@ -29,6 +29,8 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/users/:user_id/photos/", rt.wrap(rt.getUserPhotos))
 	// Delete a single user photo
 	rt.router.DELETE("/photos/:photo_id", rt.wrap(rt.deletePhoto))
+	// Get Image
+	rt.router.GET("/images/", rt.wrap(rt.getImage))
 
 	/* COMMENTS */
 	// Upload a comment

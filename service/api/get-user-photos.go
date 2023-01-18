@@ -22,12 +22,8 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	if r.URL.Query().Has("latitude") && r.URL.Query().Has("longitude") {
-		w.WriteHeader(http.StatusOK)
-	} else {
-		// Request an unfiltered list of photos from the DB
-		listPhotos, err = rt.db.GetListUserPhotos(user_id)
-	}
+	listPhotos, err = rt.db.GetListUserPhotos(user_id)
+
 	if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
 		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.

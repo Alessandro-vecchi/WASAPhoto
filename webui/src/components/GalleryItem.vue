@@ -1,17 +1,5 @@
 <script>
 export default {
-    /*    props: {
-           photo: {
-               photo_id: "",
-               owner: "",
-               image: "",
-               caption: "",
-               timestamp: "",
-               likes_count: 0,
-               comment_count: 0,
-   
-           }
-       }, */
     props: ['photo'],
     name: 'GalleryItem',
     data: function () {
@@ -26,7 +14,6 @@ export default {
 
 <template>
     <div class="gallery-item" tabindex="0">
-        <!-- src="https://picsum.photos/600/400" -->
         <img :src="photo.image" alt="" class="gallery-image">
         <div class="gallery-item-info">
             <ul>
