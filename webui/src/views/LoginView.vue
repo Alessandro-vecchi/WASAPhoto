@@ -1,4 +1,6 @@
 <script>
+import { eventBus } from "@/main.js"
+
 export default {
     data: function() {
         return {
@@ -20,6 +22,7 @@ export default {
                 });
 				this.User.UserID  = response.data,
 
+                eventBus.getMyUsername = this.User.Username
                 localStorage.clear();
                 localStorage.setItem('Authorization', this.User.UserID),
                 

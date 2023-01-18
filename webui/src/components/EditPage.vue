@@ -22,8 +22,9 @@ export default {
                 let formData = new FormData();
                 formData.append('username', this.username);
                 formData.append('bio', this.bio);
-                if (!this.$refs.avatar) return
                 formData.append('image', this.$refs.avatar.files[0]);
+
+                eventBus.getMyUsername = this.username
                 console.log(this.username, this.avatar, this.bio)
                 await this.$axios.put('/users/' + this.$route.params.user_id, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }

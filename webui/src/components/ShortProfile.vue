@@ -1,8 +1,6 @@
 <template>
     <div class="short-profile">
-        <!-- <Avatar :src="s_p.profilePictureUrl" :size="40" class="profile-photo" /> -->
-        <Avatar v-if="sp" :src="sp" :size="40" class="profile-photo" />
-        <Avatar v-else :size="40" class="profile-photo" />
+        <Avatar :src="sp" :size="40" class="profile-photo" />
         <div class="author-username">
             <CustomText tag="b">{{ shortProfile.username }}</CustomText>
         </div>

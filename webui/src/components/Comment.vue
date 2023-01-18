@@ -1,19 +1,19 @@
 <script>
 import Avatar from "@/components/Avatar.vue"
 import CustomText from "@/components/CustomText.vue"
-import { eventBus} from "@/main.js"
+import { eventBus } from "@/main.js"
 
 export default {
     props: {
-    commentId: String,
-    author: String,
-    profilePic: String,
-    image: String,
-    createdIn: String,
-    body: String,
-    modifiedIn: String,
+        commentId: String,
+        author: String,
+        profilePic: String,
+        image: String,
+        createdIn: String,
+        body: String,
+        modifiedIn: String,
 
-},
+    },
     components: {
         Avatar,
         CustomText,
@@ -25,7 +25,8 @@ export default {
             path: "https://i.imgur.com/nAcoHRf.jpg",
             pp: "",
             header: localStorage.getItem('Authorization'),
-            user_id: eventBus.user_id
+            user_id: eventBus.user_id,
+            username: eventBus.getMyUsername,
         }
     },
     methods: {
@@ -118,11 +119,17 @@ export default {
             }
             return bool
         },
+        isMine() {
+            console.log("Author:", this.author,"Username:", this.username)
+            return (this.author == this.username)
+        }
 
     },
     mounted() {
-        if (this.profilePic){
-            this.getImage()}
+        console.log("mounted:", this.user_id)
+        if (this.profilePic) {
+            this.getImage()
+        }
     },
 }
 </script>
@@ -149,8 +156,8 @@ export default {
             </div>
 
             <div class="buttons">
-                <button v-if=logged type="edit">Edit</button>
-                <button v-if=logged type="delete" @click="uncommentPhoto">Delete</button>
+                <button v-if="(logged && isMine)" type="edit">Edit</button>
+                <button v-if="(logged && isMine)" type="delete" @click="uncommentPhoto">Delete</button>
             </div>
         </div>
     </div>

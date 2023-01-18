@@ -1,4 +1,6 @@
 <script>
+import { eventBus } from "@/main.js"
+
 export default {
     data() {
         return {
@@ -24,6 +26,7 @@ export default {
                 });
                 this.username = response.data.username
                 console.log(response.data, response, this.username)
+                eventBus.getMyUsername = this.username
                 this.$router.push({ path: "/users/", query: { username: this.username } });
             } catch (error) {
                 this.error = error;
