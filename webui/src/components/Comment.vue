@@ -1,7 +1,7 @@
 <script>
 import Avatar from "@/components/Avatar.vue"
 import CustomText from "@/components/CustomText.vue"
-// import { eventBus} from "@/main.js"
+import { eventBus} from "@/main.js"
 
 export default {
     props: {
@@ -20,8 +20,12 @@ export default {
     },
     data: function () {
         return {
+            loading: false,
+            errormsg: null,
             path: "https://i.imgur.com/nAcoHRf.jpg",
-            profilePic: "",
+            pp: "",
+            header: localStorage.getItem('Authorization'),
+            user_id: eventBus.user_id
         }
     },
     methods: {
@@ -37,13 +41,23 @@ export default {
                 var imgBlob = response.data;
 
                 // Create an object URL from the Blob object
-                this.profilePic = URL.createObjectURL(imgBlob);
+                this.pp = URL.createObjectURL(imgBlob);
             } catch (error) {
                 // console.log(error);
                 this.errormsg = error.message;
             }
             this.loading = false;
         },
+        async uncommentPhoto() {
+            this.loading = true;
+            this.errormsg = null;
+            try {
+                await this.$axios.delete('/comments/' + commentId);
+            } catch (error) {
+                this.errormsg = error;
+            }
+            this.loading = false;
+        }
     },
     computed: {
         timeAgo() {
@@ -95,10 +109,20 @@ export default {
             /* console.log(timeAgo); */
             return timeAgo;
         },
+        logged() {
+            // console.log(this.profile.user_id, localStorage.getItem('Authorization'))
+            let bool = (this.header == this.user_id)
+            console.log("logged:", bool, this.user_id)
+            if (bool === null) {
+                return false
+            }
+            return bool
+        },
 
     },
     mounted() {
-        this.getImage()
+        if (this.profilePic){
+            this.getImage()}
     },
 }
 </script>
@@ -106,7 +130,7 @@ export default {
 <template>
     <div class="media">
         <div class="image-place">
-            <Avatar :src="profilePic" :size="60" />
+            <Avatar :src="pp" :size="60" />
         </div>
         <div class="media-body">
             <div>
@@ -125,8 +149,8 @@ export default {
             </div>
 
             <div class="buttons">
-                <button type="edit">Edit</button>
-                <button type="delete">Delete</button>
+                <button v-if=logged type="edit">Edit</button>
+                <button v-if=logged type="delete" @click="uncommentPhoto">Delete</button>
             </div>
         </div>
     </div>
@@ -138,7 +162,7 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300&display=swap');
 
 .media {
-    font-family: 'Source Sans Pro', sans-serif;
+    font-family: sans-serif;
     width: inherit;
     background: #fafafa;
     border-radius: 20px;

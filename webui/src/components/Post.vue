@@ -141,11 +141,11 @@ export default {
                 // Create an object URL from the Blob object
                 console.log(url)
                 var uri = URL.createObjectURL(imgBlob);
-                if (filter === "my"){
+                if (filter === "my") {
                     this.myProfilePic = uri
-                } else if (filter === "img"){
+                } else if (filter === "img") {
                     this.imgUrl = uri
-                } else if (filter === "pp"){
+                } else if (filter === "pp") {
                     this.ppUrl = uri
                 }
                 console.log(uri)
@@ -157,9 +157,15 @@ export default {
             this.loading = false;
         },
         getImages() {
-            this.GetImage(this.myProfilePic, "my")
-            this.GetImage(this.image, "img")
-            this.GetImage(this.profilePictureUrl, "pp")
+            if (this.myProfilePic) {
+                this.GetImage(this.myProfilePic, "my")
+            }
+            if (this.image) {
+                this.GetImage(this.image, "img")
+            }
+            if (this.profilePictureUrl) {
+                this.GetImage(this.profilePictureUrl, "pp")
+            }
         },
         refresh() {
             this.GetLikes(true) // .then(() => this.GetComments(true))
@@ -229,7 +235,7 @@ export default {
         <!-- header -->
         <header class="header section">
             <div class="header-author">
-                <Avatar v-if="profilePictureUrl" :src="ppUrl" :size="45" @click="get_user_profile(owner)" />
+                <Avatar :src="ppUrl" :size="45" @click="get_user_profile(owner)" />
                 <div class="header-author-info">
                     <CustomText tag="b">{{ owner }}</CustomText> <!-- _alevecchi -->
                 </div>
@@ -243,7 +249,7 @@ export default {
 
         <!-- media -->
         <div class="post-media">
-            <img v-if="image" :src="imgUrl" alt="" class="post-image" />
+            <img :src="imgUrl" alt="" class="post-image" />
             <!-- src="https://picsum.photos/600/400?random=1" -->
         </div>
 
@@ -285,7 +291,7 @@ export default {
 
             <!-- comments form -->
             <div class="comment section">
-                <Avatar v-if="myProfilePic" :src="myProfilePic" :size="30" @click="get_user_profile(username)" />
+                <Avatar :src="myProfilePic" :size="30" @click="get_user_profile(username)" />
                 <input class="text-body" type="text" placeholder="Add a comment..." v-model="textComment">
                 <button v-if="!loading" type="submit" @click="submitComment">Post</button>
             </div>

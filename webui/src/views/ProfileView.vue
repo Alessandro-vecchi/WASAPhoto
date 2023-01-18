@@ -1,7 +1,7 @@
 <script>
 import GalleryItem from "@/components/GalleryItem.vue"
 import Avatar from "@/components/Avatar.vue"
-import { eventBus} from "@/main.js"
+import { eventBus } from "@/main.js"
 
 export default {
     components: {
@@ -164,17 +164,20 @@ export default {
 
                 // Create an object URL from the Blob object
                 this.ppUrl = URL.createObjectURL(imgBlob);
-            } catch {
+            } catch (error) {
                 this.errormsg = error.message;
 
             }
             this.loading = false;
             console.log("profile_pic_URL:", this.ppUrl)
         },
-        refresh() {
+        async refresh() {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });/* .then(() => this.GetBans(true)) */
-            this.GetProfile().then(() => this.getImage()).then(() => this.getFollowers(true)).then(() => this.GetUserPhotos()).then(() => console.log("refresh:", this.media))
+            // this.GetProfile().then(() => this.getImage()).then(() => this.getFollowers(true)).then(() => this.GetUserPhotos()).then(() => console.log("refresh:", this.media))
+            await this.GetProfile()
+            if (this.profile.profile_picture_url) { await this.getImage() }
+            this.getFollowers(true).then(() => this.GetUserPhotos()).then(() => console.log("refresh:", this.media))
         },
 
         uploadImage: function () {

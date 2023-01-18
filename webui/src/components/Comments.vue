@@ -42,7 +42,7 @@ export default {
                 :author="comm.author" :profilePic="comm.profile_pic" :image="comm.image"
                 :createdIn="comm.created_in" :body="comm.body" :modifiedIn="comm.modified_in"/>
             </div>
-            <div class="section-2">
+            <!-- <div class="section-2">
                 <Comment class="comment-space" />
                 <Comment class="comment-space" />
             </div>
@@ -54,7 +54,7 @@ export default {
                 <Comment class="comment-space" />
                 <Comment class="comment-space" />
                 <Comment class="comment-space" />
-            </div>
+            </div> -->
 
         </div>
     </div>
@@ -66,7 +66,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #9C27B0;
+    background: linear-gradient(to right, rgb(242, 112, 156), rgb(255, 148, 114));
     height: 100%;
     width: 100%;
 }

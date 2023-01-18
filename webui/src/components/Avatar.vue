@@ -1,6 +1,6 @@
 <template>
     <figure class="avatar">
-        <img :src="src" :alt="alt" :width="size" :height="size" />
+        <img :src="resolvedSrc" :alt="alt" :width="size" :height="size" />
         <!-- <img v-if=src :src="src" :alt="alt" :width="size" :height="size" />
         <img v-else :src="src" :alt="alt" :width="size" :height="size" /> -->
     </figure>
@@ -26,7 +26,7 @@ export default {
     computed: {
         resolvedSrc() {
             console.log(this.src)
-            if(this.src === '') {
+            if (!this.src) {
                 return `https://cdn.pixabay.com/photo/2018/11/13/22/01/avatar-3814081__480.png`
             } else {
                 return this.src

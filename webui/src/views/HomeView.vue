@@ -1,6 +1,7 @@
 <script>
 import Post from '@/components/Post.vue'
 import NavBar from '@/components/NavBar.vue'
+import { eventBus } from "@/main.js"
 
 export default {
 	name: 'Home',
@@ -34,6 +35,7 @@ export default {
 		},
 		refresh() {
 			this.GetStream();
+			eventBus.user_id = this.$route.params.user_id
 		}
 
 	},
