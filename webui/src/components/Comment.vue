@@ -22,11 +22,10 @@ export default {
         return {
             loading: false,
             errormsg: null,
-            path: "https://i.imgur.com/nAcoHRf.jpg",
             pp: "",
             header: localStorage.getItem('Authorization'),
             user_id: eventBus.user_id,
-            username: eventBus.getMyUsername,
+            myUsername: eventBus.getMyUsername,
         }
     },
     methods: {
@@ -53,7 +52,7 @@ export default {
             this.loading = true;
             this.errormsg = null;
             try {
-                await this.$axios.delete('/comments/' + commentId);
+                await this.$axios.delete('/comments/' + this.commentId);
             } catch (error) {
                 this.errormsg = error;
             }
@@ -112,7 +111,7 @@ export default {
         },
         logged() {
             // console.log(this.profile.user_id, localStorage.getItem('Authorization'))
-            let bool = (this.header == this.user_id)
+            let bool = (this.header === this.user_id)
             console.log("logged:", bool, this.user_id)
             if (bool === null) {
                 return false
@@ -120,13 +119,13 @@ export default {
             return bool
         },
         isMine() {
-            console.log("Author:", this.author,"Username:", this.username)
-            return (this.author == this.username)
+            console.log("Author:", this.author,"Username:", this.myUsername)
+            return (this.author === this.myUsername)
         }
 
     },
     mounted() {
-        console.log("mounted:", this.user_id)
+        console.log("mounted:", eventBus.getMyUsername)
         if (this.profilePic) {
             this.getImage()
         }
@@ -157,7 +156,7 @@ export default {
 
             <div class="buttons">
                 <button v-if="(logged && isMine)" type="edit">Edit</button>
-                <button v-if="(logged && isMine)" type="delete" @click="uncommentPhoto">Delete</button>
+                <button v-if="(logged && isMine)" type="button" @click="uncommentPhoto">Delete</button>
             </div>
         </div>
     </div>
@@ -214,7 +213,7 @@ export default {
     background-color: #31b4d5;
 }
 
-.buttons button[type="delete"] {
+.buttons button[type="button"] {
     margin-left: 8px;
     background-color: #940e0e;
 }

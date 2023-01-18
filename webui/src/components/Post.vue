@@ -127,6 +127,7 @@ export default {
                 this.error = e
             }
             this.loading = false;
+            this.refresh()
         },
         GetImage(url, filter) {
             this.loading = true;
@@ -168,7 +169,7 @@ export default {
             }
         },
         refresh() {
-            this.GetLikes(true) // .then(() => this.GetComments(true))
+            this.GetLikes(true).then(() => this.GetComments(true))
         },
     },
     computed: {
