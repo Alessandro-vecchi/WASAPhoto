@@ -150,6 +150,7 @@ export default {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             this.GetProfile().then(() => this.GetBans(true)).then(() => this.getFollowers(true)).then(() => this.GetUserPhotos());
+            console.log("refresh:", this.media)
         },
 
         uploadImage: async function () {

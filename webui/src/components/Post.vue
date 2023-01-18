@@ -31,6 +31,7 @@ export default {
             myProfilePic: "",
             likes: [],
             comments: [],
+            ppUrl: "",
             imgUrl: "",
         }
     },
@@ -128,7 +129,7 @@ export default {
             }
             this.loading = false;
         },
-       /*  GetImage(url) {
+        GetImage(url, filter) {
             this.loading = true;
             this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
@@ -139,16 +140,28 @@ export default {
                 var imgBlob = response.data;
 
                 // Create an object URL from the Blob object
-                this.imgUrl = URL.createObjectURL(imgBlob);
-                console.log(this.imgUrl)
+                console.log(url)
+                var uri = URL.createObjectURL(imgBlob);
+                if (filter === "my"){
+                    this.myProfilePic = uri
+                } else if (filter === "img"){
+                    this.imgUrl = uri
+                } else if (filter === "pp"){
+                    this.ppUrl = uri
+                }
+                console.log(uri)
             })
                 .catch(error => {
                     // console.log(error);
                     this.errormsg = error.message;
                 });
             this.loading = false;
-            return this.imgUrl
-        }, */
+        },
+        getImages() {
+            this.GetImage(this.myProfilePic, "my")
+            this.GetImage(this.image, "img")
+            this.GetImage(this.profilePictureUrl, "pp")
+        },
         refresh() {
             this.GetLikes(true) // .then(() => this.GetComments(true))
         },
@@ -209,8 +222,8 @@ export default {
 
     },
     mounted() {
-        console.log(this.timestamp, this.caption, this.username, this.image)
-        this.Get_my_profile().then(() => this.refresh())
+        console.log(this.timestamp, this.caption, this.owner, this.image)
+        this.Get_my_profile().then(() => this.getImages()).then(() => this.refresh())
     }
 }
 </script>
@@ -220,7 +233,7 @@ export default {
         <!-- header -->
         <header class="header section">
             <div class="header-author">
-                <Avatar v-if="profilePictureUrl" :src="GetImage(profilePictureUrl)" :size="45" @click="get_user_profile(owner)" />
+                <Avatar v-if="profilePictureUrl" :src="ppUrl" :size="45" @click="get_user_profile(owner)" />
                 <div class="header-author-info">
                     <CustomText tag="b">{{ owner }}</CustomText> <!-- _alevecchi -->
                 </div>
@@ -234,7 +247,7 @@ export default {
 
         <!-- media -->
         <div class="post-media">
-            <img v-if="image" :src="GetImage(image)" alt="" class="post-image" />
+            <img v-if="image" :src="imgUrl" alt="" class="post-image" />
             <!-- src="https://picsum.photos/600/400?random=1" -->
         </div>
 
@@ -276,7 +289,7 @@ export default {
 
             <!-- comments form -->
             <div class="comment section">
-                <Avatar v-if="myProfilePic" :src="GetImage(myProfilePic)" :size="30" @click="get_user_profile(username)" />
+                <Avatar v-if="myProfilePic" :src="myProfilePic" :size="30" @click="get_user_profile(username)" />
                 <input class="text-body" type="text" placeholder="Add a comment..." v-model="textComment">
                 <button v-if="!loading" type="submit" @click="submitComment">Post</button>
             </div>

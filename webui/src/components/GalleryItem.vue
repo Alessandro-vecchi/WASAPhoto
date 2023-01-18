@@ -6,40 +6,41 @@ export default {
         return {
             loading: false,
             errormsg: null,
-            imgUrl: "",
+            imgUrl: this.photo.image,
         }
 
     },
-    computed: {
-        GetImage() {
+    methods: {
+        async getImage() {
             console.log("1", this.photo, "2", this.photo.image)
             this.loading = true;
             this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-
-            this.$axios.get("/images/?image_name=" + this.photo.image, { responseType: 'blob' }).then(response => {
+            try {
+                let response = await this.$axios.get("/images/?image_name=" + this.photo.image, { responseType: 'blob' })
                 // Get the image data as a Blob object
-                let imgBlob = response.data;
+                var imgBlob = response.data;
 
                 // Create an object URL from the Blob object
                 this.imgUrl = URL.createObjectURL(imgBlob);
-                console.log(this.imgUrl)
-            })
-                .catch(error => {
-                    console.log(error);
-                    this.errormsg = error.message;
-                });
+            } catch {
+                console.log(error);
+                this.errormsg = error.message;
+
+            }
             this.loading = false;
-            return this.imgUrl
         },
+    },
+    mounted() {
+        this.getImage()
     },
 }
 </script>
 
 <template>
     <div class="gallery-item" tabindex="0">
-        <img v-if=!loading :src="GetImage" alt="" class="gallery-image">
+        <img v-if=!loading :src="imgUrl" alt="" class="gallery-image"> <!-- :src="'data:image/jpg;base64'+imageUrl" -->
         <div class="gallery-item-info">
             <ul>
                 <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><font-awesome-icon
