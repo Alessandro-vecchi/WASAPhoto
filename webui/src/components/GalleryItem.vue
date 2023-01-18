@@ -5,16 +5,41 @@ export default {
     data: function () {
         return {
             loading: false,
-            error: false
+            errormsg: null,
+            imgUrl: "",
         }
 
+    },
+    computed: {
+        GetImage() {
+            console.log("1", this.photo, "2", this.photo.image)
+            this.loading = true;
+            this.errormsg = null;
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+
+            this.$axios.get("/images/?image_name=" + this.photo.image, { responseType: 'blob' }).then(response => {
+                // Get the image data as a Blob object
+                let imgBlob = response.data;
+
+                // Create an object URL from the Blob object
+                this.imgUrl = URL.createObjectURL(imgBlob);
+                console.log(this.imgUrl)
+            })
+                .catch(error => {
+                    console.log(error);
+                    this.errormsg = error.message;
+                });
+            this.loading = false;
+            return this.imgUrl
+        },
     },
 }
 </script>
 
 <template>
     <div class="gallery-item" tabindex="0">
-        <img :src="photo.image" alt="" class="gallery-image">
+        <img v-if=!loading :src="GetImage" alt="" class="gallery-image">
         <div class="gallery-item-info">
             <ul>
                 <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><font-awesome-icon

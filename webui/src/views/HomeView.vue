@@ -50,7 +50,9 @@ export default {
 
 	<div class="Home">
 		<div class="timeline">
-			<Post v-on:refresh-parent="refresh" v-for="obj in stream" :key="obj.photo_id" :post="obj"/>
+			<Post v-on:refresh-parent="refresh" v-if="stream" v-for="post in stream" :key="post.photoId" 
+			:photoId="post.photoId" :owner="post.username" :profilePictureUrl="post.profile_pic" :image="post.image"
+			:timestamp="post.timestamp" :caption="post.caption" :likesCount="post.likes_count" :commentsCount="post.comments_count"/>
 		</div>
 		<div class="sidebar">
 			<NavBar />

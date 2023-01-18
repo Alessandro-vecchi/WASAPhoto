@@ -38,7 +38,7 @@ export default {
         </div>
         <div class="content section">
             <ul>
-                <li v-for="s_p in short_profiles">
+                <li v-for="s_p in short_profiles" :key="s_p.username">
                     <div class="short-profile">
                         <!-- <Avatar :src="s_p.profilePictureUrl" :size="40" class="profile-photo" /> -->
                         <Avatar v-if=s_p.profilePictureUrl :src="s_p.profilePictureUrl" :size="40"

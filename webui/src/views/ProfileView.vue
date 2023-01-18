@@ -236,7 +236,7 @@ export default {
             <!--End of profile section-->
         </div>
         <div class="gallery">
-            <GalleryItem v-for="obj in media" :key="obj.photo_id" :photo="obj" />
+            <GalleryItem v-for="obj in media" :key="obj.photoId" :photo="obj" />
         </div>
     </div>
 </template>

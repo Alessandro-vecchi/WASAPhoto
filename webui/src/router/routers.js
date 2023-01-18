@@ -10,7 +10,7 @@ import Home from '../views/HomeView.vue'
 import prof from '../views/placeholder.vue'
 import Edit from '../components/EditPage.vue'
 import changed from '../components/ChangeUsername.vue'
-/* import Post from '@/components/Post.vue' */
+import Post from '@/components/Post.vue'
 
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -40,7 +40,7 @@ const router = createRouter({
 		// Modify a comment
 
 		// Delete a comment
-		{ path: '/new/', component: prof},
+		{ path: '/post/', component: Post},
 
 		/* LIKES */
 		// Get list of the users that added a like

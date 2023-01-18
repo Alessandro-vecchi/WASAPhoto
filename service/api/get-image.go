@@ -16,7 +16,6 @@ import (
 
 // get photo from photos folder
 func (rt *_router) getImage(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-
 	hostname := r.Host
 
 	var image_file string
@@ -31,7 +30,7 @@ func (rt *_router) getImage(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 
 	// Obtain the path for the image in the server
-	path := fmt.Sprintf("%s/service/images/%s", hostname, image_file)
+	path := fmt.Sprintf("./images/%s", image_file)
 	log.Printf("Path: %s\nHostname: %s", path, hostname)
 
 	// Open the image
@@ -44,7 +43,7 @@ func (rt *_router) getImage(w http.ResponseWriter, r *http.Request, ps httproute
 	defer img.Close()
 
 	// 2 - Send the image back to the front
-	w.Header().Set("Content-Type", "image/*")
+	w.Header().Set("Content-Type", "blob")
 	_, err = io.Copy(w, img)
 	if err != nil {
 		// error copying image

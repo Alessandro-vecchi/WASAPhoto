@@ -2,10 +2,20 @@
 import Avatar from "@/components/Avatar.vue"
 import CustomText from "@/components/CustomText.vue"
 import { eventBus } from "@/main.js"
+import { stringifyExpression } from "@vue/compiler-core"
 
 export default {
-    props: ['post'],
-    name: 'Post',
+    props: {
+        photoId: String,
+        owner: String,
+        profilePictureUrl: String,
+        image: String,
+        timestamp: String,
+        caption: String,
+        likesCount: Number,
+        commentsCount: Number,
+
+    },
     components: {
         Avatar,
         CustomText,
@@ -25,8 +35,8 @@ export default {
         }
     },
     methods: {
-        async get_user_profile() {
-            this.$router.push({ path: "/users/", query: { username: this.post.username } })
+        async get_user_profile(name) {
+            this.$router.push({ path: "/users/", query: { username: name } })
         },
         async Get_my_profile() {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
@@ -43,9 +53,9 @@ export default {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             if (this.isLiked) {
-                await this.$axios.delete("/photos/" + this.post.photoId + "/likes/" + this.header);
+                await this.$axios.delete("/photos/" + this.photoId + "/likes/" + this.header);
             } else {
-                await this.$axios.put("/photos/" + this.post.photoId + "/likes/" + this.header).then(response => (this.username = response.data.name));
+                await this.$axios.put("/photos/" + this.photoId + "/likes/" + this.header)//.then(response => (this.username = response.data.name));
             }
             this.loading = false;
             this.refresh()
@@ -60,11 +70,10 @@ export default {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             try {
-                let response = await this.$axios.get("/photos/" + this.post.photoId + "/likes/")
+                let response = await this.$axios.get("/photos/" + this.photoId + "/likes/")
                 this.likes = response.data.short_profile
                 this.isLiked = response.data.cond
                 if (!isRefresh) {
-                    console.log(this.post)
                     eventBus.getShortProfiles = this.likes
                     eventBus.getTitle = "LIKES"
                     this.$router.push({ path: '/likes/' })
@@ -84,14 +93,13 @@ export default {
         async GetComments(isRefresh) {
             this.loading = true;
             this.errormsg = null;
-            console.log(this.post)
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             try {
-                await this.$axios.get("/photos/" + this.post.photoId + "/comments/").then(response => (this.comments = response.data));
+                await this.$axios.get("/photos/" + this.photoId + "/comments/").then(response => (this.comments = response.data));
                 if (!isRefresh) {
                     eventBus.getComments = this.comments
-                    this.$router.push({ path: '/photos/' + this.post.photoId + "/comments/" })
+                    this.$router.push({ path: '/photos/' + this.photoId + "/comments/" })
                 }
             } catch (e) {
                 this.errormsg = e.toString();
@@ -109,24 +117,24 @@ export default {
                 error => { return Promise.reject(error); });
 
             try {
-                let response = await this.$axios.post('/photos/' + this.post.photoId + '/comments/', {
+                let response = await this.$axios.post('/photos/' + this.photoId + '/comments/', {
                     body: this.textComment, isReplyComment: false, author: this.username,
                 });
                 console.log(response.data)
 
-                this.$router.push({ path: '/photos/' + this.post.photoId + "/comments/" });
+                this.$router.push({ path: '/photos/' + this.photoId + "/comments/" });
             } catch (e) {
                 this.error = e
             }
             this.loading = false;
         },
-        async GetImage(url) {
+       /*  GetImage(url) {
             this.loading = true;
             this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
 
-            await this.$axios.get("/images/?image_name=" + url, { responseType: 'blob' }).then(response => {
+            this.$axios.get("/images/?image_name=" + url, { responseType: 'blob' }).then(response => {
                 // Get the image data as a Blob object
                 var imgBlob = response.data;
 
@@ -139,15 +147,15 @@ export default {
                     this.errormsg = error.message;
                 });
             this.loading = false;
-            return imgUrl
-        },
+            return this.imgUrl
+        }, */
         refresh() {
             this.GetLikes(true) // .then(() => this.GetComments(true))
         },
     },
     computed: {
         timeAgo() {
-            var dateString = this.post.timestamp;
+            var dateString = this.timestamp;
             var date = new Date(dateString);
             var year = date.getFullYear();
             var month = date.getMonth(); // getMonth() returns a number between 0 and 11
@@ -201,7 +209,7 @@ export default {
 
     },
     mounted() {
-        console.log(this.$props, post.profile_pic)
+        console.log(this.timestamp, this.caption, this.username, this.image)
         this.Get_my_profile().then(() => this.refresh())
     }
 }
@@ -212,10 +220,9 @@ export default {
         <!-- header -->
         <header class="header section">
             <div class="header-author">
-                <Avatar v-if=post.profile_pic :src=GetImage(post.profile_pic) :size="45" @click="get_user_profile()" />
-                <!-- :src= "post.profile_pic" -->
+                <Avatar v-if="profilePictureUrl" :src="GetImage(profilePictureUrl)" :size="45" @click="get_user_profile(owner)" />
                 <div class="header-author-info">
-                    <CustomText tag="b">{{ post.username }}</CustomText> <!-- _alevecchi -->
+                    <CustomText tag="b">{{ owner }}</CustomText> <!-- _alevecchi -->
                 </div>
             </div>
             <div class="header-more">
@@ -227,7 +234,7 @@ export default {
 
         <!-- media -->
         <div class="post-media">
-            <img v-if=post.image :src="GetImage(post.image)" alt="" class="post-image" />
+            <img v-if="image" :src="GetImage(image)" alt="" class="post-image" />
             <!-- src="https://picsum.photos/600/400?random=1" -->
         </div>
 
@@ -241,13 +248,13 @@ export default {
                                 @click="LikeClick" />
                             <font-awesome-icon v-else class="icon" id="like" icon="fa-solid fa-heart"
                                 color="rgb(232, 62, 79)" @click="LikeClick" />
-                            <span class="num" @click="GetLikes(false)"> {{ post.likes_count }} </span>
+                            <span class="num" @click="GetLikes(false)"> {{ likesCount }} </span>
                         </button>
                     </li>
                     <li>
                         <button v-if=!loading type="button" @click="GetComments(false)">
                             <font-awesome-icon class="icon" id="comment" icon="fa-regular fa-comment" />
-                            <span class="num"> {{ post.comments_count }} </span>
+                            <span class="num"> {{ commentsCount }} </span>
                         </button>
                     </li>
                 </ul>
@@ -255,8 +262,8 @@ export default {
 
             <div class="caption">
                 <li>
-                    <CustomText tag="b" @click="get_user_profile()">{{ post.username }}</CustomText>
-                    <span class="caption-span">{{ post.caption }}</span>
+                    <CustomText tag="b" @click="get_user_profile(owner)">{{ owner }}</CustomText>
+                    <span class="caption-span">{{ caption }}</span>
                 </li>
             </div>
         </div>
@@ -269,7 +276,7 @@ export default {
 
             <!-- comments form -->
             <div class="comment section">
-                <Avatar v-if=myProfilePic :src=GetImage(myProfilePic) :size="30" @click="get_user_profile()" />
+                <Avatar v-if="myProfilePic" :src="GetImage(myProfilePic)" :size="30" @click="get_user_profile(username)" />
                 <input class="text-body" type="text" placeholder="Add a comment..." v-model="textComment">
                 <button v-if="!loading" type="submit" @click="submitComment">Post</button>
             </div>
