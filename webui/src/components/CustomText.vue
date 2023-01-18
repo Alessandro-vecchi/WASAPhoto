@@ -35,12 +35,15 @@ export default {
 .xxlarge {
     font-size: 24px;
 }
+
 .xlarge {
     font-size: 18 px;
 }
-.large{
+
+.large {
     font-size: 16px;
 }
+
 .small {
     font-size: 12px;
 }

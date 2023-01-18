@@ -42,6 +42,7 @@ export default {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             await this.$axios.get("/users/?username=" + this.username).then(response => (this.username = response.data.username, this.myProfilePic = response.data.profile_picture_url))
+            eventBus.getMyUsername = this.username
         },
         async LikeClick() {
             this.loading = true;
@@ -121,13 +122,12 @@ export default {
                     body: this.textComment, isReplyComment: false, author: this.username,
                 });
                 console.log(response.data)
-
-                this.$router.push({ path: '/photos/' + this.photoId + "/comments/" });
+                this.GetComments(false)
+                // this.$router.push({ path: '/photos/' + this.photoId + "/comments/" });
             } catch (e) {
                 this.error = e
             }
             this.loading = false;
-            this.refresh()
         },
         GetImage(url, filter) {
             this.loading = true;

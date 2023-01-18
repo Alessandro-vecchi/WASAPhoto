@@ -57,6 +57,8 @@ export default {
                 this.errormsg = error;
             }
             this.loading = false;
+            this.$emit('refresh-parent');
+
         }
     },
     computed: {
@@ -215,6 +217,9 @@ export default {
 
 .buttons button[type="button"] {
     margin-left: 8px;
-    background-color: #940e0e;
+    background-color: #9d2121;
+}
+.buttons button[type="button"].active {
+    background-color: #770707;
 }
 </style>

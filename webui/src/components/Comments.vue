@@ -20,7 +20,29 @@ export default {
         goBack() {
             this.$router.push({ path: "/users/" + this.header + "/stream/" });
         },
+        refresh() {
+            this.getComments()
+        },
+        async getComments() {
+            this.loading = true;
+            this.errormsg = null;
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            try {
+                await this.$axios.get("/photos/" + this.photoId + "/comments/").then(response => (this.comments = response.data));
+                eventBus.getComments = this.comments
+            }
+            catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+            console.log("comments:", this.comments)
+        },
+
     },
+    mounted() {
+        this.refresh()
+    }
 
 }
 </script>
@@ -38,9 +60,10 @@ export default {
                 </span>
             </div>
             <div class="section-1">
-                <Comment class="comment-space" v-if="comments" v-for="comm in comments" :key="comm.commentId" :commentId="comm.commentId"
-                :author="comm.author" :profilePic="comm.profile_pic" :image="comm.image"
-                :createdIn="comm.created_in" :body="comm.body" :modifiedIn="comm.modified_in"/>
+                <Comment class="comment-space" v-on:refresh-parent="refresh" v-for="comm in comments"
+                    :key="comm.commentId" :commentId="comm.commentId" :author="comm.author"
+                    :profilePic="comm.profile_pic" :image="comm.image" :createdIn="comm.created_in" :body="comm.body"
+                    :modifiedIn="comm.modified_in" />
             </div>
             <!-- <div class="section-2">
                 <Comment class="comment-space" />

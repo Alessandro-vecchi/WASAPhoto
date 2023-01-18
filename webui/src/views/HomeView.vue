@@ -69,25 +69,8 @@ export default {
 	margin-right: auto;
 	padding-bottom: 10vh;
 }
-@media (--t) {
-	.Home {
-		max-width: none;
-		display: grid;
-		grid-template-columns: 1fr 295px;
-		grid-gap: 28px;
-	}
-}
+
 .sidebar {
 	display: contents;
-}
-@media (--t) {
-	.sidebar {
-		display: block;
-		margin-top: 16px;
-	}
-	.sidebar p {
-		position: sticky;
-		top: calc(53px + 30px + 18px);
-	}
 }
 </style>
