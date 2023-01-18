@@ -46,12 +46,11 @@ func (photo *Post) ToDatabase(db database.AppDatabase) database.Photo_db {
 	}
 }
 
-// IsValid checks the validity of the content. In particular, coordinates should be in their range of validity, and the
-// status should be either FountainStatusGood or FountainStatusFaulty. Note that the ID is not checked, as fountains
-// read from requests have zero IDs as the user won't send us the ID in that way.
+// IsValid checks the validity of the content. In particular, the caption should have a max length of 150 and should match its regex. Same for the image, and the
+// username should be smaller than 16 characters and greater or equal than 3.
 func (p *Post) IsValid() bool {
 	return len(p.Caption) <= 150 && captionRx.MatchString(p.Caption) &&
 		len(p.Image) <= 150 && imageUrlRx.MatchString(p.Image) &&
-		usernameRx.MatchString(p.Username)
+		3 <= len(p.Username) && len(p.Username) <= 16 && usernameRx.MatchString(p.Username)
 
 }

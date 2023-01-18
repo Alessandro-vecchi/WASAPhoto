@@ -24,6 +24,7 @@ export default {
 
                 // Create an object URL from the Blob object
                 this.imgUrl = URL.createObjectURL(imgBlob);
+                
             } catch (error) {
                 // console.log(error);
                 this.errormsg = error.message;
@@ -31,6 +32,10 @@ export default {
             }
             this.loading = false;
         },
+        openPhoto(){
+            console.log("double click")
+            this.$router.push({ path: '/post/' + this.photo.photoId })
+        }
     },
     mounted() {
         if (this.photo.image) {
@@ -41,7 +46,7 @@ export default {
 </script>
 
 <template>
-    <div class="gallery-item" tabindex="0">
+    <div v-on:dblclick="openPhoto" class="gallery-item" tabindex="0">
         <img v-if=!loading :src="imgUrl" alt="" class="gallery-image"> <!-- :src="'data:image/jpg;base64'+imageUrl" -->
         <div class="gallery-item-info">
             <ul>

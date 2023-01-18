@@ -8,7 +8,7 @@ import (
 
 var (
 	usernameRx = regexp.MustCompile(`^[a-zA-Z0-9-_]*$`)
-	ppURLRx    = regexp.MustCompile(`^(https?:\/\/.*\.(?:png|jpg|jpeg))?$`)
+	ppURLRx    = regexp.MustCompile(`^[a-zA-Z0-9-_]*\.(png|jpg|jpeg)$`) // regexp.MustCompile(`^(https?:\/\/.*\.(?:png|jpg|jpeg))?$`)
 	bioRx      = regexp.MustCompile(`^[a-zA-Z0-9,._:;?!\x27\- ]*$`)
 )
 

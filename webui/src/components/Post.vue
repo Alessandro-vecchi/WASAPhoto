@@ -172,6 +172,19 @@ export default {
         refresh() {
             this.GetLikes(true).then(() => this.GetComments(true))
         },
+
+        async deletePhoto() {
+            this.loading = true;
+            this.errormsg = null;
+            try {
+                await this.$axios.delete('/photos/' + this.photoId);
+            } catch (error) {
+                this.errormsg = error;
+            }
+            this.loading = false;
+            this.$emit('refresh-parent');
+
+        }
     },
     computed: {
         timeAgo() {
@@ -221,8 +234,11 @@ export default {
             }
             /* console.log(timeAgo); */
             return timeAgo;
-
         },
+        isMine() {
+            console.log("Owner:", this.owner,"Username:", this.username)
+            return (this.owner === this.username)
+        }
 
     },
     mounted() {
@@ -243,8 +259,9 @@ export default {
                 </div>
             </div>
             <div class="header-more">
-                <button type="button">
-                    <font-awesome-icon icon="fa-solid fa-ellipsis" size="3x" />
+                <button v-if="!loading" type="button">
+                    <font-awesome-icon v-if=!isMine icon="fa-solid fa-ellipsis" size="3x" />
+                    <button v-else type="delete" @click="deletePhoto">Delete Photo</button>
                 </button>
             </div>
         </header>
@@ -334,7 +351,14 @@ export default {
 .post .header-more {
     margin-left: auto;
 }
-
+.post .header-more button[type="delete"] {
+    color: white;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #911b1b;
+}
 .post .post-media {
     width: 600px;
     height: 400px;

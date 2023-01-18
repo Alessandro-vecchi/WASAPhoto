@@ -36,7 +36,7 @@ func (rt *_router) getUserPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	w.Header().Set("Content-Type", "application/json")
 	// Translating from database to api
-	var p models.Photo
+	var p models.Post
 	p.FromDatabase(photo, rt.db)
 	// checking that the profile is valid
 	if p.IsValid() {
