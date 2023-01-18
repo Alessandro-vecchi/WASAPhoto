@@ -14,38 +14,21 @@ export default {
         return {
             short_profiles: eventBus.getShortProfiles,
             title: eventBus.getTitle,
+            username: eventBus.getUsername,
             header: localStorage.getItem('Authorization'),
             ppUrl: "",
         }
     },
     methods: {
 
-        goBack() {
-            this.$router.push({ path: "/users/" + this.header + "/stream/" });
-        },
-        async getImage() {
-            console.log("1", this.photo, "2", this.photo.image)
-            this.loading = true;
-            this.errormsg = null;
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = this.header; return config; },
-                error => { return Promise.reject(error); });
-            try {
-                let response = await this.$axios.get("/images/?image_name=" + this.photo.image, { responseType: 'blob' })
-                // Get the image data as a Blob object
-                var imgBlob = response.data;
-
-                // Create an object URL from the Blob object
-                this.imgUrl = URL.createObjectURL(imgBlob);
-            } catch(error) {
-                // console.log(error);
-                this.errormsg = error.message;
-
-            }
-            this.loading = false;
+        goBack(isLikeList) {
+            if (isLikeList=="LIKES") {
+                this.$router.push({ path: "/users/" + this.header + "/stream/" });
+            } else { this.$router.push({ path: "/users/", query: { username: this.username } }) }
         },
     },
     mounted() {
-        this.getImage()
+        
     }
 
 
@@ -58,12 +41,12 @@ export default {
             <div class="list-title">{{ title }}</div>
             <div class="header-more">
                 <button type="button">
-                    <font-awesome-icon icon="fa-solid fa-xmark" size="2x" @click="goBack" />
+                    <font-awesome-icon icon="fa-solid fa-xmark" size="2x" @click="goBack(title)" />
                 </button>
             </div>
         </div>
         <div class="content section">
-            <ShortProfile v-for="s_p in short_profiles" :key="s_p.username" :shortProfile="s_p"/>
+            <ShortProfile v-for="s_p in short_profiles" :key="s_p.username" :shortProfile="s_p" />
         </div>
     </div>
 </template>

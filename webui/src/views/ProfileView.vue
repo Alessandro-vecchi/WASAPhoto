@@ -103,6 +103,7 @@ export default {
                 if (!isRefresh) {
                     eventBus.getShortProfiles = list.short_profile
                     eventBus.getTitle = goal
+                    eventBus.getUsername = this.profile.username
                     this.$router.push({ path: '/' + goal + '/', });
                 }
             } catch (e) {

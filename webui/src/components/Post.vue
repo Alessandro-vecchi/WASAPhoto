@@ -2,7 +2,6 @@
 import Avatar from "@/components/Avatar.vue"
 import CustomText from "@/components/CustomText.vue"
 import { eventBus } from "@/main.js"
-import { stringifyExpression } from "@vue/compiler-core"
 
 export default {
     props: {
@@ -214,9 +213,6 @@ export default {
             }
             /* console.log(timeAgo); */
             return timeAgo;
-
-
-
 
         },
 

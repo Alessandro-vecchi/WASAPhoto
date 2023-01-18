@@ -38,7 +38,9 @@ export default {
                 </span>
             </div>
             <div class="section-1">
-                <Comment v-for="comm in comments" :key="comm.commentId" :comment="comm" class="comment-space" />
+                <Comment class="comment-space" v-if="comments" v-for="comm in comments" :key="comm.commentId" :commentId="comm.commentId"
+                :author="comm.author" :profilePic="comm.profile_pic" :image="comm.image"
+                :createdIn="comm.created_in" :body="comm.body" :modifiedIn="comm.modified_in"/>
             </div>
             <div class="section-2">
                 <Comment class="comment-space" />

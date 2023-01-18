@@ -4,7 +4,16 @@ import CustomText from "@/components/CustomText.vue"
 // import { eventBus} from "@/main.js"
 
 export default {
-    props: ['comment'],
+    props: {
+    commentId: String,
+    author: String,
+    profilePic: String,
+    image: String,
+    createdIn: String,
+    body: String,
+    modifiedIn: String,
+
+},
     components: {
         Avatar,
         CustomText,
@@ -15,9 +24,31 @@ export default {
             profilePic: "",
         }
     },
+    methods: {
+        async getImage() {
+            console.log("1", "2", this.profilePic)
+            this.loading = true;
+            this.errormsg = null;
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            try {
+                let response = await this.$axios.get("/images/?image_name=" + this.profilePic, { responseType: 'blob' })
+                // Get the image data as a Blob object
+                var imgBlob = response.data;
+
+                // Create an object URL from the Blob object
+                this.profilePic = URL.createObjectURL(imgBlob);
+            } catch (error) {
+                // console.log(error);
+                this.errormsg = error.message;
+            }
+            this.loading = false;
+        },
+    },
     computed: {
         timeAgo() {
-            var dateString = this.comment.created_in;
+            console.log(this.createdIn)
+            var dateString = this.createdIn;
             var date = new Date(dateString);
             var year = date.getFullYear();
             var month = date.getMonth(); // getMonth() returns a number between 0 and 11
@@ -63,16 +94,11 @@ export default {
             }
             /* console.log(timeAgo); */
             return timeAgo;
-
-
-
-
         },
 
     },
     mounted() {
-        console.log(this.$props, this.comment)
-        this.profilePic = this.comment.profile_pic
+        this.getImage()
     },
 }
 </script>
@@ -80,11 +106,11 @@ export default {
 <template>
     <div class="media">
         <div class="image-place">
-            <Avatar :src="comment.profile_pic" :size="60" />
+            <Avatar :src="profilePic" :size="60" />
         </div>
         <div class="media-body">
             <div>
-                <CustomText size="large" tag="b">{{ comment.author }}</CustomText> <!-- _alevecchi -->
+                <CustomText size="large" tag="b">{{ author }}</CustomText> <!-- _alevecchi -->
 
                 <span class="time">
                     <CustomText size="xsmall" class="time-ago">{{ timeAgo }}</CustomText>
@@ -94,9 +120,8 @@ export default {
                 </span>
             </div>
 
-            <div class="comment-body"> {{ comment.body }}
-                <!-- It's known that the majority have suffered alteration in some form, by injected humour, or randomised
-                words. I wonder what happens if I write anothe thing. Interesting, so it keeps increasing till we reach the end of the line. what happens now? -->
+            <div class="comment-body">
+                <CustomText size="normal">{{ body }}</CustomText>
             </div>
 
             <div class="buttons">
@@ -107,6 +132,8 @@ export default {
     </div>
 </template>
 
+                <!-- It's known that the majority have suffered alteration in some form, by injected humour, or randomised
+                words. I wonder what happens if I write anothe thing. Interesting, so it keeps increasing till we reach the end of the line. what happens now? -->
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300&display=swap');
 
