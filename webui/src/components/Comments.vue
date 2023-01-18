@@ -13,6 +13,7 @@ export default {
             path: "https://i.imgur.com/nAcoHRf.jpg",
             header: localStorage.getItem('Authorization'),
             comments: eventBus.getComments,
+            photoId: eventBus.getPhotoId
         }
     },
     methods: {

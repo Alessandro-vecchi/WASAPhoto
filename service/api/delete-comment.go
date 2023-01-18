@@ -14,6 +14,7 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	// 1. Retrieve Id of the comment the user want to delete.
 	comment_id := rt.getPathParameter("comment_id", ps)
 	if comment_id == "" {
+		ctx.Logger.Error("comment undefined")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

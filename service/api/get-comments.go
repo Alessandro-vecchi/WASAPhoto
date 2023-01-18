@@ -19,6 +19,7 @@ func (rt *_router) getPhotoComments(w http.ResponseWriter, r *http.Request, ps h
 	photo_id := rt.getPathParameter("photo_id", ps)
 	if photo_id == "" {
 		// If empty it's because the function returned a bad values
+		ctx.Logger.Error("photo undefined")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -26,7 +27,7 @@ func (rt *_router) getPhotoComments(w http.ResponseWriter, r *http.Request, ps h
 	if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
 		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
-		ctx.Logger.WithError(err).Error("can't list photos")
+		ctx.Logger.WithError(err).Error("can't list comments")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -99,7 +99,8 @@ export default {
             try {
                 await this.$axios.get("/photos/" + this.photoId + "/comments/").then(response => (this.comments = response.data));
                 if (!isRefresh) {
-                    eventBus.getComments = this.comments
+                    eventBus.getComments = this.comments 
+                    eventBus.getPhotoId = this.photoId
                     this.$router.push({ path: '/photos/' + this.photoId + "/comments/" })
                 }
             } catch (e) {

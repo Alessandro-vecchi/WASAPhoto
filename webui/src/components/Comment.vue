@@ -30,7 +30,6 @@ export default {
     },
     methods: {
         async getImage() {
-            console.log("1", "2", this.profilePic)
             this.loading = true;
             this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
@@ -63,7 +62,6 @@ export default {
     },
     computed: {
         timeAgo() {
-            console.log(this.createdIn)
             var dateString = this.createdIn;
             var date = new Date(dateString);
             var year = date.getFullYear();
