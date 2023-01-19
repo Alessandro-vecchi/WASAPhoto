@@ -1,7 +1,7 @@
 <script>
-    export default {
-        props: ["loading"]
-    }
+export default {
+	props: ["loading"]
+}
 </script>
 
 <template>
@@ -15,4 +15,6 @@
 	<div v-if="!loading"></div>
 </template>
 
-<style></style>
+<style>
+
+</style>

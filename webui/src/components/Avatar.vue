@@ -1,8 +1,6 @@
 <template>
     <figure class="avatar">
         <img :src="resolvedSrc" :alt="alt" :width="size" :height="size" />
-        <!-- <img v-if=src :src="src" :alt="alt" :width="size" :height="size" />
-        <img v-else :src="src" :alt="alt" :width="size" :height="size" /> -->
     </figure>
 </template>
 

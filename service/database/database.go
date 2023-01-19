@@ -204,7 +204,19 @@ func New(db *sql.DB) (AppDatabase, error) {
 	if db == nil {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
-
+	_, err := db.Exec("PRAGMA foreign_keys = 1")
+	if err != nil {
+		return nil, fmt.Errorf("error enabling foreign key constraint: %w", err)
+	}
+	/* var table string
+	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table';`).Scan(&table)
+	if errors.Is(err, sql.ErrNoRows) {
+		fmt.Print("hii")
+		_, err := db.Exec("PRAGMA foreign_keys = 1")
+		if err != nil {
+			return nil, fmt.Errorf("error enabling foreign key constraint: %w", err)
+		}
+	} */
 	// Check if table exists. If not, the database is empty, and we need to create the structure
 	var tableName string = "profile"
 	sqlStmt := `CREATE TABLE profile (
@@ -213,7 +225,7 @@ func New(db *sql.DB) (AppDatabase, error) {
     profilePictureUrl TEXT DEFAULT "" NOT NULL,
     bio TEXT DEFAULT "" NOT NULL);`
 
-	err := createTables(tableName, sqlStmt, db)
+	err = createTables(tableName, sqlStmt, db)
 	if err != nil {
 		return nil, fmt.Errorf("error creating database "+tableName+" structure: %w", err)
 	}
@@ -270,7 +282,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 		is_reply_comment INTEGER DEFAULT 0 NOT NULL,
 		parent_id TEXT DEFAULT "" NOT NULL,
 		FOREIGN KEY(user_id) REFERENCES profile(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
-		FOREIGN KEY(photo_id) REFERENCES photos(photoId) ON UPDATE CASCADE ON DELETE CASCADE);`
+		FOREIGN KEY(photo_id) REFERENCES photos(photo_id) ON UPDATE CASCADE ON DELETE CASCADE);`
 
 	err = createTables(tableName, sqlStmt, db)
 	if err != nil {
@@ -282,7 +294,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 		photo_id TEXT NOT NULL,
 		liker_id TEXT NOT NULL,
 		PRIMARY KEY (photo_id, liker_id),
-		FOREIGN KEY(photo_id) REFERENCES photo(photo_id) ON UPDATE CASCADE ON DELETE CASCADE,
+		FOREIGN KEY(photo_id) REFERENCES photos(photo_id) ON UPDATE CASCADE ON DELETE CASCADE,
 		FOREIGN KEY(liker_id) REFERENCES profile(user_id) ON UPDATE CASCADE ON DELETE CASCADE);`
 
 	err = createTables(tableName, sqlStmt, db)
@@ -296,8 +308,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 func createTables(tableName string, sqlStmt string, db *sql.DB) error {
 	var table string
-	// f, _ := db.Exec(`DROP TABLE IF EXISTS ` + tableName + `;`)
-	// fmt.Println(f)
+	/* f, _ := db.Exec(`DROP TABLE IF EXISTS ` + tableName + `;`)
+	fmt.Println(f) */
 	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='` + tableName + `';`).Scan(&table)
 	if errors.Is(err, sql.ErrNoRows) {
 		_, err = db.Exec(sqlStmt)

@@ -40,9 +40,7 @@ export default {
 
 	},
 
-
 	mounted() {
-		console.log("bela")
 		this.refresh()
 	}
 }

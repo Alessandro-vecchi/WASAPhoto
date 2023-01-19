@@ -1,4 +1,5 @@
 <script>
+import { eventBus } from "@/main.js"
 export default {
     data() {
         return {
@@ -14,6 +15,7 @@ export default {
             this.avatar = URL.createObjectURL(event.target.files[0])
         },
         async submit() {
+            console.log("dudee")
             this.loading = true;
             this.error = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
@@ -31,6 +33,7 @@ export default {
                 });
                 this.$router.push({ path: "/users/", query: { username: this.username } });
             } catch (error) {
+                console.log(error);
                 this.error = error;
             }
             this.loading = false;
@@ -85,7 +88,7 @@ export default {
                 <img :src="avatar" alt="Avatar" v-if="avatar">
             </div>
             <div class="form-group">
-                <button v-if="!loading" :disabled="!username || !bio" type="submit">Save</button>
+                <button v-if="!loading" type="submit">Save</button>
                 <button v-if="!loading" type="go-back" @click="cancel">Cancel</button>
                 <button v-if="!loading" type="delete" @click="deleteProfile">Delete Profile</button>
             </div>

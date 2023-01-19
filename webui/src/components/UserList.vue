@@ -1,13 +1,9 @@
 <script>
-import Avatar from "@/components/Avatar.vue"
-import CustomText from "@/components/CustomText.vue"
 import ShortProfile from "@/components/ShortProfile.vue"
 import { eventBus } from "@/main.js"
 
 export default {
     components: {
-        Avatar,
-        CustomText,
         ShortProfile,
     },
     data: function () {

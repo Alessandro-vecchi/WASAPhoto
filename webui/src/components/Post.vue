@@ -45,6 +45,9 @@ export default {
             eventBus.getMyUsername = this.username
         },
         async LikeClick() {
+            if (this.isMine){
+                return
+            }
             this.loading = true;
             this.errormsg = null;
             /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
@@ -70,6 +73,7 @@ export default {
             */
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
+            console.log(this.photoId)
             try {
                 let response = await this.$axios.get("/photos/" + this.photoId + "/likes/")
                 this.likes = response.data.short_profile
@@ -178,11 +182,11 @@ export default {
             this.errormsg = null;
             try {
                 await this.$axios.delete('/photos/' + this.photoId);
+                this.$router.push({ path: "/users/", query: { username: this.username } })
             } catch (error) {
                 this.errormsg = error;
             }
             this.loading = false;
-            this.$emit('refresh-parent');
 
         }
     },

@@ -13,7 +13,7 @@ export default {
 			errormsg: null,
 			loading: false,
             header: localStorage.getItem('Authorization'),
-			post: {},
+			post: "",
             photoId: this.$route.params.photo_id
 		}
 	},
@@ -23,7 +23,7 @@ export default {
 			this.loading = true;
 			this.errormsg = null;
 
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = this.header; return config; },
                 error => { return Promise.reject(error); });
 			try {
 				let response = await this.$axios.get("/photos/" + this.photoId);
@@ -34,8 +34,8 @@ export default {
 			}  
 			this.loading = false;
 		},
-		refresh() {
-			this.GetSinglePhoto();
+		async refresh() {
+			await this.GetSinglePhoto();
 		}
 
 	},
@@ -47,7 +47,7 @@ export default {
 
 <template>
     <div class="photo">
-        <Post v-on:refresh-parent="refresh"
+        <Post v-on:refresh-parent="refresh" v-if="post"
             :photoId="post.photoId" :owner="post.username" :profilePictureUrl="post.profile_pic" :image="post.image"
             :timestamp="post.timestamp" :caption="post.caption" :likesCount="post.likes_count"
             :commentsCount="post.comments_count" />
