@@ -114,6 +114,18 @@ components:
       bearerFormat: JWT
           
   schemas:
+    ShortProfile:
+        description: Represents the information displayed in the list of likes, followers, ecc...
+        type: object
+        properties:
+          username: {$ref: "#/components/schemas/Username"}
+          profile_picture_url:
+            description: URL of the profile picture. Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
+            type: string
+            pattern: '^[a-zA-Z0-9-_]*\.(png|jpg|jpeg)$'
+            example: "http://images/lab.png"
+            minLength: 0
+            maxLength: 150
     Profile:
       description: Represents the information seen in the Profile Page of a user
       type: object
@@ -135,7 +147,7 @@ components:
         profile_picture_url:
           description: URL of the profile picture. Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
           type: string
-          pattern: '^(https?:\/\/.*\.(?:png|jpg|jpeg))$'
+          pattern: '^[a-zA-Z0-9-_]*\.(png|jpg|jpeg)$'
           example: "http://images/lab.png"
           minLength: 0
           maxLength: 150
@@ -174,7 +186,7 @@ components:
             URL of the image just uploaded.
             Accepting only http/https URLs and .png/.jpg/.jpeg extensions.
           type: string
-          pattern: '^(https?:\/\/.*\.(?:png|jpg|jpeg))$'
+          pattern: '^[a-zA-Z0-9-_]*\.(png|jpg|jpeg)$$'
           example: "http://lab.it/logo.png"
           minLength: 0
           maxLength: 150
@@ -242,9 +254,9 @@ components:
           
     PhotoID:
       description: Unique photo identifier
-      type: integer
-      format: int64
-      example: 2385678
+      type: string
+      format: '^[a-zA-Z0-9-_]*$'
+      example: "CksvyZXtXRE"
       readOnly: true
           
     CommentID:
@@ -429,12 +441,12 @@ paths:
             application/json:
               schema:
                 description: |
-                  Represents the users that follow the profile.
+                  Represents the users that follow the profile, with their respective profile photo
                   Users can see followers in batches of 100.
                 type: array
                 minItems: 0
                 maxItems: 100
-                items: {$ref: '#/components/schemas/UserID'}
+                items: {$ref: '#/components/schemas/ShortProfile'}
       security:
           - bearerAuth: []
 
@@ -456,12 +468,12 @@ paths:
               application/json:
                 schema:
                   description: |
-                    Represents the users that are followed by the profile.
+                    Represents the users that are followed by the profile, with their respective profile photo.
                     Users can see followed users in batches of 100.
                   type: array
                   minItems: 0
                   maxItems: 100
-                  items: {$ref: '#/components/schemas/UserID'}
+                  items: {$ref: '#/components/schemas/ShortProfile'}
         security:
             - bearerAuth: []
 
@@ -544,6 +556,36 @@ paths:
       security:
         - bearerAuth: []
 
+  /users/{user_id}/mybans/:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+    
+    get:
+      tags:
+        - User
+      summary: See banned users
+      description: |
+         List of users banned from the profile of the logged user(my)
+      operationId: getBannedUsers
+      responses:
+        "200":
+          description: |
+            List of banned users with their respective profile photo. At most 5% of the user's followers can be banned.
+          content:
+            application/json:
+              schema:
+                description: |
+                  Represents the users that are banned from the profile.
+                  Users can see banned users in batches of 50.
+                type: array
+                minItems: 0
+                maxItems: 50
+                uniqueItems: true
+                items:
+                  $ref: '#/components/schemas/ShortProfile'
+      security:
+          - bearerAuth: []
+
   /users/{user_id}/bans/:
     parameters:
       - $ref: "#/components/parameters/user_id"
@@ -558,7 +600,7 @@ paths:
       responses:
         "200":
           description: |
-            List of banned users. At most 5% of the user's followers can be banned.
+            List of banned users with their respective profile photo. At most 5% of the user's followers can be banned.
           content:
             application/json:
               schema:
@@ -570,7 +612,7 @@ paths:
                 maxItems: 50
                 uniqueItems: true
                 items:
-                  $ref: '#/components/schemas/UserID'
+                  $ref: '#/components/schemas/ShortProfile'
       security:
           - bearerAuth: []
 
@@ -754,12 +796,12 @@ paths:
             application/json: 
               schema:
                 description: |
-                  Represents the list of users that put like on a photo.
+                  Represents the list of users that put like on a photo with their respective profile photo.
                   Users can see likers in batches of 100.
                 type: array
                 minItems: 0
                 maxItems: 100
-                items: { $ref: "#/components/schemas/UserID" }
+                items: { $ref: "#/components/schemas/ShortProfile" }
         '401':
           $ref: '#/components/responses/UnauthorizedError'
       security:
