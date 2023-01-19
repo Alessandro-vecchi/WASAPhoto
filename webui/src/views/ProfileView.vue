@@ -75,12 +75,14 @@ export default {
             } else {
                 await this.$axios.put("/users/" + this.profile.user_id + func + this.header);
                 // adding a ban remove the follow from the profile
-                if (func === "/bans/" && this.isFollowing) {
-                    await this.$axios.delete("/users/" + this.profile.user_id + "/followers/" + this.header);
-                }
-                await this.getFollowing()
-                if (func === "/bans/" && this.isFollowed) {
-                    await this.$axios.delete("/users/" + this.header + "/followers/" + this.profile.user_id);
+                if (func === "/bans/") {
+                    if (this.isFollowing) {
+                        await this.$axios.delete("/users/" + this.profile.user_id + "/followers/" + this.header);
+                    }
+                    await this.getFollowing(true)
+                    if (this.isFollowed) {
+                        await this.$axios.delete("/users/" + this.header + "/followers/" + this.profile.user_id);
+                    }
                 }
             }
             this.loading = false;
@@ -129,8 +131,8 @@ export default {
                 this.refresh()
             }
         },
-        async getFollowing() {
-            let list = await this.GetUsers("following", false)
+        async getFollowing(isBug=false) {
+            let list = await this.GetUsers("following", isBug)
             this.following = list.short_profile
             this.isFollowed = list.cond
         },
@@ -256,7 +258,7 @@ export default {
 </script>
 <template>
     <div class="wrapper">
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+        <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="profile">
             <font-awesome-icon class="previous-page" icon="fa-solid fa-chevron-left" size="5x" @click="cancel" />
             <div class="profile-image">
@@ -399,10 +401,12 @@ img {
     margin-left: 5rem;
     transition: transform 0.3s;
 }
+
 .profile-user-settings .edit-profile-button:hover {
     background-color: #fff;
     transform: scale(1.05);
 }
+
 .profile-user-settings .change-username-button {
     font-size: 1rem;
     line-height: 1;

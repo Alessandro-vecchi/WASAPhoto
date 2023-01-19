@@ -84,7 +84,7 @@ export default {
             <div class="form-group">
                 <label for="avatar">Avatar</label>
                 <input type="file" id="avatar" name="avatar" ref="avatar" @change="uploadAvatar">
-                <img :src="avatar" alt="Avatar">
+                <img v-if="avatar" :src="avatar" alt="Avatar">
             </div>
             <div class="form-group">
                 <button v-if="!loading" type="submit">Save</button>
