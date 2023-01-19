@@ -287,13 +287,13 @@ export default {
             </div>
             <div class="profile-stats">
                 <ul>
-                    <li><span v-if=!this.iAmBanned class="profile-stat-count">{{ profile.pictures_count }}</span> Posts
+                    <li v-if=!this.iAmBanned><span class="profile-stat-count">{{ profile.pictures_count }}</span> Posts
                     </li>
-                    <li><span v-if=!this.iAmBanned class="profile-stat-count">{{ profile.followers_count }}</span> <span
+                    <li v-if=!this.iAmBanned><span class="profile-stat-count">{{ profile.followers_count }}</span> <span
                             @click="getFollowers(false)">Followers</span></li>
-                    <li><span v-if=!this.iAmBanned class="profile-stat-count">{{ profile.follows_count }}</span> <span
+                    <li v-if=!this.iAmBanned><span class="profile-stat-count">{{ profile.follows_count }}</span> <span
                             @click="getFollowing(false)">Following</span></li>
-                    <li><button v-if="(!loading && logged)" type="button" class="btn see-bans-button"
+                    <li v-if="(!loading && logged)"><button type="button" class="btn see-bans-button"
                             @click="getMyBans(false)">View banned users</button></li>
                 </ul>
             </div>

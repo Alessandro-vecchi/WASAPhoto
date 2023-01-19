@@ -93,23 +93,28 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	// 7 - Save the photo in the images folder exploiting the image id
 
-	f, err := os.Create(fmt.Sprintf("./images/%s%s", photoId, filepath.Ext(fileHeader.Filename)))
+	current_directory, _ := os.Getwd()
+	folder_name := "images"
+	file_name := fmt.Sprintf("%s%s", photoId, filepath.Ext(fileHeader.Filename))
+	path := filepath.Join(current_directory, folder_name, file_name)
+	log.Printf("Current directory: %v, Folder: %v, Filename: %v, path: %v,", current_directory, folder_name, file_name, path)
 
+	f, err := os.Create(path)
 	if err != nil {
-		ctx.Logger.WithError(err)
+		ctx.Logger.WithError(err).Error("wrong path name: %w", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	defer f.Close()
 	_, err = io.Copy(f, photo)
 	if err != nil {
-		ctx.Logger.WithError(err)
+		ctx.Logger.WithError(err).Error("failed copy: %w", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// 8 - Create picture url
-	picURL := fmt.Sprintf("%s%s", photoId, filepath.Ext(fileHeader.Filename))
+	picURL := file_name
 	log.Printf("image path name: %s", picURL)
 
 	// 9 - create media object
