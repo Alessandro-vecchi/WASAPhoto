@@ -42,7 +42,6 @@ export default {
         <div>
             <img class="logo" src="../assets/logo2.png"/>
         </div>
-        <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="login-container">
             <h1> Welcome </h1>
             <div class="register">

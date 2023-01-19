@@ -2,7 +2,6 @@
 export default {
     data: function () {
         return {
-            logged: localStorage.getItem('Authorization'),
             Username: "",
         }
     },

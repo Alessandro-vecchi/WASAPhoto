@@ -295,8 +295,8 @@ export default {
                             @click="getMyBans(false)">View banned users</button></li>
                 </ul>
             </div>
-            <div class="profile-bio">
-                <p v-if=!this.iAmBanned class="profile-bio-text">
+            <div v-if=!this.iAmBanned class="profile-bio">
+                <p class="profile-bio-text">
                     {{ profile.bio }}
                 </p>
             </div>
@@ -307,19 +307,12 @@ export default {
             <!--End of profile section-->
         </div>
         <div v-if=!this.iAmBanned class="gallery">
-            <GalleryItem v-if=media v-for="obj in media" :key="obj.photoId" :photo="obj" />
+            <GalleryItem v-for="obj in media" :key="obj.photoId" :photo="obj" />
         </div>
     </div>
 </template>
 
 <style scoped>
-/* .header {
-    font-size: 10px;
-    min-height: 25vh;
-    padding-bottom: 1rem;
-    outline: 1px red;
-} */
-
 .wrapper {
     min-height: 25vh;
     max-width: 93.5rem;

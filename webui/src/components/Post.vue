@@ -45,7 +45,7 @@ export default {
             eventBus.getMyUsername = this.username
         },
         async LikeClick() {
-            if (this.isMine){
+            if (this.isMine) {
                 return
             }
             this.loading = true;
@@ -102,7 +102,7 @@ export default {
             try {
                 await this.$axios.get("/photos/" + this.photoId + "/comments/").then(response => (this.comments = response.data));
                 if (!isRefresh) {
-                    eventBus.getComments = this.comments 
+                    eventBus.getComments = this.comments
                     eventBus.getPhotoId = this.photoId
                     this.$router.push({ path: '/photos/' + this.photoId + "/comments/" })
                 }
@@ -239,7 +239,7 @@ export default {
             return timeAgo;
         },
         isMine() {
-            console.log("Owner:", this.owner,"Username:", this.username)
+            console.log("Owner:", this.owner, "Username:", this.username)
             return (this.owner === this.username)
         }
 
@@ -252,7 +252,7 @@ export default {
 
 <template>
     <div class="post">
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+        <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <!-- header -->
         <header class="header section">
             <div class="header-author">
@@ -262,10 +262,10 @@ export default {
                 </div>
             </div>
             <div class="header-more">
-                <button v-if="!loading" type="button">
+                <button v-if=!isMine type="button">
                     <font-awesome-icon v-if=!isMine icon="fa-solid fa-ellipsis" size="3x" />
-                    <button v-else type="delete" @click="deletePhoto">Delete Photo</button>
                 </button>
+                <button v-else type="delete" @click="deletePhoto">Delete Photo</button>
             </div>
         </header>
 
@@ -354,6 +354,7 @@ export default {
 .post .header-more {
     margin-left: auto;
 }
+
 .post .header-more button[type="delete"] {
     color: white;
     padding: 6px 10px;
@@ -362,6 +363,7 @@ export default {
     cursor: pointer;
     background-color: #911b1b;
 }
+
 .post .post-media {
     width: 600px;
     height: 400px;

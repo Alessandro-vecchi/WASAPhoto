@@ -4,8 +4,6 @@ import Login from '../views/LoginView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import list from '../components/UserList.vue'
 import comments from '../components/Comments.vue'
-import comment from '../components/Comment.vue'
-/* import search from '../components/GalleryItem.vue' */
 import Home from '../views/HomeView.vue'
 import Edit from '../components/EditPage.vue'
 import changed from '../components/ChangeUsername.vue'
@@ -27,33 +25,17 @@ const router = createRouter({
 		/* Photo */
 		// upload a photo
 		{ path: '/users/:user_id/form/', component: PostForm, name: 'PostForm'},
-
-		// delete a photo
+		// Get Single Photo
+		{ path: '/post/:photo_id', component: Post},
 
 		/* COMMENTS */
 		// See comments
-		{ path: '/comment/comm', component: comment },
+		{ path: '/photos/:photo_id/comments/', component: comments},
 
-		// Upload a comment
-
-		// Modify a comment
-
-		// Delete a comment
-		{ path: '/post/:photo_id', component: Post},
-
-		/* LIKES */
-		// Get list of the users that added a like
+		/* LIKES */ /* FOLLOW */ /* BAN */
+		// Get list of the users that added a like/follow/ban
 		{ path: '/:listType(likes|followers|following|bans)/', component: list},
 
-		/* FOLLOW */
-		// Get list of the followers
-		//{ path: '/users/:user_id/listUsers/', component: List, name: 'list', alias:"/photos/:photo_id/listFollowers/" },
-
-		// Get list of the following
-
-		/* BAN */
-		// Get list of the banned users
-		{ path: '/photos/:photo_id/comments/', component: comments},
 	], sensitive: true //, strict: true
 })
 
