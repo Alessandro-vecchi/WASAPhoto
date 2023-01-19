@@ -54,7 +54,7 @@ export default {
         <div class="card">
 
             <div class="nested-comment">
-                <CustomText size="xxlarge">Nested comment section</CustomText> <!-- _alevecchi -->
+                <CustomText size="xxlarge">Comment section</CustomText> <!-- nested -->
                 <span style="float:right">
                     <button type="button">
                         <font-awesome-icon icon="fa-solid fa-xmark" size="2x" color="#666" @click="goBack" />

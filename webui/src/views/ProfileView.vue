@@ -131,7 +131,7 @@ export default {
                 this.refresh()
             }
         },
-        async getFollowing(isBug=false) {
+        async getFollowing(isBug = false) {
             let list = await this.GetUsers("following", isBug)
             this.following = list.short_profile
             this.isFollowed = list.cond
@@ -261,9 +261,11 @@ export default {
         <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="profile">
             <font-awesome-icon class="previous-page" icon="fa-solid fa-chevron-left" size="5x" @click="cancel" />
-            <div class="profile-image">
-                <Avatar v-if=!this.iAmBanned :src="ppUrl" :size="180" />
-                <Avatar v-else :size="180" />
+            <div v-if=!this.iAmBanned class="profile-image">
+                <Avatar :src="ppUrl" :size="180" />
+            </div>
+            <div v-else class="profile-image">
+                <Avatar :size="180" />
             </div>
             <div class="profile-user-settings">
                 <h1 class="profile-user-name"> {{ profile.username }}</h1>
