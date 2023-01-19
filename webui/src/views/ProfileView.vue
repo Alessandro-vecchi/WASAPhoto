@@ -284,6 +284,9 @@ export default {
                 <button v-else-if="(!loading && !logged && !this.isBanned)" type="button" class="btn ban-button"
                     @click="handleBanClick"><font-awesome-icon v-if=isBanned class="check"
                         icon="fa-solid fa-ban" /><span class="action">Ban</span></button>
+                <button v-else-if="(!loading && !logged)" type="button" class="btn ban-button"
+                    @click="handleBanClick"><font-awesome-icon v-if=isBanned class="check"
+                        icon="fa-solid fa-ban" /><span class="action">Ban</span></button>
 
 
             </div>
