@@ -65,6 +65,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.PUT("/users/:user_id/bans/:ban_id", rt.wrap(rt.banUser))
 	// Get list of banned users
 	rt.router.GET("/users/:user_id/bans/", rt.wrap(rt.getBannedUsers))
+	rt.router.GET("/users/:user_id/mybans/", rt.wrap(rt.getMyBannedUsers))
 	// Unban a user
 	rt.router.DELETE("/users/:user_id/bans/:ban_id", rt.wrap(rt.unbanUser))
 

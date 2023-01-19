@@ -18,8 +18,9 @@ export default {
             following: [],
             bans: [],
             header: localStorage.getItem('Authorization'),
-            isFollowing: null,
-            isBanned: null,
+            isFollowing: false,
+            iAmBanned: false,
+            isBanned: false,
             ppUrl: "",
         }
     },
@@ -36,7 +37,6 @@ export default {
                 let response = await this.$axios.get("/users/?username=" + this.$route.query.username)
                 this.profile = response.data
                 this.username = this.profile.username
-                // await this.GetBans(true)// .catch(e => (this.errormsg = e.toString()))
             } catch (e) {
                 this.errormsg = e.toString();
             }
@@ -75,6 +75,14 @@ export default {
                 await this.$axios.delete("/users/" + this.profile.user_id + func + this.header);
             } else {
                 await this.$axios.put("/users/" + this.profile.user_id + func + this.header);
+                // adding a ban remove the follow from the profile
+                if (func === "/bans/" && this.isFollowing) {
+                    await this.$axios.delete("/users/" + this.profile.user_id + "/followers/" + this.header);
+                }
+                await this.getFollowing()
+                if (func === "/bans/" && this.isFollowed) {
+                    await this.$axios.delete("/users/" + this.header + "/followers/" + this.profile.user_id);
+                }
             }
             this.loading = false;
 
@@ -124,10 +132,36 @@ export default {
             }
         },
         async getFollowing() {
-            this.following = await this.GetUsers("following", false)
+            let list = await this.GetUsers("following", false)
+            this.following = list.short_profile
+            this.isFollowed = list.cond
         },
-        async GetBans(isRefresh) {
-            console.log("hi")
+        async getMyBans(isRefresh) {
+            this.loading = true;
+            this.errormsg = null;
+            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
+            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
+            */
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            try {
+                let response = await this.$axios.get("/users/" + this.profile.user_id + "/mybans/")
+                this.bans = response.data.short_profile
+                this.isBanned = response.data.cond
+                if (!isRefresh) {
+                    this.$router.push({ path: '/bans/' })
+                }
+            } catch (e) {
+                console.error(e.message)
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+            console.log("banned:", this.bans, this.isBanned)
+            if (!isRefresh) {
+                this.refresh()
+            }
+        },
+        async getTheirBans(isRefresh) {
             this.loading = true;
             this.errormsg = null;
             /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
@@ -138,16 +172,16 @@ export default {
             try {
                 let response = await this.$axios.get("/users/" + this.profile.user_id + "/bans/")
                 this.bans = response.data.short_profile
-                this.isBanned = response.data.cond
+                this.iAmBanned = response.data.cond
                 if (!isRefresh) {
-                    this.$router.push({ path: '/users/' + this.header + "/listUsers/" })
+                    this.$router.push({ path: '/bans/' })
                 }
             } catch (e) {
                 console.error(e.message)
                 this.errormsg = e.toString();
             }
             this.loading = false;
-            console.log("banned:", this.bans, this.isBanned)
+            console.log("banned:", this.bans, this.iAmBanned)
             if (!isRefresh) {
                 this.refresh()
             }
@@ -173,11 +207,14 @@ export default {
         },
         async refresh() {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });/* .then(() => this.GetBans(true)) */
-            // this.GetProfile().then(() => this.getImage()).then(() => this.getFollowers(true)).then(() => this.GetUserPhotos()).then(() => console.log("refresh:", this.media))
+                error => { return Promise.reject(error); });
             await this.GetProfile()
             if (this.profile.profile_picture_url) { await this.getImage() }
-            this.getFollowers(true).then(() => this.GetUserPhotos()).then(() => console.log("refresh:", this.media))
+            await this.getTheirBans(true)
+            await this.getMyBans(true)
+            if (!this.iAmBanned) {
+                this.getFollowers(true).then(() => this.GetUserPhotos()).then(() => console.log("refresh:", this.media))
+            }
         },
 
         uploadImage: function () {
@@ -227,7 +264,8 @@ export default {
             <ErrorMsg v-if="errormsg" :msg="errormsg" />
             <font-awesome-icon class="previous-page" icon="fa-solid fa-chevron-left" size="5x" @click="cancel" />
             <div class="profile-image">
-                <Avatar :src="ppUrl" :size="180" />
+                <Avatar v-if=!this.iAmBanned :src="ppUrl" :size="180" />
+                <Avatar v-else :size="180" />
             </div>
             <div class="profile-user-settings">
                 <h1 class="profile-user-name"> {{ profile.username }}</h1>
@@ -235,25 +273,31 @@ export default {
                     profile</button>
                 <button v-if=logged type="button" class="btn change-username-button" @click="change_username">Change
                     Username</button>
-                <button v-if="(!loading && !logged)" type="button" class="btn follow-button" @click="handleFollowClick">
+                <button v-if="(!loading && !logged && !iAmBanned && !isBanned)" type="button" class="btn follow-button"
+                    @click="handleFollowClick">
                     <font-awesome-icon v-if=isFollowing class="check" icon="fa-solid fa-check" /><font-awesome-icon
                         v-else class="check" icon="fa-solid fa-xmark" /><span class="action">Follow</span></button>
-                <button v-if="(!loading && !logged)" type="button" class="btn ban-button" @click="handleBanClick">
+                <button v-if="(!loading && !logged && !this.iAmBanned)" type="button" class="btn ban-button"
+                    @click="handleBanClick">
                     <font-awesome-icon v-if=isBanned class="check" icon="fa-solid fa-ban" /><span
                         class="action">Ban</span></button>
+                <button v-else-if="(!loading && !logged && !this.isBanned)" type="button" class="btn ban-button"
+                    @click="handleBanClick"><font-awesome-icon v-if=isBanned class="check"
+                        icon="fa-solid fa-ban" /><span class="action">Ban</span></button>
 
             </div>
             <div class="profile-stats">
                 <ul>
-                    <li><span class="profile-stat-count">{{ profile.pictures_count }}</span> Posts</li>
-                    <li><span class="profile-stat-count">{{ profile.followers_count }}</span> <span
+                    <li><span v-if=!this.iAmBanned class="profile-stat-count">{{ profile.pictures_count }}</span> Posts
+                    </li>
+                    <li><span v-if=!this.iAmBanned class="profile-stat-count">{{ profile.followers_count }}</span> <span
                             @click="getFollowers(false)">Followers</span></li>
-                    <li><span class="profile-stat-count">{{ profile.follows_count }}</span> <span
+                    <li><span v-if=!this.iAmBanned class="profile-stat-count">{{ profile.follows_count }}</span> <span
                             @click="getFollowing(false)">Following</span></li>
                 </ul>
             </div>
             <div class="profile-bio">
-                <p class="profile-bio-text">
+                <p v-if=!this.iAmBanned class="profile-bio-text">
                     {{ profile.bio }}
                 </p>
             </div>
@@ -263,7 +307,7 @@ export default {
             </div>
             <!--End of profile section-->
         </div>
-        <div class="gallery">
+        <div v-if=!this.iAmBanned class="gallery">
             <GalleryItem v-if=media v-for="obj in media" :key="obj.photoId" :photo="obj" />
         </div>
     </div>

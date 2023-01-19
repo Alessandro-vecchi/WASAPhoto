@@ -9,7 +9,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) getBannedUsers(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) getMyBannedUsers(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	// The only person who can see the banned users is the person who banned them.
 	// 1. Retrieve ID of our profile from the path
@@ -19,7 +19,7 @@ func (rt *_router) getBannedUsers(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 	myID := r.Header.Get("Authorization")
-	banned, err := rt.db.GetBannedUsers(user_id)
+	banned, err := rt.db.GetBannedUsers(myID)
 	if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
 		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
@@ -27,7 +27,7 @@ func (rt *_router) getBannedUsers(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	name, _ := rt.db.GetNameById(myID)
+	name, _ := rt.db.GetNameById(user_id)
 	var short_prof models.Short_profile
 	short_prof.FromDatabase(banned, name)
 	// Send the list to the user.

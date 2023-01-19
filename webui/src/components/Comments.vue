@@ -90,7 +90,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(to right, rgb(242, 112, 156), rgb(255, 148, 114));
+    background: linear-gradient(109.5deg, rgb(13, 11, 136) 9.4%, rgb(86, 255, 248) 78.4%); /* background: linear-gradient(to right, rgb(242, 112, 156), rgb(255, 148, 114)); */
     height: 100%;
     width: 100%;
 }
