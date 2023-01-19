@@ -1,8 +1,2 @@
 - OpenAPI
 Match OpenAPI with go implementation.
-
-- GO backend
-Write exhaustive documentation for all functions.
-Check errors returned in the api.
-Check that IdNotExist, Authentication and UserBanned are performed.
-TestIt
