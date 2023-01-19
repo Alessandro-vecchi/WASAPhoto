@@ -2,24 +2,11 @@
 export default {
     data: function () {
         return {
-            errormsg: null,
-            loading: false,
             logged: localStorage.getItem('Authorization'),
             Username: "",
         }
     },
     methods: {
-        async refresh() {
-            this.loading = true;
-            this.errormsg = null;
-            /* try {
-                let response = await this.$axios.get("/users/" + logged + "/stream/");
-                this.stream = response.data;
-            } catch (e) {
-                this.errormsg = e.toString();
-            } */
-            this.loading = false;
-        },
         async get_user_profile() {
             this.$router.push({ path: "/users/", query: { username: this.Username } })
         },
@@ -30,9 +17,6 @@ export default {
         },
 
     },
-    mounted() {
-        this.refresh()
-    }
 }
 </script>
 

@@ -1,5 +1,6 @@
 <template>
     <div class="short-profile">
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <Avatar :src="sp" :size="40" class="profile-photo" />
         <div class="author-username">
             <CustomText tag="b">{{ shortProfile.username }}</CustomText>

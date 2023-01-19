@@ -6,7 +6,7 @@ export default {
             username: '',
             bio: '',
             avatar: null,
-            error: null,
+            errormsg: null,
             loading: false
         }
     },
@@ -15,9 +15,8 @@ export default {
             this.avatar = URL.createObjectURL(event.target.files[0])
         },
         async submit() {
-            console.log("dudee")
             this.loading = true;
-            this.error = null;
+            this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             try {
@@ -33,8 +32,7 @@ export default {
                 });
                 this.$router.push({ path: "/users/", query: { username: this.username } });
             } catch (error) {
-                console.log(error);
-                this.error = error;
+                this.errormsg = error;
             }
             this.loading = false;
         },
@@ -43,12 +41,12 @@ export default {
         },
         async deleteProfile() {
             this.loading = true;
-            this.error = null;
+            this.errormsg = null;
             try {
                 await this.$axios.delete('/users/' + this.$route.params.user_id);
                 this.$router.push({ path: "/login" });
             } catch (error) {
-                this.error = error;
+                this.errormsg = error;
             }
             this.loading = false;
         }
@@ -68,6 +66,7 @@ export default {
 
 <template>
     <div class="edit-profile">
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="edit-profile-title">
             <h2>Edit your profile</h2>
         </div>

@@ -49,6 +49,7 @@ export default {
 <template>
 
 	<div class="Home">
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 		<div class="timeline">
 			<Post v-on:refresh-parent="refresh" v-if="stream" v-for="post in stream" :key="post.photoId" 
 			:photoId="post.photoId" :owner="post.username" :profilePictureUrl="post.profile_pic" :image="post.image"

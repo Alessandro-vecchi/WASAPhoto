@@ -5,14 +5,14 @@ export default {
     data() {
         return {
             username: '',
-            error: null,
+            errormsg: null,
             loading: false
         }
     },
     methods: {
         async submit() {
             this.loading = true;
-            this.error = null;
+            this.errormsg = null;
 
             const data = JSON.stringify({
                 username: this.username,
@@ -29,7 +29,7 @@ export default {
                 eventBus.getMyUsername = this.username
                 this.$router.push({ path: "/users/", query: { username: this.username } });
             } catch (error) {
-                this.error = error;
+                this.errormsg = error;
             }
             this.loading = false;
         },
@@ -50,6 +50,7 @@ export default {
 
 <template>
     <div class="edit-profile">
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" v-model="username">

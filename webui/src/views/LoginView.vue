@@ -38,6 +38,7 @@ export default {
 
 <template>
     <div class="background">
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div>
             <img class="logo" src="../assets/logo2.png"/>
         </div>

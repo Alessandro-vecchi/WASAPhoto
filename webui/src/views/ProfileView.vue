@@ -39,6 +39,7 @@ export default {
                 this.username = this.profile.username
             } catch (e) {
                 this.errormsg = e.toString();
+                console.log(this.errormsg)
             }
             this.loading = false;
             console.log("profile1:", this.profile)
@@ -54,9 +55,7 @@ export default {
             try {
                 await this.$axios.get("/users/" + this.profile.user_id + "/photos/").then(response => (this.media = response.data));
             } catch (e) {
-                // console.log(e)
                 this.errormsg = e.toString();
-                console.log(this.errormsg)
             }
             this.loading = false;
             console.log("media:", this.media)
@@ -115,7 +114,6 @@ export default {
                     this.$router.push({ path: '/' + goal + '/', });
                 }
             } catch (e) {
-                console.error(e.message)
                 this.errormsg = e.toString();
             }
             this.loading = false;
@@ -149,10 +147,12 @@ export default {
                 this.bans = response.data.short_profile
                 this.isBanned = response.data.cond
                 if (!isRefresh) {
+                    eventBus.getShortProfiles = this.bans
+                    eventBus.getTitle = "bans"
+                    eventBus.getUsername = this.profile.username
                     this.$router.push({ path: '/bans/' })
                 }
             } catch (e) {
-                console.error(e.message)
                 this.errormsg = e.toString();
             }
             this.loading = false;
@@ -173,11 +173,7 @@ export default {
                 let response = await this.$axios.get("/users/" + this.profile.user_id + "/bans/")
                 this.bans = response.data.short_profile
                 this.iAmBanned = response.data.cond
-                if (!isRefresh) {
-                    this.$router.push({ path: '/bans/' })
-                }
             } catch (e) {
-                console.error(e.message)
                 this.errormsg = e.toString();
             }
             this.loading = false;
@@ -198,8 +194,8 @@ export default {
 
                 // Create an object URL from the Blob object
                 this.ppUrl = URL.createObjectURL(imgBlob);
-            } catch (error) {
-                this.errormsg = error.message;
+            } catch (e) {
+                this.errormsg = e.message;
 
             }
             this.loading = false;
@@ -260,8 +256,8 @@ export default {
 </script>
 <template>
     <div class="wrapper">
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="profile">
-            <ErrorMsg v-if="errormsg" :msg="errormsg" />
             <font-awesome-icon class="previous-page" icon="fa-solid fa-chevron-left" size="5x" @click="cancel" />
             <div class="profile-image">
                 <Avatar v-if=!this.iAmBanned :src="ppUrl" :size="180" />
@@ -285,6 +281,7 @@ export default {
                     @click="handleBanClick"><font-awesome-icon v-if=isBanned class="check"
                         icon="fa-solid fa-ban" /><span class="action">Ban</span></button>
 
+
             </div>
             <div class="profile-stats">
                 <ul>
@@ -294,6 +291,8 @@ export default {
                             @click="getFollowers(false)">Followers</span></li>
                     <li><span v-if=!this.iAmBanned class="profile-stat-count">{{ profile.follows_count }}</span> <span
                             @click="getFollowing(false)">Following</span></li>
+                    <li><button v-if="(!loading && logged)" type="button" class="btn see-bans-button"
+                            @click="getMyBans(false)">View banned users</button></li>
                 </ul>
             </div>
             <div class="profile-bio">
@@ -405,8 +404,12 @@ img {
     border-radius: 0.3rem;
     padding: 1rem 2.4rem;
     margin-left: 5rem;
+    transition: transform 0.3s;
 }
-
+.profile-user-settings .edit-profile-button:hover {
+    background-color: #fff;
+    transform: scale(1.05);
+}
 .profile-user-settings .change-username-button {
     font-size: 1rem;
     line-height: 1;
@@ -414,10 +417,26 @@ img {
     border-radius: 0.3rem;
     padding: 1.1rem 2.4rem;
     margin-left: 5rem;
+    transition: transform 0.2s;
 }
 
 .profile-user-settings .change-username-button:hover {
-    font-size: 1.2rem;
+    background-color: #fff;
+    transform: scale(1.1);
+}
+
+.see-bans-button {
+    font-size: 0.6rem;
+    line-height: 0.8;
+    border: 0.1rem solid #dbdbdb;
+    border-radius: 0.3rem;
+    padding: 0.8rem 1.4rem;
+    margin-left: -3rem;
+    transition: transform 0.4s;
+}
+
+.see-bans-button:hover {
+    transform: scale(1.3);
     background-color: #fff;
 }
 
@@ -473,7 +492,7 @@ img {
 }
 
 .profile-stats {
-    top: 8rem;
+    top: 8.8rem;
 }
 
 .profile-stats li {
@@ -500,7 +519,7 @@ img {
     font-size: 1.6rem;
     font-weight: 400;
     line-height: 1.5;
-    margin-top: 7rem;
+    margin-top: 7.5rem;
 }
 
 .profile-stat-count,

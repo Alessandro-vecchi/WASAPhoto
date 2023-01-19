@@ -43,7 +43,7 @@ const router = createRouter({
 
 		/* LIKES */
 		// Get list of the users that added a like
-		{ path: '/:listType(listUsers|likes|followers|following)/', component: list},
+		{ path: '/:listType(likes|followers|following|bans)/', component: list},
 
 		/* FOLLOW */
 		// Get list of the followers

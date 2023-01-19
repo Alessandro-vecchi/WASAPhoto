@@ -135,6 +135,7 @@ export default {
 
 <template>
     <div class="media">
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="image-place">
             <Avatar :src="pp" :size="60" />
         </div>

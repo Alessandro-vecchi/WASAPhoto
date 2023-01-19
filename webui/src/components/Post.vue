@@ -85,7 +85,6 @@ export default {
 
                 }
             } catch (e) {
-                console.error(e.message)
                 this.errormsg = e.toString();
             }
             this.loading = false;
@@ -118,7 +117,7 @@ export default {
         },
         async submitComment() {
             this.loading = true;
-            this.error = null;
+            this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
 
@@ -130,7 +129,7 @@ export default {
                 this.GetComments(false)
                 // this.$router.push({ path: '/photos/' + this.photoId + "/comments/" });
             } catch (e) {
-                this.error = e
+                this.errormsg = e
             }
             this.loading = false;
         },
@@ -246,7 +245,6 @@ export default {
 
     },
     mounted() {
-        console.log(this.timestamp, this.caption, this.owner, this.image)
         this.Get_my_profile().then(() => this.getImages()).then(() => this.refresh())
     }
 }
@@ -254,6 +252,7 @@ export default {
 
 <template>
     <div class="post">
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <!-- header -->
         <header class="header section">
             <div class="header-author">

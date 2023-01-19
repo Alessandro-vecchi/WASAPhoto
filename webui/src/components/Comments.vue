@@ -10,8 +10,8 @@ export default {
     },
     data: function () {
         return {
-            path: "https://i.imgur.com/nAcoHRf.jpg",
-            header: localStorage.getItem('Authorization'),
+            loading: false,
+            errormsg: null,
             comments: eventBus.getComments,
             photoId: eventBus.getPhotoId
         }
@@ -50,6 +50,7 @@ export default {
 
 <template>
     <div class="page">
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="card">
 
             <div class="nested-comment">

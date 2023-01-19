@@ -26,7 +26,6 @@ export default {
                 this.imgUrl = URL.createObjectURL(imgBlob);
                 
             } catch (error) {
-                // console.log(error);
                 this.errormsg = error.message;
 
             }
@@ -47,6 +46,7 @@ export default {
 
 <template>
     <div v-on:dblclick="openPhoto" class="gallery-item" tabindex="0">
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <img v-if=!loading :src="imgUrl" alt="" class="gallery-image"> <!-- :src="'data:image/jpg;base64'+imageUrl" -->
         <div class="gallery-item-info">
             <ul>

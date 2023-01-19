@@ -6,7 +6,7 @@ export default {
             postImage: null,
             media: {},
             previewUrl: null,
-            error: null,
+            errormsg: null,
             loading: false,
             username: '',
             header: localStorage.getItem('Authorization'),
@@ -32,7 +32,7 @@ export default {
         },
         async submitPost() {
             this.loading = true;
-            this.error = null;
+            this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
 
@@ -51,8 +51,7 @@ export default {
 
                 this.$router.push({ path: "/users/", query: { username: this.media.username } });
             } catch (e) {
-                console.log(e.toString())
-                this.error = e
+                this.errormsg = e
             }
             this.loading = false;
         },
@@ -67,6 +66,7 @@ export default {
 
 <template>
     <div class="upload-post">
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <form>
             <div class="form-group">
                 <input type="file" id="post-image" @change="handleImageUpload" accept="image/*">
