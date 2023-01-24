@@ -41,7 +41,12 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	// Therefore the authentication token in the header should coincide with the id of the user who is liking the photo
 	authtoken := r.Header.Get("Authorization")
 	log.Printf("The authentication token in the header is: %v", authtoken)
-	err := checkUserIdentity(authtoken, user_id_B, rt.db)
+	// If I ban a user and he's following me, his follow should be removed from the database
+	user := user_id_A
+	if user != authtoken {
+		user = user_id_B
+	}
+	err := checkUserIdentity(authtoken, user, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
 		w.WriteHeader(http.StatusBadRequest)
 		return

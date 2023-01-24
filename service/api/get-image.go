@@ -1,10 +1,10 @@
 package api
 
 import (
-	"fmt"
 	_ "image/jpeg"
 	"io"
 	"log"
+	"path/filepath"
 
 	_ "image/png"
 	"net/http"
@@ -16,11 +16,10 @@ import (
 
 // get photo from photos folder
 func (rt *_router) getImage(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	hostname := r.Host
 
-	var image_file string
+	var image_file_name string
 	if r.URL.Query().Has("image_name") {
-		image_file = r.URL.Query().Get("image_name")
+		image_file_name = r.URL.Query().Get("image_name")
 
 	} else {
 		// No image field founded
@@ -30,8 +29,10 @@ func (rt *_router) getImage(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 
 	// Obtain the path for the image in the server
-	path := fmt.Sprintf("./images/%s", image_file)
-	log.Printf("Path: %s\nHostname: %s", path, hostname)
+	current_directory, _ := os.Getwd()
+	folder_name := "images"
+	path := filepath.Join(current_directory, folder_name, image_file_name)
+	log.Printf("Path: %s", path)
 
 	// Open the image
 	img, err := os.Open(path)

@@ -17,15 +17,15 @@ export default {
     },
     methods: {
 
-        goBack(isLikeList) {
+        back(isLikeList) {
             if (isLikeList=="LIKES") {
                 this.$router.push({ path: "/users/" + this.header + "/stream/" });
             } else { this.$router.push({ path: "/users/", query: { username: this.username } }) }
         },
+        goBack(gg) {
+            this.$router.go(-1)
+        },
     },
-    mounted() {
-        
-    }
 
 
 }

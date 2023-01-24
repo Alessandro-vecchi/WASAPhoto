@@ -1,4 +1,6 @@
 <script>
+import { eventBus } from "@/main.js"
+
 export default {
     props: ['photo'],
     name: 'GalleryItem',
@@ -12,7 +14,6 @@ export default {
     },
     methods: {
         async getImage() {
-            console.log("1", this.photo, "2", this.photo.image)
             this.loading = true;
             this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
@@ -24,15 +25,16 @@ export default {
 
                 // Create an object URL from the Blob object
                 this.imgUrl = URL.createObjectURL(imgBlob);
-                
+
             } catch (error) {
                 this.errormsg = error.message;
 
             }
             this.loading = false;
         },
-        openPhoto(){
+        openPhoto() {
             console.log("double click")
+            eventBus.getPhotoId = this.photo.photoId
             this.$router.push({ path: '/post/' + this.photo.photoId })
         }
     },
@@ -46,7 +48,7 @@ export default {
 
 <template>
     <div v-on:dblclick="openPhoto" class="gallery-item" tabindex="0">
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+        <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <img :src="imgUrl" alt="" class="gallery-image">
         <div class="gallery-item-info">
             <ul>

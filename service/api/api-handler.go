@@ -38,7 +38,7 @@ func (rt *_router) Handler() http.Handler {
 	// Retrieve list of comments under a photo
 	rt.router.GET("/photos/:photo_id/comments/", rt.wrap(rt.getPhotoComments))
 	// Modify an own comment
-	// rt.router.PUT("/comments/:comment_id", rt.wrap(rt.modifyComment))
+	rt.router.PATCH("/comments/:comment_id", rt.wrap(rt.modifyComment))
 	// Delete a comment
 	rt.router.DELETE("/comments/:comment_id", rt.wrap(rt.uncommentPhoto))
 

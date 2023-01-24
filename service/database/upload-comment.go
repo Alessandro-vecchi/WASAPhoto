@@ -10,7 +10,7 @@ import (
 
 func (db *appdbimpl) CommentPhoto(photoId string, c Comment_db) (Comment_db, error) {
 
-	// photo does not exist, creating a new username
+	// creating comment id
 	rawCommentId, err := uuid.NewV4()
 	if err != nil {
 		log.Fatalf("failed to get UUID: %v", err)

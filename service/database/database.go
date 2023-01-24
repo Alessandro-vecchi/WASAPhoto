@@ -142,6 +142,8 @@ type AppDatabase interface {
 	GetComments(photoId string) ([]Comment_db, error)
 	// Get single comment
 	GetSingleComment(commentId string) (Comment_db, error)
+	// Modify a comment
+	ModifyComment(c Comment_db) (Comment_db, error)
 	// Uncomment a photo
 	UncommentPhoto(commentId string) error
 

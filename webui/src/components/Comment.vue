@@ -23,12 +23,16 @@ export default {
             loading: false,
             errormsg: null,
             pp: "",
-            header: localStorage.getItem('Authorization'),
-            user_id: eventBus.user_id,
             myUsername: eventBus.getMyUsername,
+            currentBody: this.body,
+            modified_in: this.modifiedIn,
+            editing: false,
         }
     },
     methods: {
+        toggleEditing() {
+            this.editing = !this.editing;
+        },
         async getImage() {
             this.loading = true;
             this.errormsg = null;
@@ -58,10 +62,39 @@ export default {
             this.loading = false;
             this.$emit('refresh-parent');
 
-        }
+        },
+        async modifyComment() {
+            this.loading = true;
+            this.errormsg = null;
+
+            const data = JSON.stringify({
+                body: this.currentBody,
+                author: this.myUsername,
+            })
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            try {
+                let response = await this.$axios.patch('/comments/' + this.commentId, data, {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                this.currentBody = response.data.body
+                this.modified_in = response.data.modified_in
+            } catch (e) {
+                this.errormsg = e;
+            }
+            this.loading = false;
+            this.toggleEditing()
+        },
+        
     },
     computed: {
         timeAgo() {
+           /*  var dateString
+            if (this.edited) {
+                dateString = this.modified_in;
+            } else {
+                dateString = this.createdIn;
+            } */
             var dateString = this.createdIn;
             var date = new Date(dateString);
             var year = date.getFullYear();
@@ -109,19 +142,14 @@ export default {
             /* console.log(timeAgo); */
             return timeAgo;
         },
-        logged() {
-            // console.log(this.profile.user_id, localStorage.getItem('Authorization'))
-            let bool = (this.header === this.user_id)
-            console.log("logged:", bool, this.user_id)
-            if (bool === null) {
-                return false
-            }
-            return bool
-        },
         isMine() {
-            console.log("Author:", this.author,"Username:", this.myUsername)
+            console.log("Author:", this.author, "Username:", this.myUsername)
             return (this.author === this.myUsername)
-        }
+        },
+        edited() {
+            console.log("created:", this.createdIn, "modified:", this.modified_in)
+            return this.createdIn !== this.modified_in
+        },
 
     },
     mounted() {
@@ -135,16 +163,17 @@ export default {
 
 <template>
     <div class="media">
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+        <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="image-place">
             <Avatar :src="pp" :size="60" />
         </div>
         <div class="media-body">
             <div>
-                <CustomText size="large" tag="b">{{ author }}</CustomText> <!-- _alevecchi -->
+                <CustomText size="large" tag="b">{{ author }}</CustomText> 
 
                 <span class="time">
                     <CustomText size="xsmall" class="time-ago">{{ timeAgo }}</CustomText>
+                    <CustomText v-if="edited"  size="xxsmall">  (modified)</CustomText>
                 </span>
                 <span>
                     <font-awesome-icon icon="fa-solid fa-reply" pull="right" color="rgb(14,115,248)" size="xl" />
@@ -152,12 +181,15 @@ export default {
             </div>
 
             <div class="comment-body">
-                <CustomText size="normal">{{ body }}</CustomText>
+                <textarea v-if="editing" v-model="currentBody"></textarea>
+                <CustomText v-else size="normal">{{ currentBody }}</CustomText>
             </div>
 
+
             <div class="buttons">
-                <button v-if="(logged && isMine)" type="edit">Edit</button>
-                <button v-if="(logged && isMine)" type="button" @click="uncommentPhoto">Delete</button>
+                <button v-if="isMine" type="edit" @click="toggleEditing">Edit</button>
+                <button v-if="isMine" type="button" @click="uncommentPhoto">Delete</button>
+                <button v-if="editing" type="submit" @click="modifyComment">Save</button>
             </div>
         </div>
     </div>
@@ -167,9 +199,10 @@ export default {
                 words. I wonder what happens if I write anothe thing. Interesting, so it keeps increasing till we reach the end of the line. what happens now? -->
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Proxima+Nova');
 
 .media {
-    font-family: sans-serif;
+    font-family: 'Proxima Nova', sans-serif;
     width: inherit;
     background: #fafafa;
     border-radius: 20px;
@@ -218,7 +251,12 @@ export default {
     margin-left: 8px;
     background-color: #9d2121;
 }
+
 .buttons button[type="button"].active {
     background-color: #770707;
+}
+.buttons button[type="submit"] {
+    background-color: #2bb148;
+    float: right;
 }
 </style>

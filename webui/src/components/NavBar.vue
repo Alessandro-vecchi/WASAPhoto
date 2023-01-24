@@ -3,6 +3,7 @@ export default {
     data: function () {
         return {
             Username: "",
+            header: localStorage.getItem('Authorization'),
         }
     },
     methods: {
@@ -14,6 +15,9 @@ export default {
             rectangle.classList.toggle('active')
 
         },
+        goHome() {
+            this.$router.push({ path: "/users/" + this.header + "/stream/" });
+        },
 
     },
 }
@@ -24,9 +28,9 @@ export default {
         <div class="nav-wrapper center">
 
             <div id="nav-home-section" class="nav-section">
-                <router-link to="/"><font-awesome-icon class="icons" icon="fa-solid fa-house" size="xl"
-                        inverse /></router-link>
-                <router-link to="/" class="font-style">Home</router-link>
+                <font-awesome-icon class="icons" icon="fa-solid fa-house" size="xl"
+                        inverse @click="goHome"/>
+                <span class="font-style" @click="goHome">Home</span>
             </div>
             <div id="nav-search-section" class="nav-section" @click="rect">
                 <font-awesome-icon class="icons" icon="fa-solid fa-magnifying-glass" size="xl" inverse />

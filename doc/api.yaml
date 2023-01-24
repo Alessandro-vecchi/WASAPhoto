@@ -211,12 +211,7 @@ components:
           example: 2022-11-04T16:35:22-04:00
           minLength: 20
           maxLength: 25
-        author:
-          description: Uniquely identifies the author of a comment
-          type: object
-          properties:
-            userId: {$ref: "#/components/schemas/UserID"}
-            username: {$ref: "#/components/schemas/Username"}
+        author: {$ref: "#/components/schemas/Username"} # Uniquely identifies the author of a comment
         body:
           description: |
             Text of the comment written. Preventing empty comments.
@@ -915,6 +910,48 @@ paths:
   /comments/{comment_id}:
     parameters:
       - $ref: "#/components/parameters/comment_id"
+    
+    patch:
+       tags:
+         - Comments
+       summary: Modify comment
+       description: |
+         An user can modify its own comment(and only an own comment)
+       operationId: modifyComment
+       requestBody:
+         content:
+           application/json:
+             schema:
+              properties:
+                  author: {$ref: "#/components/schemas/Username"} # Uniquely identifies the author of a comment
+                  body:
+                    description: |
+                      Text of the comment written. Preventing empty comments.
+                    type: string
+                    pattern: '^[a-zA-Z0-9,._:;?!\x27\- ]*$'
+                    minLength: 1
+                    maxLength: 300
+                    example: "Buongiorno Beppe!"
+       responses:
+         "200":
+           description: Comment updated successfully.
+           content:
+             application/json:
+               schema:
+                 $ref: '#/components/schemas/Comment'
+         "201": 
+           description: Comment created
+           content:
+             application/json: 
+               schema:
+                 { $ref: "#/components/schemas/Comment" }
+         "400":
+           description: Bad request. Invalid input data.
+         '401':
+           $ref: '#/components/responses/UnauthorizedError'
+
+       security:
+         - bearerAuth: []
       
     delete:
       tags:

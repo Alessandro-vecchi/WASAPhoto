@@ -1,7 +1,7 @@
 <script>
 import Post from '@/components/Post.vue'
 import NavBar from '@/components/NavBar.vue'
-// import { eventBus } from "@/main.js"
+import { eventBus } from "@/main.js"
 
 export default {
 	components: {
@@ -14,7 +14,7 @@ export default {
 			loading: false,
             header: localStorage.getItem('Authorization'),
 			post: "",
-            photoId: this.$route.params.photo_id
+            photoId: eventBus.getPhotoId,
 		}
 	},
 	methods: {
@@ -28,6 +28,7 @@ export default {
 			try {
 				let response = await this.$axios.get("/photos/" + this.photoId);
 				this.post = response.data;
+				eventBus.getPhotoId = this.photoId
 				console.log(this.post);
 			} catch (e) {
 				this.errormsg = e.toString();

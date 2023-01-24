@@ -34,7 +34,23 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-
+	// Delete all images from the folder
+	photos, err := rt.db.GetListUserPhotos(user_id)
+	if err != nil {
+		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
+		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
+		ctx.Logger.WithError(err).Error("can't list photos")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	for _, photo := range photos {
+		err := rt.deleteImageFromFolder(photo.PhotoId, w, ctx)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+	// Delete user profile. The cascade make sure all the info related are being removed
 	err = rt.db.DeleteUserProfile(user_id)
 	if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user

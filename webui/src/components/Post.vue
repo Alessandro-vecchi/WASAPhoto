@@ -38,11 +38,10 @@ export default {
         async get_user_profile(name) {
             this.$router.push({ path: "/users/", query: { username: name } })
         },
-        async Get_my_profile() {
+        Get_my_profile() {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-            await this.$axios.get("/users/?username=" + this.username).then(response => (this.username = response.data.username, this.myProfilePic = response.data.profile_picture_url))
-            eventBus.getMyUsername = this.username
+            return this.$axios.get("/users/?username=" + this.username).then(response => (this.username = response.data.username, this.myProfilePic = response.data.profile_picture_url, eventBus.getMyUsername = response.data.username))
         },
         async LikeClick() {
             if (this.isMine) {
@@ -73,7 +72,6 @@ export default {
             */
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-            console.log(this.photoId)
             try {
                 let response = await this.$axios.get("/photos/" + this.photoId + "/likes/")
                 this.likes = response.data.short_profile
@@ -88,7 +86,7 @@ export default {
                 this.errormsg = e.toString();
             }
             this.loading = false;
-            // console.log("likes:", this.likes, this.isLiked)
+            console.log("likes:", this.likes, this.isLiked)
             if (!isRefresh) {
                 this.refresh()
             }
@@ -133,13 +131,14 @@ export default {
             }
             this.loading = false;
         },
-        GetImage(url, filter) {
+        async GetImage(url, filter) {
+            console.log("url:", url, "filter:", filter)
             this.loading = true;
             this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
 
-            this.$axios.get("/images/?image_name=" + url, { responseType: 'blob' }).then(response => {
+            await this.$axios.get("/images/?image_name=" + url, { responseType: 'blob' }).then(response => {
                 // Get the image data as a Blob object
                 var imgBlob = response.data;
 
@@ -161,15 +160,15 @@ export default {
                 });
             this.loading = false;
         },
-        getImages() {
+        async getImages() {
             if (this.myProfilePic) {
-                this.GetImage(this.myProfilePic, "my")
+                await this.GetImage(this.myProfilePic, "my")
             }
             if (this.image) {
-                this.GetImage(this.image, "img")
+                await this.GetImage(this.image, "img")
             }
             if (this.profilePictureUrl) {
-                this.GetImage(this.profilePictureUrl, "pp")
+                await this.GetImage(this.profilePictureUrl, "pp")
             }
         },
         refresh() {

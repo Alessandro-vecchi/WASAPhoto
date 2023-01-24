@@ -50,7 +50,7 @@ export default {
 
 <template>
     <div class="edit-profile">
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+        <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" v-model="username">
