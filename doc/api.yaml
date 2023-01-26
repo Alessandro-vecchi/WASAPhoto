@@ -563,7 +563,7 @@ paths:
       summary: See banned users
       description: |
          List of users banned from the profile of the logged user(my)
-      operationId: getMyBannedUsers
+      operationId: getMyBans
       responses:
         "200":
           description: |
@@ -906,11 +906,11 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
       security:
         - bearerAuth: []
-  
+
   /comments/{comment_id}:
     parameters:
       - $ref: "#/components/parameters/comment_id"
-    
+
     patch:
        tags:
          - Comments
@@ -922,6 +922,7 @@ paths:
          content:
            application/json:
              schema:
+              description: When writing a comment, the front sends the author and the body of the comment.
               properties:
                   author: {$ref: "#/components/schemas/Username"} # Uniquely identifies the author of a comment
                   body:
