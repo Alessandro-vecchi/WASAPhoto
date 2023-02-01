@@ -84,7 +84,7 @@ nav {
     overflow: hidden;
     position: fixed;
     width: 601px;
-    height: 12vh;
+    height: 200px;
     bottom: 0;
 
     z-index: 99;
