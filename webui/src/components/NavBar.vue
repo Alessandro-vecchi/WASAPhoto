@@ -61,6 +61,8 @@ export default {
 :root {
     --ba1: rgb(6, 12, 24);
     --bo1: rgba(255, 255, 255, 0.2);
+    --heightNavBar: 160px;
+    --minHeightNavBar: 12vh;
 }
 
 nav {
@@ -84,7 +86,8 @@ nav {
     overflow: hidden;
     position: fixed;
     width: 601px;
-    height: 200px;
+    min-height: var(--minHeightNavBar);
+    height: var(--heightNavBar);
     bottom: 0;
 
     z-index: 99;
@@ -122,8 +125,8 @@ nav {
     bottom: 0;
     width: 400px;
     background-color: rgb(10, 12, 24);
-    min-height: 12vh;
-    height: 12vh;
+    min-height: var(--minHeightNavBar);
+    height: var(--heightNavBar);
 
     border-radius: 10px 10px 0 0;
     transform: translateY(0px);
@@ -133,7 +136,7 @@ nav {
 
 
 .rectangle.active {
-    transform: translateY(-116px);
+    transform: translateY(calc(-1*var(--heightNavBar)));
     transition: transform 1.5s ease-out;
     z-index: 98;
 }
