@@ -200,7 +200,7 @@ export default {
 <style scoped>
 
 .media {
-    font-family: 'Proxima Nova', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     width: inherit;
     background: #fafafa;
     border-radius: 20px;

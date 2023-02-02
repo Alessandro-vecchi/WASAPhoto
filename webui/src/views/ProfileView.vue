@@ -40,8 +40,9 @@ export default {
                 this.username = this.profile.username
                 console.log("GetProfile")
             } catch (e) {
+                console.log("e.", e.response.data)
                 this.errormsg = e.toString();
-                console.log(this.errormsg)
+                console.log("msg", this.errormsg)
             }
             this.loading = false;
             console.log("profile1:", this.profile)

@@ -34,6 +34,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	profile, err := rt.db.GetUserProfileByUsername(name)
 	if errors.Is(err, database.ErrUserNotExists) {
 		// User not found in the database
+		ctx.Logger.WithError(err).Error("user not found")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {

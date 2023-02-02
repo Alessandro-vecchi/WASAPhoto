@@ -54,8 +54,8 @@ export default {
 
 	<div class="Home">
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
-		<div class="timeline">
-			<Post v-on:refresh-parent="refresh" v-if="!loading" v-for="post in stream" :key="post.photoId" 
+		<div v-if="!loading" class="timeline">
+			<Post v-on:refresh-parent="refresh" v-for="post in stream" :key="post.photoId" 
 			:photoId="post.photoId" :owner="post.username" :profilePictureUrl="post.profile_pic" :image="post.image"
 			:timestamp="post.timestamp" :caption="post.caption" :likesCount="post.likes_count" :commentsCount="post.comments_count"/>
 		</div>
@@ -70,7 +70,7 @@ export default {
 	max-width: 601px;
 	margin-left: auto;
 	margin-right: auto;
-	padding-bottom: 10vh;
+	padding-bottom: 140px;
 }
 
 .sidebar {
