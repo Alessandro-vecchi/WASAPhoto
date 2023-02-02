@@ -13,6 +13,7 @@ export default {
             loading: false,
             errormsg: null,
             profile: {},
+            username: "",
             media: [],
             followers: [],
             following: [],
@@ -31,12 +32,13 @@ export default {
             /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
             If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
             */
-            console.log("header:", localStorage.getItem('Authorization'))
-            console.log("username:", this.$route.query.username, this.username)
+            console.log("GetProfile")
+            console.log("header:", localStorage.getItem('Authorization'), "\n", "username:", this.$route.query.username, this.username)
             try {
                 let response = await this.$axios.get("/users/?username=" + this.$route.query.username)
                 this.profile = response.data
                 this.username = this.profile.username
+                console.log("GetProfile")
             } catch (e) {
                 this.errormsg = e.toString();
                 console.log(this.errormsg)
@@ -106,6 +108,7 @@ export default {
             */
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
+            console.log("GetFollowers")
             try {
                 let response = await this.$axios.get("/users/" + this.profile.user_id + "/" + goal + "/")
                 list = response.data
@@ -114,6 +117,7 @@ export default {
                     eventBus.getTitle = goal
                     eventBus.getUsername = this.profile.username
                     this.$router.push({ path: '/' + goal + '/', });
+                    console.log("GetFollowers")
                 }
             } catch (e) {
                 this.errormsg = e.toString();
@@ -123,7 +127,9 @@ export default {
             return list;
         },
         async getFollowers(isRefresh) {
+            console.log("GetFollowers")
             let list = await this.GetUsers("followers", isRefresh)
+            console.log("GetFollowers")
             this.followers = list.short_profile
             this.isFollowing = list.cond
             console.log("follow:", list.short_profile, list.cond)
@@ -144,10 +150,12 @@ export default {
             */
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
+            console.log("GetMyBans")
             try {
                 let response = await this.$axios.get("/users/" + this.profile.user_id + "/mybans/")
                 this.bans = response.data.short_profile
                 this.isBanned = response.data.cond
+                console.log("GetMyBans")
                 if (!isRefresh) {
                     eventBus.getShortProfiles = this.bans
                     eventBus.getTitle = "bans"
@@ -171,10 +179,12 @@ export default {
             */
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
+            console.log("GetTheirBans")
             try {
                 let response = await this.$axios.get("/users/" + this.profile.user_id + "/bans/")
                 this.bans = response.data.short_profile
                 this.iAmBanned = response.data.cond
+                console.log("GetTheirBans")
             } catch (e) {
                 this.errormsg = e.toString();
             }
@@ -189,6 +199,7 @@ export default {
             this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
+            console.log("GetImage")
             try {
                 let response = await this.$axios.get("/images/?image_name=" + this.profile.profile_picture_url, { responseType: 'blob' })
                 // Get the image data as a Blob object
@@ -196,6 +207,7 @@ export default {
 
                 // Create an object URL from the Blob object
                 this.ppUrl = URL.createObjectURL(imgBlob);
+                console.log("GetImage")
             } catch (e) {
                 this.errormsg = e.message;
 
@@ -229,18 +241,6 @@ export default {
         },
     },
     computed: {
-        username: {
-            get() {
-                return this.username;
-            },
-            set(value) {
-                // prevent the username from being changed once it has a value
-                if (!this.username) {
-                    this.$set(this, 'username', value)
-                    console.log(this.username)
-                }
-            },
-        },
         logged() {
             // console.log(this.profile.user_id, localStorage.getItem('Authorization'))
             let bool = (this.header == this.profile.user_id)

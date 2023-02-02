@@ -7,7 +7,7 @@ import comments from '../components/Comments.vue'
 import Home from '../views/HomeView.vue'
 import Edit from '../components/EditPage.vue'
 import changed from '../components/ChangeUsername.vue'
-import Post from '@/components/SinglePhoto.vue'
+import SinglePhoto from '@/components/SinglePhoto.vue'
 
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -26,7 +26,7 @@ const router = createRouter({
 		// upload a photo
 		{ path: '/users/:user_id/form/', component: PostForm, name: 'PostForm'},
 		// Get Single Photo
-		{ path: '/post/:photo_id', component: Post},
+		{ path: '/post/:photo_id', component: SinglePhoto},
 
 		/* COMMENTS */
 		// See comments

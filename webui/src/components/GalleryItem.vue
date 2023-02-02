@@ -33,7 +33,7 @@ export default {
             this.loading = false;
         },
         openPhoto() {
-            console.log("double click")
+            console.log("double click", this.photo.photoId)
             eventBus.getPhotoId = this.photo.photoId
             this.$router.push({ path: '/post/' + this.photo.photoId })
         }

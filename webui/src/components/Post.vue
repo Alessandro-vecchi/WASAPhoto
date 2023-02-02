@@ -38,9 +38,10 @@ export default {
         async get_user_profile(name) {
             this.$router.push({ path: "/users/", query: { username: name } })
         },
-        Get_my_profile() {
+        async Get_my_profile() {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
+            console.log("GetMyProfile")
             return this.$axios.get("/users/?username=" + this.username).then(response => (this.username = response.data.username, this.myProfilePic = response.data.profile_picture_url, eventBus.getMyUsername = response.data.username))
         },
         async LikeClick() {
@@ -161,6 +162,8 @@ export default {
             this.loading = false;
         },
         async getImages() {
+            
+            console.log("GetImages")
             if (this.myProfilePic) {
                 await this.GetImage(this.myProfilePic, "my")
             }
