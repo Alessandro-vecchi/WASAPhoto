@@ -198,7 +198,6 @@ export default {
                 <!-- It's known that the majority have suffered alteration in some form, by injected humour, or randomised
                 words. I wonder what happens if I write anothe thing. Interesting, so it keeps increasing till we reach the end of the line. what happens now? -->
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Proxima+Nova');
 
 .media {
     font-family: 'Proxima Nova', sans-serif;

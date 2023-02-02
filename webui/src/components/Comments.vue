@@ -110,7 +110,8 @@ export default {
     -moz-box-shadow: 0px 0px 5px 0px rgba(212, 182, 212, 1);
     box-shadow: 0px 0px 5px 0px rgb(161, 163, 164);
     overflow: auto;
-    max-width: 700px;
+    min-width: 350px;
+    max-width: 750px;
     ;
 }
 
