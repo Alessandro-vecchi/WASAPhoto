@@ -49,7 +49,7 @@ export default {
 <template>
     <div class="photo">
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
-        <Post v-on:refresh-parent="refresh" v-if="post"
+        <Post v-on:refresh-parent="refresh" v-if="(post&&!loading)"
             :photoId="post.photoId" :owner="post.username" :profilePictureUrl="post.profile_pic" :image="post.image"
             :timestamp="post.timestamp" :caption="post.caption" :likesCount="post.likes_count"
             :commentsCount="post.comments_count" />

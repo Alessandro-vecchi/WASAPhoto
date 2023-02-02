@@ -31,17 +31,21 @@ export default {
 			} catch (e) {
 				this.errormsg = e.toString();
 			}  
-			this.loading = false;
+			//this.loading = false;
 		},
-		refresh() {
-			this.GetStream();
+		async refresh() {
+			await this.GetStream();
+			console.log("stream found")
 			eventBus.user_id = this.$route.params.user_id
 		}
 
 	},
 
 	mounted() {
-		this.refresh()
+		this.refresh().then(() => {
+    this.loading = false;
+  });
+		console.log("stream ended")
 	}
 }
 </script>
@@ -51,7 +55,7 @@ export default {
 	<div class="Home">
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 		<div class="timeline">
-			<Post v-on:refresh-parent="refresh" v-if="stream" v-for="post in stream" :key="post.photoId" 
+			<Post v-on:refresh-parent="refresh" v-if="!loading" v-for="post in stream" :key="post.photoId" 
 			:photoId="post.photoId" :owner="post.username" :profilePictureUrl="post.profile_pic" :image="post.image"
 			:timestamp="post.timestamp" :caption="post.caption" :likesCount="post.likes_count" :commentsCount="post.comments_count"/>
 		</div>

@@ -101,7 +101,7 @@ nav {
 }
 
 .nav-wrapper>.nav-section {
-    padding: 4rem 0;
+    padding: 5rem 0;
     display: flex;
     gap: 1rem;
     border-left: 1px solid var(--bo1);

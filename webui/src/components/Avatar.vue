@@ -46,5 +46,6 @@ export default {
     border: 2px solid white;
     border-radius: inherit;
     cursor: pointer;
+    object-fit: cover;
 }
 </style>

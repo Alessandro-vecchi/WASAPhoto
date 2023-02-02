@@ -42,7 +42,7 @@ export default {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             console.log("GetMyProfile")
-            return this.$axios.get("/users/?username=" + this.username).then(response => (this.username = response.data.username, this.myProfilePic = response.data.profile_picture_url, eventBus.getMyUsername = response.data.username))
+            return this.$axios.get("/users/?username=" + this.username).then(response => (this.username = response.data.username, this.myProfilePic = response.data.profile_picture_url, eventBus.getMyUsername = response.data.username)).catch(error => (console.log("hola"), this.errormsg = error.message ));
         },
         async LikeClick() {
             if (this.isMine) {
@@ -144,7 +144,6 @@ export default {
                 var imgBlob = response.data;
 
                 // Create an object URL from the Blob object
-                console.log(url)
                 var uri = URL.createObjectURL(imgBlob);
                 if (filter === "my") {
                     this.myProfilePic = uri
@@ -153,10 +152,10 @@ export default {
                 } else if (filter === "pp") {
                     this.ppUrl = uri
                 }
-                console.log(uri)
+                console.log("uri:", uri)
             })
                 .catch(error => {
-                    // console.log(error);
+                    console.log("hola");
                     this.errormsg = error.message;
                 });
             this.loading = false;
@@ -164,18 +163,21 @@ export default {
         async getImages() {
             
             console.log("GetImages")
+            console.log("MyPP")
             if (this.myProfilePic) {
                 await this.GetImage(this.myProfilePic, "my")
             }
+            console.log("Image")
             if (this.image) {
                 await this.GetImage(this.image, "img")
             }
+            console.log("commentPP")
             if (this.profilePictureUrl) {
                 await this.GetImage(this.profilePictureUrl, "pp")
             }
         },
-        refresh() {
-            this.GetLikes(true).then(() => this.GetComments(true))
+        async refresh() {
+           await this.GetLikes(true).then(() => this.GetComments(true))
         },
 
         async deletePhoto() {
@@ -265,7 +267,7 @@ export default {
             </div>
             <div class="header-more">
                 <button v-if=!isMine type="button">
-                    <font-awesome-icon v-if=!isMine icon="fa-solid fa-ellipsis" size="3x" />
+                    <font-awesome-icon icon="fa-solid fa-ellipsis" size="3x" />
                 </button>
                 <button v-else type="delete" @click="deletePhoto">Delete Photo</button>
             </div>
