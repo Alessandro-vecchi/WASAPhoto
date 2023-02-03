@@ -19,8 +19,8 @@ func (rt *_router) getPhotoComments(w http.ResponseWriter, r *http.Request, ps h
 	photo_id := rt.getPathParameter("photo_id", ps)
 	if photo_id == "" {
 		// If empty it's because the function returned a bad values
-		ctx.Logger.Error("photo undefined")
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong photo_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	listCommentsDb, err = rt.db.GetComments(photo_id)
@@ -40,6 +40,5 @@ func (rt *_router) getPhotoComments(w http.ResponseWriter, r *http.Request, ps h
 		listCommentsAPI = append(listCommentsAPI, c)
 	}
 	// Send the list to the user.
-	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(listCommentsAPI)
 }

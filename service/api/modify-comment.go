@@ -16,7 +16,8 @@ func (rt *_router) modifyComment(w http.ResponseWriter, r *http.Request, ps http
 	// 1. Retrieve Id of the comment the user want to modify.
 	comment_id := rt.getPathParameter("comment_id", ps)
 	if comment_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong comment_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 2. Get comment from request body (comment body, author name)
@@ -25,10 +26,12 @@ func (rt *_router) modifyComment(w http.ResponseWriter, r *http.Request, ps http
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
 		// The body was not a parseable JSON, reject it
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("The body is not a parseable JSON")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	} else if !comment.IsValid() {
 		// Here we validated the comment structure is valid
+		_, _ = w.Write([]byte(`{"error": "Invalid comment. Invalid characters inserted or comment too long."}`))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -38,9 +41,11 @@ func (rt *_router) modifyComment(w http.ResponseWriter, r *http.Request, ps http
 	id, _ := rt.db.GetIdByName(comment.Author)
 	err = checkUserIdentity(authtoken, id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
+		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -48,6 +53,7 @@ func (rt *_router) modifyComment(w http.ResponseWriter, r *http.Request, ps http
 	_, err = rt.db.ModifyComment(comment.ToDatabase(rt.db))
 
 	if errors.Is(err, database.ErrCommentNotExists) {
+		_, _ = w.Write([]byte(`{"error": "The comment does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {

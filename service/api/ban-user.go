@@ -19,21 +19,23 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	// The User ID in the path is a string and correspondes with the profile we're watching
 	user_id_A := rt.getPathParameter("user_id", ps)
 	if user_id_A == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong user_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 2. Get ID of user B from path
 	// It coincides with the user that want to ban
 	user_id_B := rt.getPathParameter("ban_id", ps)
 	if user_id_B == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong ban_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 3. Check that user is not banning himself
 	if models.AreTheSame(user_id_A, user_id_B) {
 		// A user can't ban himself
-		ctx.Logger.WithError(database.ErrUserCantFollowHimself).Error("a user can't ban himself ")
-		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "An user can't ban himself"}`))
+		w.WriteHeader(http.StatusConflict)
 		return
 	}
 	// 4. Check if the user B is authenticated
@@ -44,17 +46,25 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	err := checkUserIdentity(authtoken, user_id_B, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
+		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-
+	// Conversion
+	name_A, _, err := models.Conversion(user_id_A, user_id_B, rt.db)
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error while converting user_id in username")
+		return
+	}
 	// 4. Ban user A
 	err = rt.db.BanUser(user_id_A, user_id_B)
 	if !errors.Is(err, database.ErrBanAlreadyPresent) {
 		// user B already banned user A
+		_, _ = w.Write([]byte(`{"error": "You already banned " ` + name_A + `}`))
 		w.WriteHeader(http.StatusNoContent)
 		return
 	} else if err != nil {
@@ -69,10 +79,5 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 	// 6. Encode the name
-	name_A, _, err := models.Conversion(user_id_A, user_id_B, rt.db)
-	if err != nil {
-		ctx.Logger.WithError(err).Error("error while converting user_id in username")
-		return
-	}
 	_ = json.NewEncoder(w).Encode(name_A)
 }

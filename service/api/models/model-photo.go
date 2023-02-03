@@ -6,7 +6,7 @@ import (
 
 var (
 	imageUrlRx = ppURLRx
-	captionRx  = bioRx
+	captionRx  = BioRx
 )
 
 // Attributes of a photo

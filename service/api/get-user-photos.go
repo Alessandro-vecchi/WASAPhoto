@@ -18,7 +18,8 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 	// 1. Retrieve ID of the user profile from the path
 	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong user_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -38,6 +39,5 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 		listPhotosAPI = append(listPhotosAPI, m)
 	}
 	// Send the list to the user.
-	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(listPhotosAPI)
 }

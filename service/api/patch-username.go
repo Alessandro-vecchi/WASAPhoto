@@ -18,7 +18,8 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	// 1. Get ID of the user that want to change name
 	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong user_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 2. Check if the user is authenticated
@@ -30,37 +31,44 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
 	// 3. Read new username from request body
-	var p models.Profile
-	p.ID = user_id
-
-	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+	var u models.Username
+	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
 		// The body was not a parseable JSON object, reject it
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("The body is not a parseable JSON")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
-	} else if rt.db.CountStuffs("username", "profile", p.Username) > 0 {
+	} else if rt.db.CountStuffs("username", "profile", u.Username) > 0 {
 		// User Already Exists
-		ctx.Logger.WithError(err).WithField("username", p.Username).Error("Cannot use username that already exists")
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "This username already exists. Please choose another username."}`))
 		return
-	} else if !p.IsValid() {
-		// Profile data is invalid
+	} else if !u.IsValid() {
+		// Username is invalid
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "Invalid characters in username or invalid length.\\n It should be betweeen 3 and 16 characters."}`))
 		return
 	}
+	var p models.Profile
+	p.ID = user_id
+	p.Username = u.Username
+
 	name, err := rt.db.GetNameById(user_id)
 	if err != nil {
-		log.Println("couldn't get name from id")
+		ctx.Logger.WithError(err).Error("error: could not get name from id")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	userProfile, err := rt.db.GetUserProfileByUsername(name)
 	if err != nil {
+		ctx.Logger.WithError(err).Error("error: could not get user profile")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -69,7 +77,8 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 
 	oldProfileBytes, err := json.Marshal(&pp)
 	if err != nil {
-		log.Println("Error creating json patch", err.Error())
+		ctx.Logger.WithError(err).Error("error creating JSON patch")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// fmt.Println(`{"op":"replace", "path": "/username", "value": "` + p.Username + `"}`)
@@ -77,12 +86,14 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	// fmt.Println(patchJSON)
 	patch, err := jsonpatch.DecodePatch(patchJSON)
 	if err != nil {
-		log.Println("Error Decoding patch json ", err.Error())
+		ctx.Logger.WithError(err).Error("error decoding JSON patch")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	modified, err := patch.Apply(oldProfileBytes)
 	if err != nil {
 		log.Println("Error Applying patch json ", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -90,12 +101,14 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	err = json.Unmarshal(modified, &jsonProfile)
 	if err != nil {
 		log.Println("Error unmarshaling patch json ", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// Updating profile in the database
 	_, err = rt.db.UpdateUserProfile(true, jsonProfile.ToDatabase())
 	if err != nil {
 		log.Println("Error UPDATING the database ", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 

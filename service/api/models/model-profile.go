@@ -9,7 +9,7 @@ import (
 var (
 	usernameRx = regexp.MustCompile(`^[a-zA-Z0-9-_]*$`)
 	ppURLRx    = regexp.MustCompile(`^[a-zA-Z0-9-_]*\.(png|jpg|jpeg)$`) // regexp.MustCompile(`^(https?:\/\/.*\.(?:png|jpg|jpeg))?$`)
-	bioRx      = regexp.MustCompile(`^[a-zA-Z0-9,._:;?!\x27\- ]*$`)
+	BioRx      = regexp.MustCompile(`^[a-zA-Z0-9,._:;?!\x27\- ]*$`)
 )
 
 // Represents the information seen in the Profile Page of a user
@@ -65,5 +65,5 @@ func (profile *Profile) ToDatabase() database.Profile_db {
 func (p *Profile) IsValid() bool {
 	return ((len(p.Username) >= 3 && len(p.Username) <= 16 && usernameRx.MatchString(p.Username)) || p.Username == "") &&
 		len(p.ProfilePictureUrl) <= 200 && // ppURLRx.MatchString(p.ProfilePictureUrl)  &&
-		len(p.Bio) <= 200 && bioRx.MatchString(p.Bio)
+		len(p.Bio) <= 200 && BioRx.MatchString(p.Bio)
 }

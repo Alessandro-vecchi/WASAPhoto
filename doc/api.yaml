@@ -507,6 +507,7 @@ paths:
           description: Already following current user.
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        "409": { description: An user can't follow himself. }
       security:
         - bearerAuth: []
 
@@ -520,6 +521,7 @@ paths:
         "204": { description: User unfollowed successfully. }
         "401":
           $ref: '#/components/responses/UnauthorizedError'
+        "409": { description: An user can't unfollow himself. }
       security:
         - bearerAuth: []
 
@@ -645,6 +647,7 @@ paths:
         "204": {description: User already banned.}
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        "409": {description: User can't ban himself.}
       security:
           - bearerAuth: []
 
@@ -658,6 +661,7 @@ paths:
         "204": { description: User unbanned successfully. }
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        "409": { description: An user can't unban himself. }
       security:
         - bearerAuth: []
 
@@ -835,6 +839,9 @@ paths:
                 { $ref: "#/components/schemas/UserID" }
         "204":
           description: No content. Like already inserted.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        "409": { description: An user can't like its own photos. }
       security:
         - bearerAuth: []
 
@@ -850,6 +857,7 @@ paths:
           description: No content. Like removed.
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        "409": { description: An user can't unlike its own photos. }
       security:
         - bearerAuth: []
       

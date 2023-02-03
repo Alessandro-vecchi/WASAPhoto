@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
@@ -27,14 +26,14 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	} else {
 		// No username field founded
-		log.Printf("query has no field username")
-		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(`{"error": "query has no field username"}`))
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	profile, err := rt.db.GetUserProfileByUsername(name)
 	if errors.Is(err, database.ErrUserNotExists) {
 		// User not found in the database
-		ctx.Logger.WithError(err).Error("user not found")
+		_, _ = w.Write([]byte(`{"error": "User not found"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {

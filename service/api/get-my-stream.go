@@ -16,7 +16,8 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 	// 1. Retrieve ID of the user whose stream belongs to.
 	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong user_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 2. Check if the user is authenticated
@@ -27,9 +28,11 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

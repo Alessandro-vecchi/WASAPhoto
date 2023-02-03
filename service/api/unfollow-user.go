@@ -17,14 +17,16 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	// The User ID in the path is a string and coincides with the profile we watching
 	user_id_A := rt.getPathParameter("user_id", ps)
 	if user_id_A == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong user_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 2. Get user ID of user B from path
 	// It coincides with the user that want to follow
 	user_id_B := rt.getPathParameter("follower_id", ps)
 	if user_id_B == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong follower_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -48,9 +50,11 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	err := checkUserIdentity(authtoken, user, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
+		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -58,6 +62,7 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	err = rt.db.UnfollowUser(user_id_A, user_id_B)
 	if errors.Is(err, database.ErrFollowerNotPresent) {
 		// User B wasn't following user A, reject the action indicating an error on the client side.
+		_, _ = w.Write([]byte(`{"error": "You are not following the user"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {

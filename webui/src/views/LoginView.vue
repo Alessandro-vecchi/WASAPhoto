@@ -21,14 +21,13 @@ export default {
                     username: this.User.Username,
                 });
                 this.User.UserID = response.data,
-
                     eventBus.getMyUsername = this.User.Username
                 localStorage.clear();
                 localStorage.setItem('Authorization', this.User.UserID),
 
                     this.$router.push({ path: '/users/' + this.User.UserID + '/stream/' })
             } catch (e) {
-                this.errormsg = e.toString();
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
         }

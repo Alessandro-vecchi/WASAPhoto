@@ -13,7 +13,8 @@ func (rt *_router) getFollowed(w http.ResponseWriter, r *http.Request, ps httpro
 	// The User ID in the path is a string
 	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong user_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -29,6 +30,5 @@ func (rt *_router) getFollowed(w http.ResponseWriter, r *http.Request, ps httpro
 	var short_prof models.Short_profile
 	short_prof.FromDatabase(following, name)
 	// Send the list to the user.
-	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(short_prof)
 }

@@ -15,7 +15,8 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 	// The User ID in the path is a string and coincides with the profile we are in
 	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong user_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -27,10 +28,11 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		// The user (indicated by `id`) does not exist, reject the action indicating an error on the client side.
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -46,6 +48,7 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 	for _, photo := range photos {
 		err := rt.deleteImageFromFolder(photo.PhotoId, w, ctx)
 		if err != nil {
+			ctx.Logger.WithError(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

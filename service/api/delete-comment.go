@@ -14,14 +14,14 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	// 1. Retrieve Id of the comment the user want to delete.
 	comment_id := rt.getPathParameter("comment_id", ps)
 	if comment_id == "" {
-		ctx.Logger.Error("comment undefined")
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong comment_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 2. Check if the comment exists.
 	comment_db, err := rt.db.GetSingleComment(comment_id)
 	if errors.Is(err, database.ErrCommentNotExists) {
-		log.Println(err)
+		ctx.Logger.WithError(err)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -30,9 +30,11 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	log.Printf("The authentication token in the header is: %v", authtoken)
 	err = checkUserIdentity(authtoken, comment_db.UserId, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

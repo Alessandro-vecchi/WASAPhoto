@@ -6,11 +6,13 @@ export default {
         return {
             username: '',
             errormsg: null,
-            loading: false
+            loading: false,
+            isSaved: false
         }
     },
     methods: {
         async submit() {
+            this.isSaved=false
             this.loading = true;
             this.errormsg = null;
 
@@ -29,12 +31,18 @@ export default {
                 eventBus.getMyUsername = this.username
                 this.$router.push({ path: "/users/", query: { username: this.username } });
             } catch (error) {
-                this.errormsg = error;
+                console.log(response, respobnse.data, response.data.error)
+                this.errormsg = response.data.error;
             }
             this.loading = false;
+            this.isSaved=true
         },
         cancel() {
-            this.$router.push({ path: "/users/", query: { username: this.username } });
+            if (this.isSaved) {
+                this.$router.push({ path: "/users/", query: { username: this.username } });
+            } else {
+                this.$router.push({ path: "/users/", query: { username: eventBus.getMyUsername } });
+            }
         },
     },
     mounted() {
@@ -42,6 +50,7 @@ export default {
             error => { return Promise.reject(error); });
         this.$axios.get('/users/?username=').then(response => {
             this.username = response.data.username;
+            eventBus.getMyUsername = response.data.username;
         });
     }
 }

@@ -7,11 +7,11 @@ import (
 type Username struct {
 
 	// Name of the user
-	Name string `json:"username"`
+	Username string `json:"username"`
 }
 
 func (u Username) IsValid() bool {
-	return len(u.Name) >= 3 && len(u.Name) <= 16 && usernameRx.MatchString(u.Name)
+	return len(u.Username) >= 3 && len(u.Username) <= 16 && usernameRx.MatchString(u.Username)
 }
 
 func IsValidUUID(id string) bool {

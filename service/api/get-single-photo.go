@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
@@ -18,13 +17,14 @@ func (rt *_router) getUserPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	// The User ID in the path is a string
 	photo_id := rt.getPathParameter("photo_id", ps)
 	if photo_id == "" {
-		log.Println("invalid photo_id in the URL")
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong photo_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	photo, err := rt.db.GetUserPhoto(photo_id)
 	if errors.Is(err, database.ErrPhotoNotExists) {
 		// The photo (indicated by `id`) does not exist, reject the action indicating an error on the client side.
+		_, _ = w.Write([]byte(`{"error": "The photo does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {
@@ -34,7 +34,6 @@ func (rt *_router) getUserPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
 	// Translating from database to api
 	var p models.Post
 	p.FromDatabase(photo, rt.db)

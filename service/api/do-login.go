@@ -19,19 +19,20 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	err := json.NewDecoder(r.Body).Decode(&username)
 	if err != nil {
 		// The body was not a parseable JSON, reject it
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("The body is not a parseable JSON")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	} else if !username.IsValid() {
 		// Checking if the username match its regex
 		w.WriteHeader(http.StatusBadRequest)
-		ctx.Logger.WithError(err).Error("invalid characters in username")
+		_, _ = w.Write([]byte(`{"error": "Invalid characters in username or invalid length. It should be betweeen 3 and 16 characters."}`))
 		return
 	}
 
 	// 2. If it doesn't exist, create the user in the database.
 	// Otherwise, return the identifier already present.
 	// Note that this function will return a user identifier.
-	user_id, err := rt.db.DoLogin(username.Name)
+	user_id, err := rt.db.DoLogin(username.Username)
 	if errors.Is(err, database.ErrUserExists) {
 		// This means that the user already exists in the database,
 		// so we are not going to create a new user but just returning the one we have.

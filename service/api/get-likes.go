@@ -14,7 +14,8 @@ func (rt *_router) getLikes(w http.ResponseWriter, r *http.Request, ps httproute
 	// 1. Retrieve photo ID from path.
 	photo_id := rt.getPathParameter("photo_id", ps)
 	if photo_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong photo_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 

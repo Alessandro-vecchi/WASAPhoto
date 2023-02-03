@@ -22,7 +22,8 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	// 1. Get Id of the user whose profile is being updated
 	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong user_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 2. Check if the user is authenticated
@@ -32,32 +33,47 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	log.Printf("The authentication token in the header is: %v", authtoken)
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	// 3. Decode information inserted by the user in the request body
 	err = r.ParseMultipartForm(32 << 20) // 32MB is the maximum file size
 	if err != nil {
+		_, _ = w.Write([]byte(`{"error": "32MB is the maximum file size"}`))
 		ctx.Logger.WithError(err).Error("error: could not parse form")
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	// 4. Read new profile information from request body
 	var p models.Profile
-	// Get bio
-	p.Bio = r.FormValue("bio")
-
 	// Get Username
-	p.Username = r.FormValue("username")
+	var u models.Username
+	u.Username = r.FormValue("username")
 	// If modified username coincides with an existing one different from my old one, send error to the user
 	oldName, _ := rt.db.GetNameById(user_id)
-	if p.Username != oldName && rt.db.CountStuffs("username", "profile", p.Username) > 0 {
+	if u.Username != oldName && rt.db.CountStuffs("username", "profile", u.Username) > 0 {
 		// User Already Exists
-		ctx.Logger.WithError(err).WithField("username", p.Username).Error("Username already exists")
+		_, _ = w.Write([]byte(`{"error": "This username already exists. Please choose another username."}`))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	} else if !u.IsValid() {
+		// Username is invalid
+		_, _ = w.Write([]byte(`{"error": "Invalid characters in username or username too short. Its length should be betweeen 3 and 16 characters."}`))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	p.Username = u.Username
+	// Get bio
+	p.Bio = r.FormValue("bio")
+	if len(p.Bio) <= 200 && models.BioRx.MatchString(p.Bio) {
+		// Username is invalid
+		_, _ = w.Write([]byte(`{"error": "Invalid characters inserted in the bio or bio too long. Maximum 200 characters long."}`))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -66,7 +82,7 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	photo, fileHeader, err := r.FormFile("image")
 	if err != nil {
 		ctx.Logger.WithError(err).Error("error: could not parse photo")
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	defer photo.Close()
@@ -81,7 +97,7 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	// 5 - Check if the photo is valid
 	filetype := http.DetectContentType(buff)
 	if filetype != "image/jpeg" && filetype != "image/png" && filetype != "image/jpg" {
-		ctx.Logger.WithError(err).Error("error: The provided file format is not allowed. Please upload a JPEG,JPG or PNG image")
+		_, _ = w.Write([]byte(`{"error": "The provided file format is not allowed. Please upload a JPEG,JPG or PNG image."}`))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -94,7 +110,9 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	// 6 - Generate an ID that univoquely identifies the image
 	rawPhotoId, err := uuid.NewV4()
 	if err != nil {
-		ctx.Logger.WithError(err).Error("failed to get UUID:")
+		ctx.Logger.WithError(err).Error("failed to get UUID")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	log.Printf("generated Version 4 photoID: %v", rawPhotoId)
 	photoId := rawPhotoId.String()
@@ -110,14 +128,14 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	f, err := os.Create(path)
 	if err != nil {
 		ctx.Logger.WithError(err)
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	defer f.Close()
 	_, err = io.Copy(f, photo)
 	if err != nil {
 		ctx.Logger.WithError(err)
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -131,7 +149,6 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 
 	// 10 - Save the profile information in the database
 	_, err = rt.db.UpdateUserProfile(false, p.ToDatabase())
-
 	if err != nil {
 		ctx.Logger.WithError(err).WithField("user_id", user_id).Error("Can't update user profile")
 		w.WriteHeader(http.StatusInternalServerError)

@@ -17,22 +17,24 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	// The User ID in the path is a string and correspondes with the profile we're watching
 	user_id_A := rt.getPathParameter("user_id", ps)
 	if user_id_A == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong user_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 2. Get ID of user B from path
 	// It coincides with the user that want to ban
 	user_id_B := rt.getPathParameter("ban_id", ps)
 	if user_id_B == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong ban_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// 3. Check that the user is not unfollowing himself
+	// 3. Check that the user is not unbanning himself
 	if models.AreTheSame(user_id_A, user_id_B) {
 		// A user can't unban himself
-		ctx.Logger.WithError(database.ErrUserCantFollowHimself).Error("a user can't unban himself ")
-		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "An user can't ban himself"}`))
+		w.WriteHeader(http.StatusConflict)
 		return
 	}
 
@@ -43,9 +45,11 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	log.Printf("The authentication token in the header is: %v", authtoken)
 	err := checkUserIdentity(authtoken, user_id_B, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
+		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -53,6 +57,7 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	err = rt.db.UnbanUser(user_id_A, user_id_B)
 	if errors.Is(err, database.ErrBanNotPresent) {
 		// User B didn't ban user A, reject the action indicating an error on the client side.
+		_, _ = w.Write([]byte(`{"error": "You did not ban the user"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {

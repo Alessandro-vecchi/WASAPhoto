@@ -19,7 +19,8 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	// The Photo ID in the path is a string and coincides with the photo we are commenting
 	photo_id := rt.getPathParameter("photo_id", ps)
 	if photo_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong photo_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 2. Get comment from request body
@@ -29,11 +30,13 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
 		// The body was not a parseable JSON, reject it
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("The body is not a parseable JSON")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	} else if !comment.IsValid() {
 		// Here we validated the comment structure content
 		// Note: the IsValid() function skips the ID check (see below).
+		_, _ = w.Write([]byte(`{"error": "Invalid comment. Invalid characters inserted or comment too long."}`))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -45,9 +48,11 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	id, _ := rt.db.GetIdByName(comment.Author)
 	err = checkUserIdentity(authtoken, id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

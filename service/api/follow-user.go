@@ -19,15 +19,16 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	// The User ID in the path is a string and coincides with the profile we watching
 	user_id_A := rt.getPathParameter("user_id", ps)
 	if user_id_A == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong user_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 2. Get user ID of user B from path
 	// It coincides with the user that want to follow
 	user_id_B := rt.getPathParameter("follower_id", ps)
 	if user_id_B == "" {
-		ctx.Logger.Errorf("no id parsed from path")
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong follower_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -39,17 +40,19 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 
 	err := checkUserIdentity(authtoken, user_id_B, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
+		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	// 4. Check that user is not following himself
 	if models.AreTheSame(user_id_A, user_id_B) {
 		// A user can't follow himself
-		ctx.Logger.WithError(database.ErrUserCantFollowHimself).Error("a user can't follow himself ")
-		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "An user can't follow himself"}`))
+		w.WriteHeader(http.StatusConflict)
 		return
 	}
 	// 5 - getting users being banned from user A
@@ -61,9 +64,17 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	// conversion
+	name_A, name_B, err := models.Conversion(user_id_A, user_id_B, rt.db)
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error while converting user_id in username")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	// check if logged user has been banned by requested user profile
 	if contains(banned, user_id_B) {
 		ctx.Logger.Error("error: user could not follow the user because it's been banned")
+		_, _ = w.Write([]byte(`{"error": "User " ` + name_B + ` "can't follow the user " ` + name_A + `"because it's banned"}`))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -86,10 +97,5 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 	// 8. Encode the name
-	_, name_B, err := models.Conversion(user_id_A, user_id_B, rt.db)
-	if err != nil {
-		ctx.Logger.WithError(err).Error("error while converting user_id in username")
-		return
-	}
 	_ = json.NewEncoder(w).Encode(name_B)
 }

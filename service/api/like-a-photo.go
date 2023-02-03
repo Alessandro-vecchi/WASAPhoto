@@ -18,13 +18,15 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	// 1. Retrieve photo ID from path.
 	photo_id := rt.getPathParameter("photo_id", ps)
 	if photo_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong photo_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 2. Retrieve ID of the user who want to put like from path.
 	user_id := rt.getPathParameter("like_id", ps)
 	if user_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong user_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 3. Check if the user is authenticated
@@ -34,25 +36,27 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	log.Printf("The authentication token in the header is: %v", authtoken)
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		ctx.Logger.WithError(database.ErrUserNotExists).Error("the user doesn't exist")
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	// 4. Check that the user is not putting like to an own photo, if the photo exists.
 	flag, err := models.IsLikingHimself(photo_id, user_id, rt.db)
 	if errors.Is(err, database.ErrPhotoNotExists) {
-		ctx.Logger.WithError(database.ErrPhotoNotExists).Error("the photo doesn't exist")
+		_, _ = w.Write([]byte(`{"error": "The photo does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {
+		ctx.Logger.WithError(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	} else if flag {
-		ctx.Logger.WithError(database.ErrUserCantLikeHimself).Error("like not possible ")
-		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "An user can't like its own photos"}`))
+		w.WriteHeader(http.StatusConflict)
 		return
 	}
 

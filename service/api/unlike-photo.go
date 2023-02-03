@@ -15,13 +15,15 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// 1. Retrieve photo ID from path.
 	photo_id := rt.getPathParameter("photo_id", ps)
 	if photo_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong photo_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	// 2. Retrieve ID of the user who want to put like from path.
 	user_id := rt.getPathParameter("like_id", ps)
 	if user_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong user_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -32,19 +34,22 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	log.Printf("The authentication token in the header is: %v", authtoken)
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
+		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	// 4. Check that the user is not putting like to an own photo, if the photo exists.
 	flag, err := models.IsLikingHimself(photo_id, user_id, rt.db)
 	if errors.Is(err, database.ErrPhotoNotExists) {
-		ctx.Logger.WithError(database.ErrPhotoNotExists).Error("the photo doesn't exist")
+		_, _ = w.Write([]byte(`{"error": "The photo does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {
+		ctx.Logger.WithError(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	} else if flag {
@@ -58,7 +63,7 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	err = rt.db.UnlikePhoto(photo_id, user_id)
 	if errors.Is(err, database.ErrLikeNotPresent) {
 		// The photo (indicated by `id`) does not exist, reject the action indicating an error on the client side.
-		ctx.Logger.WithError(database.ErrLikeNotPresent).Error("like already not present")
+		_, _ = w.Write([]byte(`{"error": "The like is not present"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {

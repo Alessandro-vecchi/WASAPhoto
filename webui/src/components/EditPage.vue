@@ -7,7 +7,8 @@ export default {
             bio: '',
             avatar: null,
             errormsg: null,
-            loading: false
+            loading: false,
+            isSaved: false,
         }
     },
     methods: {
@@ -15,6 +16,7 @@ export default {
             this.avatar = URL.createObjectURL(event.target.files[0])
         },
         async submit() {
+            this.isSaved = false
             this.loading = true;
             this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
@@ -32,12 +34,18 @@ export default {
                 });
                 this.$router.push({ path: "/users/", query: { username: this.username } });
             } catch (error) {
-                this.errormsg = error;
+                this.errormsg = error.response.data;
             }
             this.loading = false;
+            this.isSaved = true
         },
         cancel() {
-            this.$router.push({ path: "/users/", query: { username: this.username } });
+            if (this.isSaved) {
+                this.$router.push({ path: "/users/", query: { username: this.username } });
+            } else {
+                this.$router.push({ path: "/users/", query: { username: eventBus.getMyUsername } });
+            }
+
         },
         async deleteProfile() {
             this.loading = true;
@@ -58,6 +66,7 @@ export default {
             this.username = response.data.username;
             this.bio = response.data.bio;
             this.avatar = response.data.image;
+            eventBus.getMyUsername = response.data.username;
         });
     }
 }
@@ -66,11 +75,11 @@ export default {
 
 <template>
     <div class="edit-profile">
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+        <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="edit-profile-title">
             <h2>Edit your profile</h2>
         </div>
-    <!--     The .prevent modifier tells Vue to call event.preventDefault() before the method, which stops the browser's
+        <!--     The .prevent modifier tells Vue to call event.preventDefault() before the method, which stops the browser's
         default form submission behavior. -->
         <form @submit.prevent="submit">
             <div class="form-group">

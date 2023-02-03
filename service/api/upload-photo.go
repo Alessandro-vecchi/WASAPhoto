@@ -23,7 +23,8 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// The User ID in the path is a string and coincides with the profile we are in
 	user_id := rt.getPathParameter("user_id", ps)
 	if user_id == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Logger.Error("wrong user_id path parameter")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -35,19 +36,21 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	// 3. Decode information inserted by the user in the request body
 	err = r.ParseMultipartForm(32 << 20) // 32MB is the maximum file size
 	if err != nil {
+		_, _ = w.Write([]byte(`{"error": "32MB is the maximum file size"}`))
 		ctx.Logger.WithError(err).Error("error: could not parse form")
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -58,7 +61,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	photo, fileHeader, err := r.FormFile("image")
 	if err != nil {
 		ctx.Logger.WithError(err).Error("error: could not parse photo")
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	defer photo.Close()
@@ -73,7 +76,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// 5 - Check if the photo is valid
 	filetype := http.DetectContentType(buff)
 	if filetype != "image/jpeg" && filetype != "image/png" && filetype != "image/jpg" {
-		ctx.Logger.WithError(err).Error("error: The provided file format is not allowed. Please upload a JPEG,JPG or PNG image")
+		_, _ = w.Write([]byte(`{"error": "The provided file format is not allowed. Please upload a JPEG,JPG or PNG image."}`))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -86,7 +89,8 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// 6 - Generate an ID that univoquely identifies the image
 	rawPhotoId, err := uuid.NewV4()
 	if err != nil {
-		ctx.Logger.WithError(err).Error("failed to get UUID:")
+		ctx.Logger.WithError(err).Error("failed to get UUID")
+		return
 	}
 	log.Printf("generated Version 4 photoID: %v", rawPhotoId)
 	photoId := rawPhotoId.String()
@@ -102,14 +106,14 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	f, err := os.Create(path)
 	if err != nil {
 		ctx.Logger.WithError(err).Error("wrong path name: %w", err)
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	defer f.Close()
 	_, err = io.Copy(f, photo)
 	if err != nil {
 		ctx.Logger.WithError(err).Error("failed copy: %w", err)
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
