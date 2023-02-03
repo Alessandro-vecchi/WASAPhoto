@@ -33,14 +33,14 @@ export default {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 this.$router.push({ path: "/users/", query: { username: this.username } });
-            } catch (error) {
-                this.errormsg = error.response.data;
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
             this.isSaved = true
         },
         cancel() {
-            if (this.isSaved) {
+            if (this.isSaved&&!this.errormsg) {
                 this.$router.push({ path: "/users/", query: { username: this.username } });
             } else {
                 this.$router.push({ path: "/users/", query: { username: eventBus.getMyUsername } });

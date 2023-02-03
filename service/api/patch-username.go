@@ -53,7 +53,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	} else if !u.IsValid() {
 		// Username is invalid
 		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte(`{"error": "Invalid characters in username or invalid length.\\n It should be betweeen 3 and 16 characters."}`))
+		_, _ = w.Write([]byte(`{"error": "Invalid characters in username or invalid length. It should be betweeen 3 and 16 characters."}`))
 		return
 	}
 	var p models.Profile

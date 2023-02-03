@@ -71,77 +71,36 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	p.Username = u.Username
 	// Get bio
 	p.Bio = r.FormValue("bio")
-	if len(p.Bio) <= 200 && models.BioRx.MatchString(p.Bio) {
+	if !(len(p.Bio) <= 200 && models.BioRx.MatchString(p.Bio)) {
 		// Username is invalid
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(`{"error": "Invalid characters inserted in the bio or bio too long. Maximum 200 characters long."}`))
 		return
 	}
-
+	p.ProfilePictureUrl, _ = rt.db.GetProfilePic(user_id)
 	// Get photo from the request body
-	photo, fileHeader, err := r.FormFile("image")
-	if err != nil {
+	var file_name string
+	_, _, err = r.FormFile("image")
+	// log.Printf("err: %v, err2: %v", err, errors.New("http: no such file"))
+	if fmt.Sprintf("%v", err) == "http: no such file" {
+		log.Printf("Using old profile picture")
+	} else if err != nil {
 		ctx.Logger.WithError(err).Error("error: could not parse photo")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
+	} else {
+		file_name, err = createImage(r, ctx)
+		if errors.Is(err, errors.New("bad image format")) {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"error": "The provided file format is not allowed. Please upload a JPEG,JPG or PNG image."}`))
+		} else if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		// 8 - Create picture url
+		log.Printf("image path name: %s", file_name)
+		p.ProfilePictureUrl = file_name
 	}
-	defer photo.Close()
-	buff := make([]byte, 512)
-	_, err = photo.Read(buff)
-	if err != nil {
-		ctx.Logger.WithError(err).Error("error: could not read photo")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// 5 - Check if the photo is valid
-	filetype := http.DetectContentType(buff)
-	if filetype != "image/jpeg" && filetype != "image/png" && filetype != "image/jpg" {
-		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte(`{"error": "The provided file format is not allowed. Please upload a JPEG,JPG or PNG image."}`))
-		return
-	}
-	_, err = photo.Seek(0, io.SeekStart)
-	if err != nil {
-		ctx.Logger.WithError(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	// 6 - Generate an ID that univoquely identifies the image
-	rawPhotoId, err := uuid.NewV4()
-	if err != nil {
-		ctx.Logger.WithError(err).Error("failed to get UUID")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	log.Printf("generated Version 4 photoID: %v", rawPhotoId)
-	photoId := rawPhotoId.String()
-
-	// 7 - Save the photo in the images folder exploiting the image id
-
-	current_directory, _ := os.Getwd()
-	folder_name := "images"
-	file_name := fmt.Sprintf("%s%s", photoId, filepath.Ext(fileHeader.Filename))
-	path := filepath.Join(current_directory, folder_name, file_name)
-	log.Printf("Current directory: %v, Folder: %v, Filename: %v, path: %v,", current_directory, folder_name, file_name, path)
-
-	f, err := os.Create(path)
-	if err != nil {
-		ctx.Logger.WithError(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	defer f.Close()
-	_, err = io.Copy(f, photo)
-	if err != nil {
-		ctx.Logger.WithError(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// 8 - Create picture url
-	log.Printf("image path name: %s", file_name)
-	p.ProfilePictureUrl = file_name
 	// 9 - Update user_id
 	// The client is not supposed to send us the ID in the body, as the fountain ID is already specified in the path,
 	// and it's immutable. So, here we overwrite the ID in the JSON with the `id` variable (that comes from the URL).
@@ -159,4 +118,59 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(p)
+}
+
+func createImage(r *http.Request, ctx reqcontext.RequestContext) (string, error) {
+	photo, fileHeader, err := r.FormFile("image")
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error: could not parse photo")
+		return "", err
+	}
+	defer photo.Close()
+	buff := make([]byte, 512)
+	_, err = photo.Read(buff)
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error: could not read photo")
+		return "", err
+	}
+
+	// 5 - Check if the photo is valid
+	filetype := http.DetectContentType(buff)
+	if filetype != "image/jpeg" && filetype != "image/png" && filetype != "image/jpg" {
+		return "", errors.New("bad image format")
+	}
+	_, err = photo.Seek(0, io.SeekStart)
+	if err != nil {
+		ctx.Logger.WithError(err)
+		return "", err
+	}
+	// 6 - Generate an ID that univoquely identifies the image
+	rawPhotoId, err := uuid.NewV4()
+	if err != nil {
+		ctx.Logger.WithError(err).Error("failed to get UUID")
+		return "", err
+	}
+	log.Printf("generated Version 4 photoID: %v", rawPhotoId)
+	photoId := rawPhotoId.String()
+
+	// 7 - Save the photo in the images folder exploiting the image id
+
+	current_directory, _ := os.Getwd()
+	folder_name := "images"
+	file_name := fmt.Sprintf("%s%s", photoId, filepath.Ext(fileHeader.Filename))
+	path := filepath.Join(current_directory, folder_name, file_name)
+	log.Printf("Current directory: %v, Folder: %v, Filename: %v, path: %v,", current_directory, folder_name, file_name, path)
+
+	f, err := os.Create(path)
+	if err != nil {
+		ctx.Logger.WithError(err)
+		return "", err
+	}
+	defer f.Close()
+	_, err = io.Copy(f, photo)
+	if err != nil {
+		ctx.Logger.WithError(err)
+		return "", err
+	}
+	return file_name, nil
 }

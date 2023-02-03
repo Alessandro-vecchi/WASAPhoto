@@ -30,15 +30,14 @@ export default {
                 console.log(response.data, response, this.username)
                 eventBus.getMyUsername = this.username
                 this.$router.push({ path: "/users/", query: { username: this.username } });
-            } catch (error) {
-                console.log(response, respobnse.data, response.data.error)
-                this.errormsg = response.data.error;
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
             this.isSaved=true
         },
         cancel() {
-            if (this.isSaved) {
+            if (this.isSaved&&!this.errormsg) {
                 this.$router.push({ path: "/users/", query: { username: this.username } });
             } else {
                 this.$router.push({ path: "/users/", query: { username: eventBus.getMyUsername } });
