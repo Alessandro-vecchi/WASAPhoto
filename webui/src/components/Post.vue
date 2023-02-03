@@ -26,12 +26,13 @@ export default {
             errormsg: null,
             username: "",
             textComment: "",
-            isLiked: null,
             myProfilePic: "",
-            likes: [],
-            comments: [],
+            myPP: "",
             ppUrl: "",
             imgUrl: "",
+            isLiked: null,
+            likes: [],
+            comments: [],
         }
     },
     methods: {
@@ -45,34 +46,61 @@ export default {
             try {
                 let response = await this.$axios.get("/users/?username=" + this.username)
                 this.username = response.data.username
-                this.myProfilePic = response.data.profile_picture_url
+                this.myPP = response.data.profile_picture_url
                 eventBus.getMyUsername = response.data.username
             } catch (e) {
                 this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
         },
-        async LikeClick() {
-            if (this.isMine) {
-                return
+        async getImages() {
+
+            console.log("MyProfilePicture")
+            if (this.myPP) {
+                let uri = await this.GetImage(this.myPP)
+                this.myProfilePic = uri
+
             }
+            console.log("Post")
+            if (this.image) {
+                let uri = await this.GetImage(this.image)
+                this.imgUrl = uri
+            }
+            console.log("commentProfilePicture")
+            if (this.profilePictureUrl) {
+                let uri = await this.GetImage(this.profilePictureUrl)
+                this.ppUrl = uri
+            }
+        },
+        async GetImage(url) {
+            console.log("url:", url)
             this.loading = true;
             this.errormsg = null;
-            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
-            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
-            */
-            console.log(this.isLiked)
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-            if (this.isLiked) {
-                await this.$axios.delete("/photos/" + this.photoId + "/likes/" + this.header);
-            } else {
-                await this.$axios.put("/photos/" + this.photoId + "/likes/" + this.header)//.then(response => (this.username = response.data.name));
+
+            try {
+                let response = await this.$axios.get("/images/?image_name=" + url, { responseType: 'blob' })
+
+                // Get the image data as a Blob object
+                var imgBlob = response.data;
+
+                // Create an object URL from the Blob object
+                var uri = URL.createObjectURL(imgBlob);
+                console.log("uri:", uri)
+
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
-            this.refresh()
-            this.$emit('refresh-parent');
+            return uri
         },
+        async refresh() {
+            await this.GetLikes(true)
+            await this.GetComments(true)
+        },
+
+
         async GetLikes(isRefresh) {
             this.loading = true;
             this.errormsg = null;
@@ -122,6 +150,26 @@ export default {
                 this.refresh()
             }
         },
+        async LikeClick() {
+            if (this.isMine) {
+                return
+            }
+            this.loading = true;
+            this.errormsg = null;
+            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
+            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
+            */
+            console.log(this.isLiked)
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            if (this.isLiked) {
+                this.$axios.delete("/photos/" + this.photoId + "/likes/" + this.header).then(() => this.$emit('refresh-parent'));
+            } else {
+                this.$axios.put("/photos/" + this.photoId + "/likes/" + this.header).then(() => this.$emit('refresh-parent'))
+            }
+            this.loading = false;
+            this.isLiked = !this.isLiked
+        },
         async submitComment() {
             this.loading = true;
             this.errormsg = null;
@@ -139,54 +187,6 @@ export default {
                 this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
-        },
-        async GetImage(url, filter) {
-            console.log("url:", url, "filter:", filter)
-            this.loading = true;
-            this.errormsg = null;
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
-            
-            try {
-                let response = await this.$axios.get("/images/?image_name=" + url, { responseType: 'blob' })
-                
-                // Get the image data as a Blob object
-                var imgBlob = response.data;
-
-                // Create an object URL from the Blob object
-                var uri = URL.createObjectURL(imgBlob);
-                if (filter === "my") {
-                    this.myProfilePic = uri
-                } else if (filter === "img") {
-                    this.imgUrl = uri
-                } else if (filter === "pp") {
-                    this.ppUrl = uri
-                }
-                console.log("uri:", uri)
-            } catch(e) {
-                this.errormsg = e.response.data.error.toString();
-            }
-            this.loading = false;
-        },
-
-        async getImages() {
-            
-            console.log("GetImages")
-            console.log("MyPP")
-            if (this.myProfilePic) {
-                await this.GetImage(this.myProfilePic, "my")
-            }
-            console.log("Image")
-            if (this.image) {
-                await this.GetImage(this.image, "img")
-            }
-            console.log("commentPP")
-            if (this.profilePictureUrl) {
-                await this.GetImage(this.profilePictureUrl, "pp")
-            }
-        },
-        async refresh() {
-           await this.GetLikes(true).then(() => this.GetComments(true))
         },
 
         async deletePhoto() {
@@ -293,11 +293,10 @@ export default {
             <div class="action-buttons">
                 <ul>
                     <li>
-                        <button v-if=!loading type="button">
-                            <font-awesome-icon v-if=!isLiked class="icon" id="like" icon="fa-regular fa-heart"
-                                @click="LikeClick" />
+                        <button v-if=!loading type="button" @click="LikeClick">
+                            <font-awesome-icon v-if=!isLiked class="icon" id="like" icon="fa-regular fa-heart" />
                             <font-awesome-icon v-else class="icon" id="like" icon="fa-solid fa-heart"
-                                color="rgb(232, 62, 79)" @click="LikeClick" />
+                                color="rgb(232, 62, 79)" />
                             <span class="num" @click="GetLikes(false)"> {{ likesCount }} </span>
                         </button>
                     </li>
@@ -390,7 +389,7 @@ export default {
 
 .post .two-col {
     display: flex;
-    /*outline: solid;*/
+    /* outline: solid; */
 }
 
 .post .action-buttons {
@@ -402,7 +401,6 @@ export default {
     padding-top: 6px;
     display: flex;
     align-items: center;
-    /*outline: solid;*/
 }
 
 .post .action-buttons .num {
@@ -432,8 +430,9 @@ export default {
 
 .post .caption {
     flex-wrap: wrap;
-    margin-top: 9px;
-    margin-left: 10rem;
+    margin: 7px 15px;
+    padding-left: 25%;
+    /* outline: solid; */
 }
 
 .post .caption li b:hover {
@@ -442,7 +441,7 @@ export default {
 }
 
 .post .caption li .caption-span {
-    margin-left: 4px;
+    margin-left: 5px;
     overflow: auto;
 }
 
