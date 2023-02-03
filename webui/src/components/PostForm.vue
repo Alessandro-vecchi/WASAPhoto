@@ -51,7 +51,7 @@ export default {
 
                 this.$router.push({ path: "/users/", query: { username: this.media.username } });
             } catch (e) {
-                this.errormsg = e
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
         },

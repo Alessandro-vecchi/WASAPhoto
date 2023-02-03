@@ -29,7 +29,7 @@ export default {
 				this.stream = response.data;
 				console.log(this.stream);
 			} catch (e) {
-				this.errormsg = e.toString();
+                this.errormsg = e.response.data.error.toString();
 			}  
 			//this.loading = false;
 		},

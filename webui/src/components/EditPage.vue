@@ -53,8 +53,8 @@ export default {
             try {
                 await this.$axios.delete('/users/' + this.$route.params.user_id);
                 this.$router.push({ path: "/login" });
-            } catch (error) {
-                this.errormsg = error;
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
         }
@@ -67,7 +67,7 @@ export default {
             this.bio = response.data.bio;
             this.avatar = response.data.image;
             eventBus.getMyUsername = response.data.username;
-        });
+        }).catch(e => this.errormsg = e.response.data.error.toString());
     }
 }
 </script>

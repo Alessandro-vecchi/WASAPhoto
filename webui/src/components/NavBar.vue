@@ -4,11 +4,34 @@ export default {
         return {
             Username: "",
             header: localStorage.getItem('Authorization'),
+            errormsg: null,
+            loading: false
         }
     },
     methods: {
-        async get_user_profile() {
-            this.$router.push({ path: "/users/", query: { username: this.Username } })
+        async search_user_profile() {
+            this.loading = true;
+            this.errormsg = null;
+            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
+            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
+            */
+            console.log("header:", localStorage.getItem('Authorization'), "\n", "username:", this.$route.query.username, this.username)
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            try {
+                let response = await this.$axios.get("/users/?username=" + this.Username)
+                this.profile = response.data
+                this.username = this.profile.username
+                this.$router.push({ path: "/users/", query: { username: this.Username } })
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
+            }
+            this.loading = false;
+            console.log("profile:", this.profile)
+
+        },
+        get_user_profile()  {
+                this.$router.push({ path: "/users/", query: { username: this.Username } })
         },
         rect() {
             const rectangle = document.querySelector('.rectangle');
@@ -25,11 +48,11 @@ export default {
 
 <template>
     <nav>
+        <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="nav-wrapper center">
 
             <div id="nav-home-section" class="nav-section">
-                <font-awesome-icon class="icons" icon="fa-solid fa-house" size="xl"
-                        inverse @click="goHome"/>
+                <font-awesome-icon class="icons" icon="fa-solid fa-house" size="xl" inverse @click="goHome" />
                 <span class="font-style" @click="goHome">Home</span>
             </div>
             <div id="nav-search-section" class="nav-section" @click="rect">
@@ -46,7 +69,7 @@ export default {
                 <p class="title font-style">Search</p>
                 <div class="input-wrapper">
                     <font-awesome-icon class="icons" icon="fa-solid fa-magnifying-glass" inverse
-                        @click="get_user_profile" />
+                        @click="search_user_profile" />
                     <input id="search" v-model="Username" type="text" placeholder="Search" />
                     <font-awesome-icon class="icons" icon="fa-solid fa-xmark"
                         onclick="document.getElementById('search').value = ''" />

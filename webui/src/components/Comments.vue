@@ -34,7 +34,7 @@ export default {
                 eventBus.getComments = this.comments
             }
             catch (e) {
-                this.errormsg = e.toString();
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
             console.log("comments:", this.comments)

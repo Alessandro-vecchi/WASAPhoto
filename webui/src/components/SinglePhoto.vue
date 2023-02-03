@@ -31,7 +31,7 @@ export default {
 				eventBus.getPhotoId = this.photoId
 				console.log(this.post);
 			} catch (e) {
-				this.errormsg = e.toString();
+                this.errormsg = e.response.data.error.toString();
 			}  
 			this.loading = false;
 		},

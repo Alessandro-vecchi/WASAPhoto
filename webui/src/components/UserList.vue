@@ -9,7 +9,7 @@ export default {
     data: function () {
         return {
             short_profiles: eventBus.getShortProfiles,
-            title: eventBus.getTitle,
+            /* title: eventBus.getTitle, */
             username: eventBus.getUsername,
             header: localStorage.getItem('Authorization'),
             ppUrl: "",
@@ -22,7 +22,7 @@ export default {
                 this.$router.push({ path: "/users/" + this.header + "/stream/" });
             } else { this.$router.push({ path: "/users/", query: { username: this.username } }) }
         },
-        goBack(gg) {
+        goBack() {
             this.$router.go(-1)
         },
     },
@@ -37,7 +37,7 @@ export default {
             <div class="list-title">{{ title }}</div>
             <div class="header-more">
                 <button type="button">
-                    <font-awesome-icon icon="fa-solid fa-xmark" size="2x" @click="goBack(title)" />
+                    <font-awesome-icon icon="fa-solid fa-xmark" size="2x" @click="goBack()" />
                 </button>
             </div>
         </div>

@@ -45,9 +45,8 @@ export default {
 
                 // Create an object URL from the Blob object
                 this.pp = URL.createObjectURL(imgBlob);
-            } catch (error) {
-                // console.log(error);
-                this.errormsg = error.message;
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
         },
@@ -56,8 +55,8 @@ export default {
             this.errormsg = null;
             try {
                 await this.$axios.delete('/comments/' + this.commentId);
-            } catch (error) {
-                this.errormsg = error;
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
             this.$emit('refresh-parent');
@@ -80,7 +79,7 @@ export default {
                 this.currentBody = response.data.body
                 this.modified_in = response.data.modified_in
             } catch (e) {
-                this.errormsg = e;
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
             this.toggleEditing()

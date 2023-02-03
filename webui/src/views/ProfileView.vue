@@ -40,9 +40,7 @@ export default {
                 this.username = this.profile.username
                 console.log("GetProfile")
             } catch (e) {
-                console.log("e.", e.response.data)
-                this.errormsg = e.toString();
-                console.log("msg", this.errormsg)
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
             console.log("profile1:", this.profile)
@@ -58,7 +56,7 @@ export default {
             try {
                 await this.$axios.get("/users/" + this.profile.user_id + "/photos/").then(response => (this.media = response.data));
             } catch (e) {
-                this.errormsg = e.toString();
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
             console.log("media:", this.media)
@@ -121,7 +119,7 @@ export default {
                     console.log("GetFollowers")
                 }
             } catch (e) {
-                this.errormsg = e.toString();
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
             console.log(goal + ":", list)
@@ -164,7 +162,7 @@ export default {
                     this.$router.push({ path: '/bans/' })
                 }
             } catch (e) {
-                this.errormsg = e.toString();
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
             console.log("banned:", this.bans, this.isBanned)
@@ -187,7 +185,7 @@ export default {
                 this.iAmBanned = response.data.cond
                 console.log("GetTheirBans")
             } catch (e) {
-                this.errormsg = e.toString();
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
             console.log("banned:", this.bans, this.iAmBanned)
@@ -210,7 +208,7 @@ export default {
                 this.ppUrl = URL.createObjectURL(imgBlob);
                 console.log("GetImage")
             } catch (e) {
-                this.errormsg = e.message;
+                this.errormsg = e.response.data.error.toString();
 
             }
             this.loading = false;

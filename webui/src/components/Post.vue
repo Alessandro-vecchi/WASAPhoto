@@ -42,7 +42,7 @@ export default {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             console.log("GetMyProfile")
-            return this.$axios.get("/users/?username=" + this.username).then(response => (this.username = response.data.username, this.myProfilePic = response.data.profile_picture_url, eventBus.getMyUsername = response.data.username)).catch(error => (console.log("hola"), this.errormsg = error.message ));
+            return this.$axios.get("/users/?username=" + this.username).then(response => (this.username = response.data.username, this.myProfilePic = response.data.profile_picture_url, eventBus.getMyUsername = response.data.username)).catch(e => (this.errormsg = e.response.data.error.toString() ));
         },
         async LikeClick() {
             if (this.isMine) {
@@ -84,7 +84,7 @@ export default {
 
                 }
             } catch (e) {
-                this.errormsg = e.toString();
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
             console.log("likes:", this.likes, this.isLiked)
@@ -106,7 +106,7 @@ export default {
                     this.$router.push({ path: '/photos/' + this.photoId + "/comments/" })
                 }
             } catch (e) {
-                this.errormsg = e.toString();
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
             console.log("comments:", this.comments)
@@ -154,9 +154,8 @@ export default {
                 }
                 console.log("uri:", uri)
             })
-                .catch(error => {
-                    console.log("hola");
-                    this.errormsg = error.message;
+                .catch(e => {
+                this.errormsg = e.response.data.error.toString();
                 });
             this.loading = false;
         },
@@ -186,8 +185,8 @@ export default {
             try {
                 await this.$axios.delete('/photos/' + this.photoId);
                 this.$router.push({ path: "/users/", query: { username: this.username } })
-            } catch (error) {
-                this.errormsg = error;
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
 

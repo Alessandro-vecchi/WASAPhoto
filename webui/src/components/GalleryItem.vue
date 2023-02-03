@@ -26,8 +26,8 @@ export default {
                 // Create an object URL from the Blob object
                 this.imgUrl = URL.createObjectURL(imgBlob);
 
-            } catch (error) {
-                this.errormsg = error.message;
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
 
             }
             this.loading = false;
