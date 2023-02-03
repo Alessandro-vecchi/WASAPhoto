@@ -23,17 +23,27 @@ export default {
 .error-message {
     display: none;
     /* initially hidden */
+    background-image: url('https://i.imgur.com/GnyDvKN.png');
+    /* background-color: radial-gradient(circle at 10% 20%, rgb(221, 49, 49) 0%, rgb(119, 0, 0) 90%); */
+    background-color: rgb(130, 20, 20);
+    background-position: 10px center;
+    background-repeat: no-repeat;
+
     position: fixed;
     top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
-    height: 100px;
-    background: radial-gradient(circle at 10% 20%, rgb(221, 49, 49) 0%, rgb(119, 0, 0) 90%);
+
     color: #fafafa;
     font-size: 20px;
-    padding: 1rem;
+
+    border: 1px solid;
+    margin: 10px 0px;
+    padding: 15px 10px 15px 50px;
     border-radius: 5px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    
+    overflow: auto;
     z-index: 999;
     /* to ensure it appears on top of other elements */
 }
