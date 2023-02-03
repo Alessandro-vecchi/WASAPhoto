@@ -78,11 +78,11 @@ export default {
                 // adding a ban remove the follow from the profile
                 if (func === "/bans/") {
                     if (this.isFollowing) {
-                        await this.$axios.delete("/users/" + this.profile.user_id + "/followers/" + this.header);
+                        await this.$axios.delete("/users/" + this.profile.user_id + "/followers/" + this.header).catch(e => this.errormsg = e.response.data.error.toString())
                     }
-                    await this.getFollowing(true)
+                    await this.getFollowing(true).catch(e => this.errormsg = e.response.data.error.toString())
                     if (this.isFollowed) {
-                        await this.$axios.delete("/users/" + this.header + "/followers/" + this.profile.user_id);
+                        await this.$axios.delete("/users/" + this.header + "/followers/" + this.profile.user_id).catch(e => this.errormsg = e.response.data.error.toString());
                     }
                 }
             }
@@ -90,13 +90,11 @@ export default {
 
         },
         async handleFollowClick() {
-            await this.HandleClick(this.isFollowing, "/followers/")
-            this.refresh()
+            await this.HandleClick(this.isFollowing, "/followers/").then(() => this.refresh()).catch(e => this.errormsg = e.response.data.error.toString())
         },
 
         async handleBanClick() {
-            await this.HandleClick(this.isBanned, "/bans/")
-            this.refresh()
+            await this.HandleClick(this.isBanned, "/bans/").then(() => this.refresh()).catch(e => this.errormsg = e.response.data.error.toString())
         },
         async GetUsers(goal, isRefresh) {
             this.loading = true;
@@ -127,7 +125,7 @@ export default {
         },
         async getFollowers(isRefresh) {
             console.log("GetFollowers")
-            let list = await this.GetUsers("followers", isRefresh)
+            let list = await this.GetUsers("followers", isRefresh).catch(e => this.errormsg = e.response.data.error.toString())
             console.log("GetFollowers")
             this.followers = list.short_profile
             this.isFollowing = list.cond
@@ -137,7 +135,7 @@ export default {
             }
         },
         async getFollowing(isBug = false) {
-            let list = await this.GetUsers("following", isBug)
+            let list = await this.GetUsers("following", isBug).catch(e => this.errormsg = e.response.data.error.toString())
             this.following = list.short_profile
             this.isFollowed = list.cond
         },
@@ -219,11 +217,8 @@ export default {
                 error => { return Promise.reject(error); });
             await this.GetProfile()
             if (this.profile.profile_picture_url) { await this.getImage() }
-            await this.getTheirBans(true)
-            await this.getMyBans(true)
-            if (!this.iAmBanned) {
-                this.getFollowers(true).then(() => this.GetUserPhotos()).then(() => console.log("refresh:", this.media))
-            }
+            this.getTheirBans(true).then(() => this.getMyBans(true))
+            if (!this.iAmBanned) {this.getFollowers(true).then(() => this.GetUserPhotos()).then(() => console.log("refresh:", this.media))}
         },
 
         uploadImage: function () {

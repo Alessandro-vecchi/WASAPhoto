@@ -42,7 +42,15 @@ export default {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             console.log("GetMyProfile")
-            return this.$axios.get("/users/?username=" + this.username).then(response => (this.username = response.data.username, this.myProfilePic = response.data.profile_picture_url, eventBus.getMyUsername = response.data.username)).catch(e => (this.errormsg = e.response.data.error.toString() ));
+            try {
+                let response = await this.$axios.get("/users/?username=" + this.username)
+                this.username = response.data.username
+                this.myProfilePic = response.data.profile_picture_url
+                eventBus.getMyUsername = response.data.username
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
+            }
+            this.loading = false;
         },
         async LikeClick() {
             if (this.isMine) {
@@ -125,10 +133,10 @@ export default {
                     body: this.textComment, isReplyComment: false, author: this.username,
                 });
                 console.log(response.data)
-                this.GetComments(false)
+                await this.GetComments(false)
                 // this.$router.push({ path: '/photos/' + this.photoId + "/comments/" });
             } catch (e) {
-                this.errormsg = e
+                this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
         },
@@ -138,8 +146,10 @@ export default {
             this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-
-            await this.$axios.get("/images/?image_name=" + url, { responseType: 'blob' }).then(response => {
+            
+            try {
+                let response = await this.$axios.get("/images/?image_name=" + url, { responseType: 'blob' })
+                
                 // Get the image data as a Blob object
                 var imgBlob = response.data;
 
@@ -153,12 +163,12 @@ export default {
                     this.ppUrl = uri
                 }
                 console.log("uri:", uri)
-            })
-                .catch(e => {
+            } catch(e) {
                 this.errormsg = e.response.data.error.toString();
-                });
+            }
             this.loading = false;
         },
+
         async getImages() {
             
             console.log("GetImages")
