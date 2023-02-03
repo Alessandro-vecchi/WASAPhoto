@@ -36,8 +36,8 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	} else if !comment.IsValid() {
 		// Here we validated the comment structure content
 		// Note: the IsValid() function skips the ID check (see below).
-		_, _ = w.Write([]byte(`{"error": "Invalid comment. Invalid characters inserted or comment too long."}`))
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "Invalid comment. Invalid characters inserted or comment too long."}`))
 		return
 	}
 	// 3. Check if the user is authenticated
@@ -48,12 +48,12 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	id, _ := rt.db.GetIdByName(comment.Author)
 	err = checkUserIdentity(authtoken, id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
 

@@ -23,8 +23,8 @@ func (rt *_router) getImage(w http.ResponseWriter, r *http.Request, ps httproute
 
 	} else {
 		// No image field founded
-		_, _ = w.Write([]byte(`{"error": "query has no field image_name"}`))
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "query has no field image_name"}`))
 		return
 	}
 

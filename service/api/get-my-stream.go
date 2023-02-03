@@ -28,12 +28,12 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
 	// 3. Get the stream from the database

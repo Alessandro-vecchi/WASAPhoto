@@ -28,10 +28,12 @@ func (rt *_router) getBannedUsers(w http.ResponseWriter, r *http.Request, ps htt
 	log.Printf("The authentication token in the header is: %v", authtoken)
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
 	myID := authtoken

@@ -33,8 +33,8 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	// 3. Check that the user is not unfollowing himself
 	if models.AreTheSame(user_id_A, user_id_B) {
 		// A user can't unfollow himself
+		w.WriteHeader(http.StatusConflict)
 		ctx.Logger.WithError(database.ErrUserCantFollowHimself).Error("a user can't unfollow himself ")
-		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -50,20 +50,20 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	err := checkUserIdentity(authtoken, user, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
 
 	err = rt.db.UnfollowUser(user_id_A, user_id_B)
 	if errors.Is(err, database.ErrFollowerNotPresent) {
 		// User B wasn't following user A, reject the action indicating an error on the client side.
-		_, _ = w.Write([]byte(`{"error": "You are not following the user"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "You are not following the user"}`))
 		return
 	} else if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user

@@ -31,8 +31,8 @@ func (rt *_router) modifyComment(w http.ResponseWriter, r *http.Request, ps http
 		return
 	} else if !comment.IsValid() {
 		// Here we validated the comment structure is valid
-		_, _ = w.Write([]byte(`{"error": "Invalid comment. Invalid characters inserted or comment too long."}`))
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "Invalid comment. Invalid characters inserted or comment too long."}`))
 		return
 	}
 	// 3. Check if user who want to modify comment is the same who wrote it.
@@ -41,20 +41,20 @@ func (rt *_router) modifyComment(w http.ResponseWriter, r *http.Request, ps http
 	id, _ := rt.db.GetIdByName(comment.Author)
 	err = checkUserIdentity(authtoken, id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
 	// 4. Modify comment from the database
 	_, err = rt.db.ModifyComment(comment.ToDatabase(rt.db))
 
 	if errors.Is(err, database.ErrCommentNotExists) {
-		_, _ = w.Write([]byte(`{"error": "The comment does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "The comment does not exist"}`))
 		return
 	} else if err != nil {
 		ctx.Logger.WithError(err).WithField("comment_id", comment_id).Error("can't modify comment")

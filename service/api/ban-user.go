@@ -34,8 +34,8 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	// 3. Check that user is not banning himself
 	if models.AreTheSame(user_id_A, user_id_B) {
 		// A user can't ban himself
-		_, _ = w.Write([]byte(`{"error": "An user can't ban himself"}`))
 		w.WriteHeader(http.StatusConflict)
+		_, _ = w.Write([]byte(`{"error": "An user can't ban himself"}`))
 		return
 	}
 	// 4. Check if the user B is authenticated
@@ -46,12 +46,12 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	err := checkUserIdentity(authtoken, user_id_B, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
 	// Conversion
@@ -64,8 +64,8 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	err = rt.db.BanUser(user_id_A, user_id_B)
 	if !errors.Is(err, database.ErrBanAlreadyPresent) {
 		// user B already banned user A
-		_, _ = w.Write([]byte(`{"error": "You already banned " ` + name_A + `}`))
 		w.WriteHeader(http.StatusNoContent)
+		_, _ = w.Write([]byte(`{"error": "You already banned " ` + name_A + `}`))
 		return
 	} else if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user

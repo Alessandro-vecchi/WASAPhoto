@@ -36,21 +36,21 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
 
 	// 3. Decode information inserted by the user in the request body
 	err = r.ParseMultipartForm(32 << 20) // 32MB is the maximum file size
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(`{"error": "32MB is the maximum file size"}`))
 		ctx.Logger.WithError(err).Error("error: could not parse form")
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -76,8 +76,8 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// 5 - Check if the photo is valid
 	filetype := http.DetectContentType(buff)
 	if filetype != "image/jpeg" && filetype != "image/png" && filetype != "image/jpg" {
-		_, _ = w.Write([]byte(`{"error": "The provided file format is not allowed. Please upload a JPEG,JPG or PNG image."}`))
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "The provided file format is not allowed. Please upload a JPEG,JPG or PNG image."}`))
 		return
 	}
 	_, err = photo.Seek(0, io.SeekStart)

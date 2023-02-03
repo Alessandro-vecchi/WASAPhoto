@@ -34,27 +34,27 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	log.Printf("The authentication token in the header is: %v", authtoken)
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
 	// 4. Check that the user is not putting like to an own photo, if the photo exists.
 	flag, err := models.IsLikingHimself(photo_id, user_id, rt.db)
 	if errors.Is(err, database.ErrPhotoNotExists) {
-		_, _ = w.Write([]byte(`{"error": "The photo does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "The photo does not exist"}`))
 		return
 	} else if err != nil {
 		ctx.Logger.WithError(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	} else if flag {
-		ctx.Logger.WithError(database.ErrUserCantLikeHimself).Error("like not possible ")
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusConflict)
+		_, _ = w.Write([]byte(`{"error": "An user can't unlike its own photos"}`))
 		return
 	}
 
@@ -63,8 +63,8 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	err = rt.db.UnlikePhoto(photo_id, user_id)
 	if errors.Is(err, database.ErrLikeNotPresent) {
 		// The photo (indicated by `id`) does not exist, reject the action indicating an error on the client side.
-		_, _ = w.Write([]byte(`{"error": "The like is not present"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "The like is not present"}`))
 		return
 	} else if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user

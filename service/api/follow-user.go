@@ -40,19 +40,19 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 
 	err := checkUserIdentity(authtoken, user_id_B, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
 	// 4. Check that user is not following himself
 	if models.AreTheSame(user_id_A, user_id_B) {
 		// A user can't follow himself
-		_, _ = w.Write([]byte(`{"error": "An user can't follow himself"}`))
 		w.WriteHeader(http.StatusConflict)
+		_, _ = w.Write([]byte(`{"error": "An user can't follow himself"}`))
 		return
 	}
 	// 5 - getting users being banned from user A
@@ -74,8 +74,8 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	// check if logged user has been banned by requested user profile
 	if contains(banned, user_id_B) {
 		ctx.Logger.Error("error: user could not follow the user because it's been banned")
-		_, _ = w.Write([]byte(`{"error": "User " ` + name_B + ` "can't follow the user " ` + name_A + `"because it's banned"}`))
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "User " ` + name_B + ` "can't follow the user " ` + name_A + `"because it's banned"}`))
 		return
 	}
 

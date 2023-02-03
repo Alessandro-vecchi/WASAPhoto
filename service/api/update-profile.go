@@ -33,20 +33,20 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	log.Printf("The authentication token in the header is: %v", authtoken)
 	err := checkUserIdentity(authtoken, user_id, rt.db)
 	if errors.Is(err, database.ErrUserNotExists) {
-		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
 		return
 	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
 	// 3. Decode information inserted by the user in the request body
 	err = r.ParseMultipartForm(32 << 20) // 32MB is the maximum file size
 	if err != nil {
-		_, _ = w.Write([]byte(`{"error": "32MB is the maximum file size"}`))
-		ctx.Logger.WithError(err).Error("error: could not parse form")
 		w.WriteHeader(http.StatusInternalServerError)
+		ctx.Logger.WithError(err).Error("error: could not parse form")
+		_, _ = w.Write([]byte(`{"error": "32MB is the maximum file size"}`))
 		return
 	}
 
@@ -59,13 +59,13 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	oldName, _ := rt.db.GetNameById(user_id)
 	if u.Username != oldName && rt.db.CountStuffs("username", "profile", u.Username) > 0 {
 		// User Already Exists
-		_, _ = w.Write([]byte(`{"error": "This username already exists. Please choose another username."}`))
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "This username already exists. Please choose another username."}`))
 		return
 	} else if !u.IsValid() {
 		// Username is invalid
-		_, _ = w.Write([]byte(`{"error": "Invalid characters in username or username too short. Its length should be betweeen 3 and 16 characters."}`))
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "Invalid characters in username or username too short. Its length should be betweeen 3 and 16 characters."}`))
 		return
 	}
 	p.Username = u.Username
@@ -73,8 +73,8 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	p.Bio = r.FormValue("bio")
 	if len(p.Bio) <= 200 && models.BioRx.MatchString(p.Bio) {
 		// Username is invalid
-		_, _ = w.Write([]byte(`{"error": "Invalid characters inserted in the bio or bio too long. Maximum 200 characters long."}`))
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "Invalid characters inserted in the bio or bio too long. Maximum 200 characters long."}`))
 		return
 	}
 
@@ -97,8 +97,8 @@ func (rt *_router) updateProfile(w http.ResponseWriter, r *http.Request, ps http
 	// 5 - Check if the photo is valid
 	filetype := http.DetectContentType(buff)
 	if filetype != "image/jpeg" && filetype != "image/png" && filetype != "image/jpg" {
-		_, _ = w.Write([]byte(`{"error": "The provided file format is not allowed. Please upload a JPEG,JPG or PNG image."}`))
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "The provided file format is not allowed. Please upload a JPEG,JPG or PNG image."}`))
 		return
 	}
 	_, err = photo.Seek(0, io.SeekStart)

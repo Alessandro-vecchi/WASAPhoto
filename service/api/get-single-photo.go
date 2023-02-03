@@ -24,8 +24,8 @@ func (rt *_router) getUserPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	photo, err := rt.db.GetUserPhoto(photo_id)
 	if errors.Is(err, database.ErrPhotoNotExists) {
 		// The photo (indicated by `id`) does not exist, reject the action indicating an error on the client side.
-		_, _ = w.Write([]byte(`{"error": "The photo does not exist"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "The photo does not exist"}`))
 		return
 	} else if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user

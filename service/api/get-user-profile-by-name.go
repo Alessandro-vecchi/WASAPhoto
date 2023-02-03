@@ -26,15 +26,15 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	} else {
 		// No username field founded
-		_, _ = w.Write([]byte(`{"error": "query has no field username"}`))
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "query has no field username"}`))
 		return
 	}
 	profile, err := rt.db.GetUserProfileByUsername(name)
 	if errors.Is(err, database.ErrUserNotExists) {
 		// User not found in the database
-		_, _ = w.Write([]byte(`{"error": "User not found"}`))
 		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error": "User not found"}`))
 		return
 	} else if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
