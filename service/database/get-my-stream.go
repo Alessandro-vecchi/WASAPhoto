@@ -3,7 +3,7 @@ package database
 import "fmt"
 
 // get the list of the users that liked a photo
-func (db *appdbimpl) GetMyStream(user_id string) ([]Photo_db, error) {
+func (db *appdbimpl) GetMyStream(user_id string, offset string) ([]Photo_db, error) {
 	/* Here we want to get the list of photos ordered in reverse
 	   chronological order of the users we are following.
 	   1. Get the list of the users followed by us;
@@ -17,9 +17,11 @@ func (db *appdbimpl) GetMyStream(user_id string) ([]Photo_db, error) {
 	SELECT photos.photo_id, photos.timestamp, photos.image, photos.caption, photos.user_id
 	FROM photos, ( SELECT followed_id FROM follow WHERE follower_id = ? ) as followed_users
     WHERE photos.user_id = followed_users.followed_id
-	ORDER BY photos.timestamp DESC;`
+	ORDER BY photos.timestamp DESC
+	LIMIT 5
+	OFFSET ?;`
 
-	rows, err := db.c.Query(query, user_id)
+	rows, err := db.c.Query(query, user_id, offset)
 	if err != nil {
 		return []Photo_db{}, fmt.Errorf("error encountered while querying: %w", err)
 	}

@@ -36,8 +36,18 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
+	var offset string
+	if r.URL.Query().Has("offset") {
+		offset = r.URL.Query().Get("offset")
+
+	} else {
+		// No username field founded
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error": "query has no field username"}`))
+		return
+	}
 	// 3. Get the stream from the database
-	listPhotosDb, err := rt.db.GetMyStream(user_id)
+	listPhotosDb, err := rt.db.GetMyStream(user_id, offset)
 	if err != nil {
 		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
 		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.

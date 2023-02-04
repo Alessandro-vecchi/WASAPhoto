@@ -30,7 +30,7 @@ export default {
             myPP: "",
             ppUrl: "",
             imgUrl: "",
-            isLiked: false,
+            isLiked: null,
             likes: [],
             comments: [],
         }
@@ -159,7 +159,6 @@ export default {
             /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
             If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
             */
-            console.log(this.isLiked)
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             if (this.isLiked) {
@@ -170,6 +169,7 @@ export default {
                 this.isLiked = true
             }
             this.loading = false;
+            console.log(this.isLiked)
         },
         async submitComment() {
             this.loading = true;

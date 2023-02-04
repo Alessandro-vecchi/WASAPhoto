@@ -155,11 +155,11 @@ func createImage(r *http.Request, ctx reqcontext.RequestContext) (string, error)
 
 	// 7 - Save the photo in the images folder exploiting the image id
 
-	current_directory, _ := os.Getwd()
+	image_directory := "tmp"
 	folder_name := "images"
 	file_name := fmt.Sprintf("%s%s", photoId, filepath.Ext(fileHeader.Filename))
-	path := filepath.Join(current_directory, folder_name, file_name)
-	log.Printf("Current directory: %v, Folder: %v, Filename: %v, path: %v,", current_directory, folder_name, file_name, path)
+	path := filepath.Join(image_directory, folder_name, file_name)
+	log.Printf("Current directory: %v, Folder: %v, Filename: %v, path: %v,", image_directory, folder_name, file_name, path)
 
 	f, err := os.Create(path)
 	if err != nil {

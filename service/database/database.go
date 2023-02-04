@@ -175,7 +175,7 @@ type AppDatabase interface {
 
 	// STREAM
 	// Get the stream of photos of the users we are following in reverse chronological order
-	GetMyStream(user_id string) ([]Photo_db, error)
+	GetMyStream(user_id string, offset string) ([]Photo_db, error)
 
 	// UTILS
 	// Get owner of a profile

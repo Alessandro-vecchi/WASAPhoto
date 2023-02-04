@@ -29,10 +29,10 @@ func (rt *_router) getImage(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 
 	// Obtain the path for the image in the server
-	current_directory, _ := os.Getwd()
+	image_directory := "tmp"
 	folder_name := "images"
-	path := filepath.Join(current_directory, folder_name, image_file_name)
-	log.Printf("Path: %s", path)
+	path := filepath.Join(image_directory, folder_name, image_file_name)
+	log.Printf("Current directory: %v, Folder: %v, Filename: %v, path: %v,", image_directory, folder_name, image_file_name, path)
 
 	// Open the image
 	img, err := os.Open(path)

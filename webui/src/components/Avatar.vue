@@ -23,7 +23,7 @@ export default {
     },
     computed: {
         resolvedSrc() {
-            console.log(this.src)
+            // console.log(this.src)
             if (!this.src) {
                 return `https://cdn.pixabay.com/photo/2018/11/13/22/01/avatar-3814081__480.png`
             } else {
