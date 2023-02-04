@@ -8,7 +8,6 @@ import Home from '../views/HomeView.vue'
 import Edit from '../components/EditPage.vue'
 import changed from '../components/ChangeUsername.vue'
 import SinglePhoto from '@/components/SinglePhoto.vue'
-// import popup from '@/components/ConfirmationPopup.vue'
 
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -28,7 +27,6 @@ const router = createRouter({
 		{ path: '/users/:user_id/form/', component: PostForm, name: 'PostForm'},
 		// Get Single Photo
 		{ path: '/post/:photo_id', component: SinglePhoto},
-		// { path: '/popup', component: popup},
 
 		/* COMMENTS */
 		// See comments

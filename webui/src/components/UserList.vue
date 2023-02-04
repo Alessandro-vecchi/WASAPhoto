@@ -9,7 +9,7 @@ export default {
     data: function () {
         return {
             short_profiles: eventBus.getShortProfiles,
-            /* title: eventBus.getTitle, */
+            title: eventBus.getTitle,
             username: eventBus.getUsername,
             header: localStorage.getItem('Authorization'),
             ppUrl: "",

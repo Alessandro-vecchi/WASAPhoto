@@ -30,7 +30,7 @@ export default {
             myPP: "",
             ppUrl: "",
             imgUrl: "",
-            isLiked: null,
+            isLiked: false,
             likes: [],
             comments: [],
         }
@@ -164,11 +164,12 @@ export default {
                 error => { return Promise.reject(error); });
             if (this.isLiked) {
                 this.$axios.delete("/photos/" + this.photoId + "/likes/" + this.header).then(() => this.$emit('refresh-parent'));
+                this.isLiked = false
             } else {
                 this.$axios.put("/photos/" + this.photoId + "/likes/" + this.header).then(() => this.$emit('refresh-parent'))
+                this.isLiked = true
             }
             this.loading = false;
-            this.isLiked = !this.isLiked
         },
         async submitComment() {
             this.loading = true;
@@ -293,10 +294,10 @@ export default {
             <div class="action-buttons">
                 <ul>
                     <li>
-                        <button v-if=!loading type="button" @click="LikeClick">
-                            <font-awesome-icon v-if=!isLiked class="icon" id="like" icon="fa-regular fa-heart" />
+                        <button v-if=!loading type="button">
+                            <font-awesome-icon v-if=!isLiked class="icon" id="like" icon="fa-regular fa-heart" @click="LikeClick"/>
                             <font-awesome-icon v-else class="icon" id="like" icon="fa-solid fa-heart"
-                                color="rgb(232, 62, 79)" />
+                                color="rgb(232, 62, 79)" @click="LikeClick"/>
                             <span class="num" @click="GetLikes(false)"> {{ likesCount }} </span>
                         </button>
                     </li>
