@@ -23,7 +23,7 @@ export default {
 .error-message {
     display: none;
     /* initially hidden */
-    background-image: url('https://i.imgur.com/GnyDvKN.png');
+    background-image: url("../assets/errorMessage.png");
     /* background-color: radial-gradient(circle at 10% 20%, rgb(221, 49, 49) 0%, rgb(119, 0, 0) 90%); */
     background-color: rgb(130, 20, 20);
     background-position: 10px center;

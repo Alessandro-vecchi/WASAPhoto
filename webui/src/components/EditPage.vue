@@ -40,7 +40,7 @@ export default {
             this.isSaved = true
         },
         cancel() {
-            if (this.isSaved&&!this.errormsg) {
+            if (this.isSaved && !this.errormsg) {
                 this.$router.push({ path: "/users/", query: { username: this.username } });
             } else {
                 this.$router.push({ path: "/users/", query: { username: eventBus.getMyUsername } });
@@ -68,6 +68,15 @@ export default {
             this.avatar = response.data.image;
             eventBus.getMyUsername = response.data.username;
         }).catch(e => this.errormsg = e.response.data.error.toString());
+    },
+    computed: {
+        isDisabled() {
+            /* The post button is disabled if:
+            1. user didn't upload any image;
+            2. the bio is empty;
+            3. the username is not changed */
+            return !(this.avatar)&&!(this.bio)&&(this.username===eventBus.getMyUsername);
+        }
     }
 }
 </script>
@@ -96,7 +105,7 @@ export default {
                 <img v-if="avatar" :src="avatar" alt="Avatar">
             </div>
             <div class="form-group">
-                <button v-if="!loading" type="submit">Save</button>
+                <button v-if="!loading" :disabled="isDisabled" type="submit">Save</button>
                 <button v-if="!loading" type="go-back" @click="cancel">Cancel</button>
                 <button v-if="!loading" type="delete" @click="deleteProfile">Delete Profile</button>
             </div>

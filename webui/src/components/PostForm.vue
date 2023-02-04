@@ -80,7 +80,7 @@ export default {
                 <textarea placeholder="What's on your mind?" id="post-caption" v-model="postCaption"></textarea>
             </div>
             <div class="form-group">
-                <button v-if="!loading" type="submit" @click="submitPost">Post</button>
+                <button v-if="!loading" :disabled="!previewUrl" type="submit" @click="submitPost">Post</button>
                 <button v-if="!loading" type="button" @click="goBack">Cancel</button>
             </div>
         </form>
