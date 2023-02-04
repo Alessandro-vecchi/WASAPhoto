@@ -97,7 +97,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	// 7 - Save the photo in the images folder exploiting the image id
 
-	image_directory := "tmp"
+	image_directory := "/tmp"
 	folder_name := "images"
 	file_name := fmt.Sprintf("%s%s", photoId, filepath.Ext(fileHeader.Filename))
 	path := filepath.Join(image_directory, folder_name, file_name)

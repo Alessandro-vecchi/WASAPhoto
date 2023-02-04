@@ -98,7 +98,14 @@ func run() error {
 		logger.WithError(err).Error("error creating AppDatabase")
 		return fmt.Errorf("creating AppDatabase: %w", err)
 	}
-
+	// Create folder where images will be stored, if not existing
+	path := "/tmp/images"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		err = os.MkdirAll(path, os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("error creating folder images: %w", err)
+		}
+	}
 	// Start (main) API server
 	logger.Info("initializing API server")
 
