@@ -21,6 +21,7 @@ export default {
                     username: this.User.Username,
                 });
                 this.User.UserID = response.data,
+                console.log(response.data.error, response)
                     eventBus.getMyUsername = this.User.Username
                 localStorage.clear();
                 localStorage.setItem('Authorization', this.User.UserID),
