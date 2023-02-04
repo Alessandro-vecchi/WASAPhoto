@@ -101,7 +101,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	folder_name := "images"
 	file_name := fmt.Sprintf("%s%s", photoId, filepath.Ext(fileHeader.Filename))
 	path := filepath.Join(image_directory, folder_name, file_name)
-	log.Printf("Current directory: %v, Folder: %v, Filename: %v, path: %v,", image_directory, folder_name, file_name, path)
+	log.Printf("Image directory: %v, Folder: %v, Filename: %v, path: %v,", image_directory, folder_name, file_name, path)
 
 	f, err := os.Create(path)
 	if err != nil {
