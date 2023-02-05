@@ -24,22 +24,17 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 	// 2. Retrieve ID of the user who want to put like from path.
 	user_id := rt.getPathParameter("like_id", ps)
-	if user_id == "" {
+	/* if user_id == "" {
 		ctx.Logger.Error("wrong user_id path parameter")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	}
+	} */
 	// 3. Check if the user is authenticated
 	// We want to allow only to logged users to put likes.
 	// Therefore the authentication token in the header should coincide with the id of the user who is liking the photo
 	authtoken := r.Header.Get("Authorization")
 	log.Printf("The authentication token in the header is: %v", authtoken)
-	err := checkUserIdentity(authtoken, user_id, rt.db)
-	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusNotFound)
-		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
-		return
-	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+	if authtoken == "" || authtoken != user_id {
 		w.WriteHeader(http.StatusUnauthorized)
 		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return

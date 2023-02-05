@@ -14,7 +14,7 @@ func checkUserIdentity(authtoken string, user_id string, db database.AppDatabase
 		return database.ErrUserNotExists
 	}
 	// user exists in the database
-	if authtoken != user_id {
+	if authtoken == "" || authtoken != user_id {
 		log.Printf("Authorization token %v doesn't match user_id %v: Unauthorized", authtoken, user_id)
 		return database.ErrAuthenticationFailed
 	}

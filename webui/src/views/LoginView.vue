@@ -1,5 +1,6 @@
 <script>
 import { eventBus } from "@/main.js"
+import { onMounted } from "vue";
 
 export default {
     data: function () {
@@ -23,7 +24,6 @@ export default {
                 this.User.UserID = response.data,
                 console.log(response.data.error, response)
                     eventBus.getMyUsername = this.User.Username
-                localStorage.clear();
                 localStorage.setItem('Authorization', this.User.UserID),
 
                     this.$router.push({ path: '/users/' + this.User.UserID + '/stream/' })
@@ -32,6 +32,9 @@ export default {
             }
             this.loading = false;
         }
+    },
+    mounted() {
+        localStorage.clear();
     }
 }
 </script>

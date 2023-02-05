@@ -26,11 +26,11 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	// 2. Get user ID of user B from path
 	// It coincides with the user that want to follow
 	user_id_B := rt.getPathParameter("follower_id", ps)
-	if user_id_B == "" {
+	/* if user_id_B == "" {
 		ctx.Logger.Error("wrong follower_id path parameter")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	}
+	} */
 
 	// 3. Check if the user B is authenticated
 	// We want to allow only to a logged in user to follow another user,
@@ -38,14 +38,15 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	authtoken := r.Header.Get("Authorization")
 	log.Printf("The authentication token in the header is: %v", authtoken)
 
-	err := checkUserIdentity(authtoken, user_id_B, rt.db)
+	if authtoken == "" || authtoken != user_id_B {
+		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
+		return
+	}
+	_, err := rt.db.GetNameById(user_id_A)
 	if errors.Is(err, database.ErrUserNotExists) {
 		w.WriteHeader(http.StatusNotFound)
 		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
-		return
-	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-		w.WriteHeader(http.StatusUnauthorized)
-		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
 	// 4. Check that user is not following himself

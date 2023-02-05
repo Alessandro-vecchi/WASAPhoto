@@ -26,11 +26,11 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	// 2. Get ID of user B from path
 	// It coincides with the user that want to ban
 	user_id_B := rt.getPathParameter("ban_id", ps)
-	if user_id_B == "" {
+	/* if user_id_B == "" {
 		ctx.Logger.Error("wrong ban_id path parameter")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	}
+	} */
 	// 3. Check that user is not banning himself
 	if models.AreTheSame(user_id_A, user_id_B) {
 		// A user can't ban himself
@@ -44,14 +44,15 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	authtoken := r.Header.Get("Authorization")
 	log.Printf("The authentication token in the header is: %v", authtoken)
 
-	err := checkUserIdentity(authtoken, user_id_B, rt.db)
+	if authtoken == "" || authtoken != user_id_B {
+		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
+		return
+	}
+	_, err := rt.db.GetNameById(user_id_A)
 	if errors.Is(err, database.ErrUserNotExists) {
 		w.WriteHeader(http.StatusNotFound)
 		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
-		return
-	} else if errors.Is(err, database.ErrAuthenticationFailed) {
-		w.WriteHeader(http.StatusUnauthorized)
-		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return
 	}
 	// Conversion

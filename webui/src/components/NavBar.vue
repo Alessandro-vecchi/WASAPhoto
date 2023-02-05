@@ -19,15 +19,12 @@ export default {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             try {
-                let response = await this.$axios.get("/users/?username=" + this.Username)
-                this.profile = response.data
-                this.username = this.profile.username
+                await this.$axios.get("/users/?username=" + this.Username)
                 this.$router.push({ path: "/users/", query: { username: this.Username } })
             } catch (e) {
                 this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
-            console.log("profile:", this.profile)
 
         },
         get_user_profile()  {

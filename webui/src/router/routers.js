@@ -8,6 +8,7 @@ import Home from '../views/HomeView.vue'
 import Edit from '../components/EditPage.vue'
 import changed from '../components/ChangeUsername.vue'
 import SinglePhoto from '@/components/SinglePhoto.vue'
+import ErrorMsg from '@/components/ErrorMsg.vue'
 
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -35,6 +36,9 @@ const router = createRouter({
 		/* LIKES */ /* FOLLOW */ /* BAN */
 		// Get list of the users that added a like/follow/ban
 		{ path: '/:listType(likes|followers|following|bans)/', component: list},
+
+		/* ERROR PAGE */
+		{ path: '/error/:msg', component: ErrorMsg, props: true}
 
 	], sensitive: true //, strict: true
 })

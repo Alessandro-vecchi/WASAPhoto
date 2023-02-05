@@ -6,7 +6,16 @@ export default {
         errorContainer.classList.add('show-error');
         setTimeout(() => {
             errorContainer.classList.remove('show-error');
-        }, 15000); // hide the error message after 10 seconds
+        }, 15000); // hide the error message after 15 seconds
+        console.log(this.$props)
+    },
+    computed: {
+        message() {
+            if (this.msg === "404") {
+                return `404 user not found.`// Check for typo in your search or try to hack our database and add it by yourself!`
+            }
+            return this.msg
+        }
     }
 }
 </script>
@@ -14,17 +23,17 @@ export default {
 <template>
     <div class="error-container">
         <div class="error-message">
-            <p>{{ msg }}</p>
+            <p>{{ message }}</p>
         </div>
     </div>
 </template>
 
-<style>
+<style scoped>
 .error-message {
     display: none;
     /* initially hidden */
     background-image: url("../assets/errorMessage.png");
-    /* background-color: radial-gradient(circle at 10% 20%, rgb(221, 49, 49) 0%, rgb(119, 0, 0) 90%); */
+    /* background: radial-gradient(circle at 10% 20%, rgb(221, 49, 49) 0%, rgb(119, 0, 0) 90%); */
     background-color: rgb(130, 20, 20);
     background-position: 10px center;
     background-repeat: no-repeat;
@@ -43,7 +52,6 @@ export default {
     border-radius: 5px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
     
-    overflow: auto;
     z-index: 999;
     /* to ensure it appears on top of other elements */
 }

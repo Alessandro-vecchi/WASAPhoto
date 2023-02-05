@@ -32,15 +32,17 @@ export default {
             /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
             If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
             */
-            console.log("GetProfile")
             console.log("header:", localStorage.getItem('Authorization'), "\n", "username:", this.$route.query.username, this.username)
             try {
-                let response = await this.$axios.get("/users/?username=" + this.$route.query.username)
+                let response = await this.$axios.get("/users/", { params: { username: this.$route.query.username } })
                 this.profile = response.data
                 this.username = this.profile.username
                 console.log("GetProfile")
             } catch (e) {
                 this.errormsg = e.response.data.error.toString();
+                if (this.errormsg === "User not found") {
+                    this.$router.push("/error/", { props: { msg: this.errormsg } });
+                }
             }
             this.loading = false;
             console.log("profile1:", this.profile)
@@ -61,40 +63,47 @@ export default {
             this.loading = false;
             console.log("media:", this.media)
         },
-
-        async HandleClick(cond, func) {
+        async FollowClick() {
             this.loading = true;
             this.errormsg = null;
-            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
-            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
-            */
-            console.log(cond)
+            console.log(this.isFollowing)
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-            if (cond) {
-                await this.$axios.delete("/users/" + this.profile.user_id + func + this.header);
+            if (this.isFollowing) {
+                await this.$axios.delete("/users/" + this.profile.user_id + "/followers/" + this.header).then(() => (this.profile.followers_count--, this.isFollowing = false)).catch(e => this.errormsg = e.response.data.error.toString());
             } else {
-                await this.$axios.put("/users/" + this.profile.user_id + func + this.header);
-                // adding a ban remove the follow from the profile
-                if (func === "/bans/") {
-                    if (this.isFollowing) {
-                        await this.$axios.delete("/users/" + this.profile.user_id + "/followers/" + this.header).catch(e => this.errormsg = e.response.data.error.toString())
-                    }
-                    await this.getFollowing(true).catch(e => this.errormsg = e.response.data.error.toString())
-                    if (this.isFollowed) {
-                        await this.$axios.delete("/users/" + this.header + "/followers/" + this.profile.user_id).catch(e => this.errormsg = e.response.data.error.toString());
-                    }
-                }
+                await this.$axios.put("/users/" + this.profile.user_id + "/followers/" + this.header).then(() => (this.profile.followers_count++, this.isFollowing = true)).catch(e => this.errormsg = e.response.data.error.toString());
             }
             this.loading = false;
 
         },
-        async handleFollowClick() {
-            await this.HandleClick(this.isFollowing, "/followers/").then(() => this.refresh()).catch(e => this.errormsg = e.response.data.error.toString())
-        },
 
-        async handleBanClick() {
-            await this.HandleClick(this.isBanned, "/bans/").then(() => this.refresh()).catch(e => this.errormsg = e.response.data.error.toString())
+        async BanClick() {
+            this.loading = true;
+            this.errormsg = null;
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            if (this.isBanned) {
+                await this.$axios.delete("/users/" + this.profile.user_id + "/bans/" + this.header).then(() => this.isBanned = false).catch(e => this.errormsg = e.response.data.error.toString());
+            } else {
+                await this.$axios.put("/users/" + this.profile.user_id + "/bans/" + this.header).then(() => this.isBanned = true).catch(e => this.errormsg = e.response.data.error.toString());
+                if (this.logged) {
+                    // adding a ban remove my follow from the profile
+                    if (this.isFollowing) {
+                        await this.$axios.delete("/users/" + this.profile.user_id + "/followers/" + this.header).catch(e => this.errormsg = e.response.data.error.toString())
+                        this.isFollowing = false
+                        this.profile.followers_count--
+                    }
+                    // adding a ban remove his follow from my profile
+                    await this.getFollowing(true).catch(e => this.errormsg = e.response.data.error.toString())
+                    if (this.isFollowed) {
+                        await this.$axios.delete("/users/" + this.header + "/followers/" + this.profile.user_id).catch(e => this.errormsg = e.response.data.error.toString());
+                        this.isFollowed = false
+                        this.profile.follows_count--
+                    }
+                }
+            }
+            this.loading = false;
         },
         async GetUsers(goal, isRefresh) {
             this.loading = true;
@@ -105,7 +114,6 @@ export default {
             */
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-            console.log("GetFollowers")
             try {
                 let response = await this.$axios.get("/users/" + this.profile.user_id + "/" + goal + "/")
                 list = response.data
@@ -114,7 +122,6 @@ export default {
                     eventBus.getTitle = goal
                     eventBus.getUsername = this.profile.username
                     this.$router.push({ path: '/' + goal + '/', });
-                    console.log("GetFollowers")
                 }
             } catch (e) {
                 this.errormsg = e.response.data.error.toString();
@@ -126,7 +133,7 @@ export default {
         async getFollowers(isRefresh) {
             console.log("GetFollowers")
             let list = await this.GetUsers("followers", isRefresh).catch(e => this.errormsg = e.response.data.error.toString())
-            console.log("GetFollowers")
+
             this.followers = list.short_profile
             this.isFollowing = list.cond
             console.log("follow:", list.short_profile, list.cond)
@@ -147,12 +154,10 @@ export default {
             */
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-            console.log("GetMyBans")
             try {
                 let response = await this.$axios.get("/users/" + this.profile.user_id + "/mybans/")
                 this.bans = response.data.short_profile
                 this.isBanned = response.data.cond
-                console.log("GetMyBans")
                 if (!isRefresh) {
                     eventBus.getShortProfiles = this.bans
                     eventBus.getTitle = "bans"
@@ -168,7 +173,7 @@ export default {
                 this.refresh()
             }
         },
-        async getTheirBans(isRefresh) {
+        async getTheirBans() {
             this.loading = true;
             this.errormsg = null;
             /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
@@ -176,20 +181,15 @@ export default {
             */
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-            console.log("GetTheirBans")
             try {
                 let response = await this.$axios.get("/users/" + this.profile.user_id + "/bans/")
                 this.bans = response.data.short_profile
                 this.iAmBanned = response.data.cond
-                console.log("GetTheirBans")
             } catch (e) {
                 this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
             console.log("banned:", this.bans, this.iAmBanned)
-            if (!isRefresh) {
-                this.refresh()
-            }
         },
         async getImage() {
             this.loading = true;
@@ -217,8 +217,8 @@ export default {
                 error => { return Promise.reject(error); });
             await this.GetProfile()
             if (this.profile.profile_picture_url) { await this.getImage() }
-            this.getTheirBans(true).then(() => this.getMyBans(true))
-            if (!this.iAmBanned) {this.getFollowers(true).then(() => this.GetUserPhotos()).then(() => console.log("refresh:", this.media))}
+            this.getTheirBans().then(() => this.getMyBans(true))
+            if (!this.iAmBanned) { this.getFollowers(true).then(() => this.GetUserPhotos()).then(() => console.log("refresh:", this.media)) }
         },
 
         uploadImage: function () {
@@ -246,14 +246,18 @@ export default {
         },
     },
     mounted() {
-        this.refresh();
-    }
+        this.$axios.get("/users/", { params: { username: this.$route.query.username } }).then(() => this.refresh()).catch(e => {
+            if (e.response.data.error.toString() === "User not found") {
+                this.$router.push("/error/" + "404");
+            }
+        })
+    },
 }
 </script>
 <template>
     <div class="wrapper">
         <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
-        <div class="profile">
+        <div v-if=!loading  class="profile">
             <font-awesome-icon class="previous-page" icon="fa-solid fa-chevron-left" size="5x" @click="cancel" />
             <div v-if=!this.iAmBanned class="profile-image">
                 <Avatar :src="ppUrl" :size="180" />
@@ -267,20 +271,20 @@ export default {
                     profile</button>
                 <button v-if=logged type="button" class="btn change-username-button" @click="change_username">Change
                     Username</button>
-                <button v-if="(!loading && !logged && !iAmBanned && !isBanned)" type="button" class="btn follow-button"
-                    @click="handleFollowClick">
+                <button v-if="(!logged && !iAmBanned && !isBanned)" type="button" class="btn follow-button"
+                    @click="FollowClick">
                     <font-awesome-icon v-if=isFollowing class="check" icon="fa-solid fa-check" /><font-awesome-icon
                         v-else class="check" icon="fa-solid fa-xmark" /><span class="action">Follow</span></button>
-                <button v-if="(!loading && !logged && !this.iAmBanned)" type="button" class="btn ban-button"
-                    @click="handleBanClick">
+                <button v-if="(!logged && !this.iAmBanned)" type="button" class="btn ban-button"
+                    @click="BanClick">
                     <font-awesome-icon v-if=isBanned class="check" icon="fa-solid fa-ban" /><span
                         class="action">Ban</span></button>
-                <button v-else-if="(!loading && !logged && !this.isBanned)" type="button" class="btn ban-button"
-                    @click="handleBanClick"><font-awesome-icon v-if=isBanned class="check"
-                        icon="fa-solid fa-ban" /><span class="action">Ban</span></button>
-                <button v-else-if="(!loading && !logged)" type="button" class="btn ban-button"
-                    @click="handleBanClick"><font-awesome-icon v-if=isBanned class="check"
-                        icon="fa-solid fa-ban" /><span class="action">Ban</span></button>
+                <button v-else-if="(!logged && !this.isBanned)" type="button" class="btn ban-button"
+                    @click="BanClick"><font-awesome-icon v-if=isBanned class="check" icon="fa-solid fa-ban" /><span
+                        class="action">Ban</span></button>
+                <button v-else-if="(!logged)" type="button" class="btn ban-button"
+                    @click="BanClick"><font-awesome-icon v-if=isBanned class="check" icon="fa-solid fa-ban" /><span
+                        class="action">Ban</span></button>
 
 
             </div>

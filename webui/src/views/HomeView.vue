@@ -31,7 +31,11 @@ export default {
 
 			this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
 				error => { return Promise.reject(error); });
-			this.$axios.get("/users/" + this.header + "/stream/", { params: { offset: 0 } }).then(response => {
+			let user_id = this.$route.params.user_id
+			if (!user_id){
+				user_id = this.header
+			}
+			this.$axios.get("/users/" + user_id + "/stream/", { params: { offset: 0 } }).then(response => {
 				this.stream = response.data, console.log(this.stream, typeof (this.stream));
 			}).catch(e => this.errormsg = e.response.data.error.toString());
 			this.loading = false;
@@ -56,31 +60,12 @@ export default {
 			}
 		},
 		async refresh() {
+			await this.getInitialStream();
 			await this.getNextStream();
-			// this.loading = false
+			
 			console.log("stream found")
-			eventBus.user_id = this.$route.params.user_id
+			eventBus.user_id = this.header
 		},
-		/* async updateLikesCommentsPhoto(photoId) {
-			console.log("ID", photoId);
-			this.loading = true;
-			this.errormsg = null;
-
-			this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = this.header; return config; },
-				error => { return Promise.reject(error); });
-			try {
-				let response = await this.$axios.get("/photos/" + photoId);
-				this.post = response.data;
-				eventBus.getPhotoId = this.post.photoId
-				console.log(this.post);
-			} catch (e) {
-				this.errormsg = e.response.data.error.toString();
-			}  
-			this.loading = false;
-
-			// Emit an event to the child component with only this.post.likeCount
-				this.$emit('refresh-child', this.post.likes_count);
-		}, */
 
 	},
 	beforeMount() {

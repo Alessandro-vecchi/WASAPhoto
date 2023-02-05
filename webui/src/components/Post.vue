@@ -162,10 +162,10 @@ export default {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             if (this.isLiked) {
-                this.$axios.delete("/photos/" + this.photoId + "/likes/" + this.header).then(() => this.$emit('refresh-parent'));
+                this.$axios.delete("/photos/" + this.photoId + "/likes/" + this.header).then(() => this.$emit('refresh-parent')).catch(e => this.errormsg = e.response.data.error.toString());
                 this.isLiked = false
             } else {
-                this.$axios.put("/photos/" + this.photoId + "/likes/" + this.header).then(() => this.$emit('refresh-parent'))
+                this.$axios.put("/photos/" + this.photoId + "/likes/" + this.header).then(() => this.$emit('refresh-parent')).catch(e => this.errormsg = e.response.data.error.toString(), this.isLiked=false)
                 this.isLiked = true
             }
             this.loading = false;
