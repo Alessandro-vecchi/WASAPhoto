@@ -6,7 +6,7 @@ export default {
         errorContainer.classList.add('show-error');
         setTimeout(() => {
             errorContainer.classList.remove('show-error');
-        }, 15000); // hide the error message after 15 seconds
+        }, 10000); // hide the error message after 10 seconds
         console.log(this.$props)
     },
     computed: {

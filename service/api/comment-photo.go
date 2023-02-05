@@ -2,13 +2,11 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
 
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/models"
 	"github.com/Alessandro-vecchi/WASAPhoto/service/api/reqcontext"
-	"github.com/Alessandro-vecchi/WASAPhoto/service/database"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -46,12 +44,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	authtoken := r.Header.Get("Authorization")
 	log.Printf("The authentication token in the header is: %v", authtoken)
 	id, _ := rt.db.GetIdByName(comment.Author)
-	err = checkUserIdentity(authtoken, id, rt.db)
-	if errors.Is(err, database.ErrUserNotExists) {
-		w.WriteHeader(http.StatusNotFound)
-		_, _ = w.Write([]byte(`{"error": "User does not exist"}`))
-		return
-	} else if errors.Is(err, database.ErrAuthenticationFailed) {
+	if authtoken == "" || authtoken != id {
 		w.WriteHeader(http.StatusUnauthorized)
 		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
 		return

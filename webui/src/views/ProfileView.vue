@@ -215,10 +215,12 @@ export default {
         async refresh() {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
+            this.loading=true
             await this.GetProfile()
             if (this.profile.profile_picture_url) { await this.getImage() }
             this.getTheirBans().then(() => this.getMyBans(true))
             if (!this.iAmBanned) { this.getFollowers(true).then(() => this.GetUserPhotos()).then(() => console.log("refresh:", this.media)) }
+            this.loading=false
         },
 
         uploadImage: function () {
@@ -255,9 +257,9 @@ export default {
 }
 </script>
 <template>
-    <div class="wrapper">
+    <div v-if="!loading" class="wrapper">
         <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
-        <div v-if=!loading  class="profile">
+        <div class="profile">
             <font-awesome-icon class="previous-page" icon="fa-solid fa-chevron-left" size="5x" @click="cancel" />
             <div v-if=!this.iAmBanned class="profile-image">
                 <Avatar :src="ppUrl" :size="180" />
@@ -296,7 +298,7 @@ export default {
                             @click="getFollowers(false)">Followers</span></li>
                     <li v-if=!this.iAmBanned><span class="profile-stat-count">{{ profile.follows_count }}</span> <span
                             @click="getFollowing(false)">Following</span></li>
-                    <li v-if="(!loading && logged)"><button type="button" class="btn see-bans-button"
+                    <li v-if="(logged)"><button type="button" class="btn see-bans-button"
                             @click="getMyBans(false)">View banned users</button></li>
                 </ul>
             </div>

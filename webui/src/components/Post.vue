@@ -43,13 +43,15 @@ export default {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             console.log("GetMyProfile")
-            try {
-                let response = await this.$axios.get("/users/?username=" + this.username)
-                this.username = response.data.username
-                this.myPP = response.data.profile_picture_url
-                eventBus.getMyUsername = response.data.username
-            } catch (e) {
-                this.errormsg = e.response.data.error.toString();
+            if (this.header) {
+                try {
+                    let response = await this.$axios.get("/users/?username=" + this.username)
+                    this.username = response.data.username
+                    this.myPP = response.data.profile_picture_url
+                    eventBus.getMyUsername = response.data.username
+                } catch (e) {
+                    this.errormsg = e.response.data.error.toString();
+                }
             }
             this.loading = false;
         },
@@ -95,6 +97,19 @@ export default {
             this.loading = false;
             return uri
         },
+
+        async deletePhoto() {
+            this.loading = true;
+            this.errormsg = null;
+            try {
+                await this.$axios.delete('/photos/' + this.photoId);
+                this.$router.push({ path: "/users/", query: { username: this.username } })
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
+            }
+            this.loading = false;
+        },
+
         async refresh() {
             await this.GetLikes(true)
             await this.GetComments(true)
@@ -128,7 +143,43 @@ export default {
                 this.refresh()
             }
         },
+        async LikeClick() {
+            if (this.isMine) {
+                return
+            }
+            this.loading = true;
+            this.errormsg = null;
+            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
+            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
+            */
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            if (this.isLiked) {
+                this.$axios.delete("/photos/" + this.photoId + "/likes/" + this.header).then(() => (this.$emit('refresh-parent'), this.isLiked = false)).catch(e => this.errormsg = e.response.data.error.toString());
+            } else {
+                this.$axios.put("/photos/" + this.photoId + "/likes/" + this.header).then(() => (this.$emit('refresh-parent'), this.isLiked = true)).catch(e => this.errormsg = e.response.data.error.toString())
+            }
+            this.loading = false;
+            console.log(this.isLiked)
+        },
+        async submitComment() {
+            this.loading = true;
+            this.errormsg = null;
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
 
+            try {
+                let response = await this.$axios.post('/photos/' + this.photoId + '/comments/', {
+                    body: this.textComment, isReplyComment: false, author: this.username,
+                });
+                console.log(response.data)
+                // Getting comments with my comment updated
+                await this.GetComments(false)
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
+            }
+            this.loading = false;
+        },
         async GetComments(isRefresh) {
             this.loading = true;
             this.errormsg = null;
@@ -150,58 +201,6 @@ export default {
                 this.refresh()
             }
         },
-        async LikeClick() {
-            if (this.isMine) {
-                return
-            }
-            this.loading = true;
-            this.errormsg = null;
-            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
-            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
-            */
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
-            if (this.isLiked) {
-                this.$axios.delete("/photos/" + this.photoId + "/likes/" + this.header).then(() => this.$emit('refresh-parent')).catch(e => this.errormsg = e.response.data.error.toString());
-                this.isLiked = false
-            } else {
-                this.$axios.put("/photos/" + this.photoId + "/likes/" + this.header).then(() => this.$emit('refresh-parent')).catch(e => this.errormsg = e.response.data.error.toString(), this.isLiked=false)
-                this.isLiked = true
-            }
-            this.loading = false;
-            console.log(this.isLiked)
-        },
-        async submitComment() {
-            this.loading = true;
-            this.errormsg = null;
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
-
-            try {
-                let response = await this.$axios.post('/photos/' + this.photoId + '/comments/', {
-                    body: this.textComment, isReplyComment: false, author: this.username,
-                });
-                console.log(response.data)
-                await this.GetComments(false)
-                // this.$router.push({ path: '/photos/' + this.photoId + "/comments/" });
-            } catch (e) {
-                this.errormsg = e.response.data.error.toString();
-            }
-            this.loading = false;
-        },
-
-        async deletePhoto() {
-            this.loading = true;
-            this.errormsg = null;
-            try {
-                await this.$axios.delete('/photos/' + this.photoId);
-                this.$router.push({ path: "/users/", query: { username: this.username } })
-            } catch (e) {
-                this.errormsg = e.response.data.error.toString();
-            }
-            this.loading = false;
-
-        }
     },
     computed: {
         timeAgo() {
@@ -295,9 +294,10 @@ export default {
                 <ul>
                     <li>
                         <button v-if=!loading type="button">
-                            <font-awesome-icon v-if=!isLiked class="icon" id="like" icon="fa-regular fa-heart" @click="LikeClick"/>
+                            <font-awesome-icon v-if=!isLiked class="icon" id="like" icon="fa-regular fa-heart"
+                                @click="LikeClick" />
                             <font-awesome-icon v-else class="icon" id="like" icon="fa-solid fa-heart"
-                                color="rgb(232, 62, 79)" @click="LikeClick"/>
+                                color="rgb(232, 62, 79)" @click="LikeClick" />
                             <span class="num" @click="GetLikes(false)"> {{ likesCount }} </span>
                         </button>
                     </li>

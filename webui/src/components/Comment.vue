@@ -156,6 +156,7 @@ export default {
         if (this.profilePic) {
             this.getImage()
         }
+        document.querySelector(".time-ago").setAttribute("data-tooltip", this.createdIn);
     },
 }
 </script>
@@ -180,7 +181,7 @@ export default {
             </div>
 
             <div class="comment-body">
-                <textarea v-if="editing" v-model="currentBody"></textarea>
+                <textarea v-if="editing" class="textarea" v-model="currentBody"></textarea>
                 <CustomText v-else size="normal">{{ currentBody }}</CustomText>
             </div>
 
@@ -223,14 +224,37 @@ export default {
     color: rgba(100, 100, 100, 1);
     text-transform: uppercase;
 }
+.time-ago:after{
+    content: attr(data-tooltip);
+    display: block;
+    padding: 3px;
+    background: #212121;
+    border-radius: 4px;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 100;
+    pointer-events: none;
+    position: absolute;
+    left: 150px;
+    color: white;
+    font-size: 8px;
+    border:none;
+
+}
+.time-ago:hover:after {
+    opacity: 1;
+}
 
 .comment-body {
     color: black;
     width: fit-content;
     margin-top: 4px;
-    font-family: 'Source Sans Pro', sans-serif;
 }
-
+.textarea {
+    min-width: 350px;
+    max-width: 700px;
+    max-height: 100px;
+}
 .buttons button {
     color: white;
     padding: 6px 10px;
