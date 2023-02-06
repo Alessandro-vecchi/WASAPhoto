@@ -53,8 +53,6 @@ export default {
             this.loading = true;
             this.errormsg = null;
             console.log('profile:', this.profile)
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
             try {
                 await this.$axios.get("/users/" + this.profile.user_id + "/photos/").then(response => (this.media = response.data));
             } catch (e) {
@@ -67,8 +65,6 @@ export default {
             this.loading = true;
             this.errormsg = null;
             console.log(this.isFollowing)
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
             if (this.isFollowing) {
                 await this.$axios.delete("/users/" + this.profile.user_id + "/followers/" + this.header).then(() => (this.profile.followers_count--, this.isFollowing = false)).catch(e => this.errormsg = e.response.data.error.toString());
             } else {
@@ -81,8 +77,6 @@ export default {
         async BanClick() {
             this.loading = true;
             this.errormsg = null;
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
             if (this.isBanned) {
                 await this.$axios.delete("/users/" + this.profile.user_id + "/bans/" + this.header).then(() => this.isBanned = false).catch(e => this.errormsg = e.response.data.error.toString());
             } else {
@@ -112,8 +106,6 @@ export default {
             /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
             If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
             */
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
             try {
                 let response = await this.$axios.get("/users/" + this.profile.user_id + "/" + goal + "/")
                 list = response.data
@@ -152,8 +144,6 @@ export default {
             /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
             If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
             */
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
             try {
                 let response = await this.$axios.get("/users/" + this.profile.user_id + "/mybans/")
                 this.bans = response.data.short_profile
@@ -179,8 +169,6 @@ export default {
             /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
             If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
             */
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
             try {
                 let response = await this.$axios.get("/users/" + this.profile.user_id + "/bans/")
                 this.bans = response.data.short_profile
@@ -194,8 +182,6 @@ export default {
         async getImage() {
             this.loading = true;
             this.errormsg = null;
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
             console.log("GetImage")
             try {
                 let response = await this.$axios.get("/images/?image_name=" + this.profile.profile_picture_url, { responseType: 'blob' })
@@ -213,14 +199,12 @@ export default {
             console.log("profile_pic_URL:", this.ppUrl)
         },
         async refresh() {
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
-            this.loading=true
+            this.loading = true
             await this.GetProfile()
             if (this.profile.profile_picture_url) { await this.getImage() }
             this.getTheirBans().then(() => this.getMyBans(true))
             if (!this.iAmBanned) { this.getFollowers(true).then(() => this.GetUserPhotos()).then(() => console.log("refresh:", this.media)) }
-            this.loading=false
+            this.loading = false
         },
 
         uploadImage: function () {
@@ -248,6 +232,8 @@ export default {
         },
     },
     mounted() {
+        this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+            error => { return Promise.reject(error); });
         this.$axios.get("/users/", { params: { username: this.$route.query.username } }).then(() => this.refresh()).catch(e => {
             if (e.response.data.error.toString() === "User not found") {
                 this.$router.push("/error/" + "404");
@@ -277,16 +263,14 @@ export default {
                     @click="FollowClick">
                     <font-awesome-icon v-if=isFollowing class="check" icon="fa-solid fa-check" /><font-awesome-icon
                         v-else class="check" icon="fa-solid fa-xmark" /><span class="action">Follow</span></button>
-                <button v-if="(!logged && !this.iAmBanned)" type="button" class="btn ban-button"
-                    @click="BanClick">
+                <button v-if="(!logged && !this.iAmBanned)" type="button" class="btn ban-button" @click="BanClick">
                     <font-awesome-icon v-if=isBanned class="check" icon="fa-solid fa-ban" /><span
                         class="action">Ban</span></button>
                 <button v-else-if="(!logged && !this.isBanned)" type="button" class="btn ban-button"
                     @click="BanClick"><font-awesome-icon v-if=isBanned class="check" icon="fa-solid fa-ban" /><span
                         class="action">Ban</span></button>
-                <button v-else-if="(!logged)" type="button" class="btn ban-button"
-                    @click="BanClick"><font-awesome-icon v-if=isBanned class="check" icon="fa-solid fa-ban" /><span
-                        class="action">Ban</span></button>
+                <button v-else-if="(!logged)" type="button" class="btn ban-button" @click="BanClick"><font-awesome-icon
+                        v-if=isBanned class="check" icon="fa-solid fa-ban" /><span class="action">Ban</span></button>
 
 
             </div>
@@ -298,8 +282,8 @@ export default {
                             @click="getFollowers(false)">Followers</span></li>
                     <li v-if=!this.iAmBanned><span class="profile-stat-count">{{ profile.follows_count }}</span> <span
                             @click="getFollowing(false)">Following</span></li>
-                    <li v-if="(logged)"><button type="button" class="btn see-bans-button"
-                            @click="getMyBans(false)">View banned users</button></li>
+                    <li v-if="logged" @click="getMyBans(false)"><span class="profile-stat-count"></span>Bans
+                    </li>
                 </ul>
             </div>
             <div v-if=!this.iAmBanned class="profile-bio">
@@ -427,21 +411,6 @@ img {
     transform: scale(1.1);
 }
 
-.see-bans-button {
-    font-size: 0.6rem;
-    line-height: 0.8;
-    border: 0.1rem solid #dbdbdb;
-    border-radius: 0.3rem;
-    padding: 0.8rem 1.4rem;
-    margin-left: -3rem;
-    transition: transform 0.4s;
-}
-
-.see-bans-button:hover {
-    transform: scale(1.3);
-    background-color: #fff;
-}
-
 .profile-user-settings .follow-button {
     background-color: #00acee;
     /* Twitter blu */
@@ -468,12 +437,6 @@ img {
     font-size: 16px;
     /*  box-shadow: 0 5px #ec7b7b; */
 }
-
-/* 
-.profile-user-settings .ban-button:active {
-    box-shadow: 0 2px #ec7b7b;
-    transform: traslateY(4px)
-} */
 .profile-user-settings .ban-button:hover {
     background-color: #b50707;
     /* Darker blu on hover */
@@ -508,12 +471,12 @@ img {
 .profile-stats li:last-of-type {
     margin-right: 0;
 }
-
+.profile-stats li:last-of-type:hover,
 .profile-stats li span:last-of-type:hover {
     text-decoration: underline;
 }
 
-.profile-stats li span:first-of-type:hover {
+.profile-stats li:first-of-type span:first-of-type:hover {
     text-decoration: none;
 }
 

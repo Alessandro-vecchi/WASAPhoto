@@ -18,8 +18,9 @@ EXPOSE 3000 4000
 WORKDIR /app/
 COPY --from=builder /app/webapi ./
 
-#COPY --from=builder /tmp/images /tmp/images/
-#VOLUME /src/images 
+### Not necessary mounting of images folder since it's done on the main.go file
+# COPY --from=builder /tmp/images /tmp/images/
+# VOLUME /src/images 
 
 
 ### Executable command

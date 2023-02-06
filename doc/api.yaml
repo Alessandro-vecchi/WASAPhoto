@@ -439,10 +439,10 @@ paths:
               schema:
                 description: |
                   Represents the users that follow the profile, with their respective profile photo
-                  Users can see followers in batches of 100.
+                  Users can see followers in batches of 10.
                 type: array
                 minItems: 0
-                maxItems: 100
+                maxItems: 10
                 items: {$ref: '#/components/schemas/ShortProfile'}
       security:
           - bearerAuth: []
@@ -466,10 +466,10 @@ paths:
                 schema:
                   description: |
                     Represents the users that are followed by the profile, with their respective profile photo.
-                    Users can see followed users in batches of 100.
+                    Users can see followed users in batches of 10.
                   type: array
                   minItems: 0
-                  maxItems: 100
+                  maxItems: 10
                   items: {$ref: '#/components/schemas/ShortProfile'}
         security:
             - bearerAuth: []
@@ -544,12 +544,12 @@ paths:
               schema:
                 description: |
                   Represents the stream of photos in the user's homepage.
-                  Users can see comments in batches of 20.
+                  Users can see posts in batches of 5.
                 type: array
                 items: 
                   $ref: "#/components/schemas/Photo"
                 minItems: 0
-                maxItems: 20
+                maxItems: 5
                 uniqueItems: true
         "204": { description: No content. User still doesn't follow any user.}
       security:
@@ -575,10 +575,10 @@ paths:
               schema:
                 description: |
                   Represents the users that are banned from the profile.
-                  Users can see banned users in batches of 50.
+                  Users can see banned users in batches of 10.
                 type: array
                 minItems: 0
-                maxItems: 50
+                maxItems: 10
                 uniqueItems: true
                 items:
                   $ref: '#/components/schemas/ShortProfile'
@@ -608,7 +608,7 @@ paths:
                   Users can see banned users in batches of 50.
                 type: array
                 minItems: 0
-                maxItems: 50
+                maxItems: 10
                 uniqueItems: true
                 items:
                   $ref: '#/components/schemas/ShortProfile'
@@ -710,7 +710,7 @@ paths:
                   Represents the photos that we can see in the profile of a user. Users can see photos in batches of 50.
                 type: array
                 minItems: 0
-                maxItems: 100
+                maxItems: 9
                 items: { $ref: "#/components/schemas/Photo" } 
         "400": { $ref: "#/components/responses/BadRequest" }
         "500": { $ref: "#/components/responses/InternalServerError" }
@@ -798,10 +798,10 @@ paths:
               schema:
                 description: |
                   Represents the list of users that put like on a photo with their respective profile photo.
-                  Users can see likers in batches of 100.
+                  Users can see likers in batches of 10.
                 type: array
                 minItems: 0
-                maxItems: 100
+                maxItems: 10
                 items: { $ref: "#/components/schemas/ShortProfile" }
         '401':
           $ref: '#/components/responses/UnauthorizedError'
@@ -879,10 +879,10 @@ paths:
               schema:
                 description: |
                   Represents the comments under a photo added by the users.
-                  Users can see comments in batches of 50.
+                  Users can see comments in batches of 10.
                 type: array
                 minItems: 0
-                maxItems: 50
+                maxItems: 10
                 items: { $ref: "#/components/schemas/Comment" }
       security:
         - bearerAuth: []
