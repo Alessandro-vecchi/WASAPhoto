@@ -1,11 +1,11 @@
 <script>
 import { eventBus } from "@/main.js"
-import { onMounted } from "vue";
 
 export default {
     data: function () {
         return {
             errormsg: null,
+            welcomeMsg: null,
             loading: false,
             User: {
                 UserID: "",
@@ -17,13 +17,24 @@ export default {
         LoginUser: async function () {
             this.loading = true;
             this.errormsg = null;
+            this.welcomeMsg = null;
+            let status = 0;
             try {
                 let response = await this.$axios.post("/session/", {
                     username: this.User.Username,
                 });
                 this.User.UserID = response.data,
-                console.log(response.data.error, response)
+
+                status = response.status
+                if (status === 200) {
+                    this.welcomeMsg = "Logged in successfully. Welcome back!"
+                } else if (status === 201) {
+                    this.welcomeMsg = "Account created. Welcome in WasaPhoto!"
+                }
+                
+                console.log(response.status, this.welcomeMsg)
                     eventBus.getMyUsername = this.User.Username
+                    eventBus.welcomeMessage = this.welcomeMsg
                 localStorage.setItem('Authorization', this.User.UserID),
 
                     this.$router.push({ path: '/users/' + this.User.UserID + '/stream/' })

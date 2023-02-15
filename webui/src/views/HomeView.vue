@@ -11,6 +11,7 @@ export default {
 	},
 	data: function () {
 		return {
+			welcomeMsg: eventBus.welcomeMessage,
 			errormsg: null,
 			loading: false,
 			header: localStorage.getItem('Authorization'),
@@ -74,6 +75,7 @@ export default {
 
 	mounted() {
 		this.getNextStream()
+		eventBus.welcomeMessage = null
 		console.log("stream ended")
 	}
 }
@@ -82,6 +84,7 @@ export default {
 <template>
 
 	<div class="Home">
+        <WelcomeMsg v-if="welcomeMsg" :wmsg="welcomeMsg"></WelcomeMsg>
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 		<div class="timeline">
 			<Post v-on:refresh-parent="refresh" v-for="post in stream" :key="post.photoId" :photoId="post.photoId"

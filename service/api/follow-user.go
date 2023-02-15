@@ -75,7 +75,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	// check if logged user has been banned by requested user profile
 	if contains(banned, user_id_B) {
 		ctx.Logger.Error("error: user could not follow the user because it's been banned")
-		w.WriteHeader(http.StatusUnauthorized)
+		w.WriteHeader(http.StatusForbidden)
 		_, _ = w.Write([]byte(`{"error": "User " ` + name_B + ` "can't follow the user " ` + name_A + `"because it's banned"}`))
 		return
 	}

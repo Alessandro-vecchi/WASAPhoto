@@ -4,6 +4,7 @@ import router from './router/routers.js'
 import axios from './services/axios.js'
 import ErrorMsg from './components/ErrorMsg.vue'
 import LoadingSpinner from './components/LoadingSpinner.vue'
+import WelcomeMsg from './components/WelcomeMsg.vue'
 
 import './assets/main.css'
 
@@ -27,6 +28,7 @@ const app = createApp(App)
 app.config.globalProperties.$axios = axios;
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.component("ErrorMsg", ErrorMsg);
+app.component("WelcomeMsg", WelcomeMsg);
 app.component("LoadingSpinner", LoadingSpinner);
 app.use(router)
 app.mount('#app')

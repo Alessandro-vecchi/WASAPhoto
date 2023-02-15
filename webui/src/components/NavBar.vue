@@ -15,7 +15,7 @@ export default {
             /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
             If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
             */
-            console.log("header:", localStorage.getItem('Authorization'), "\n", "username:", this.$route.query.username, this.username)
+            console.log("header:", localStorage.getItem('Authorization'), "\n", "username:", this.$route.query.username)
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             try {
@@ -23,6 +23,7 @@ export default {
                 this.$router.push({ path: "/users/", query: { username: this.Username } })
             } catch (e) {
                 this.errormsg = e.response.data.error.toString();
+                this.Username = ""
             }
             this.loading = false;
 

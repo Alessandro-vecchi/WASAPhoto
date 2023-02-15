@@ -40,9 +40,6 @@ export default {
                 console.log("GetProfile")
             } catch (e) {
                 this.errormsg = e.response.data.error.toString();
-                if (this.errormsg === "User not found") {
-                    this.$router.push("/error/", { props: { msg: this.errormsg } });
-                }
             }
             this.loading = false;
             console.log("profile1:", this.profile)
@@ -61,8 +58,8 @@ export default {
             this.loading = false;
             console.log("media:", this.media)
         },
+        
         async FollowClick() {
-            this.loading = true;
             this.errormsg = null;
             console.log(this.isFollowing)
             if (this.isFollowing) {
@@ -70,18 +67,16 @@ export default {
             } else {
                 await this.$axios.put("/users/" + this.profile.user_id + "/followers/" + this.header).then(() => (this.profile.followers_count++, this.isFollowing = true)).catch(e => this.errormsg = e.response.data.error.toString());
             }
-            this.loading = false;
 
         },
 
         async BanClick() {
-            this.loading = true;
             this.errormsg = null;
             if (this.isBanned) {
                 await this.$axios.delete("/users/" + this.profile.user_id + "/bans/" + this.header).then(() => this.isBanned = false).catch(e => this.errormsg = e.response.data.error.toString());
             } else {
                 await this.$axios.put("/users/" + this.profile.user_id + "/bans/" + this.header).then(() => this.isBanned = true).catch(e => this.errormsg = e.response.data.error.toString());
-                if (this.logged) {
+                if (this.header) {
                     // adding a ban remove my follow from the profile
                     if (this.isFollowing) {
                         await this.$axios.delete("/users/" + this.profile.user_id + "/followers/" + this.header).catch(e => this.errormsg = e.response.data.error.toString())
@@ -97,7 +92,6 @@ export default {
                     }
                 }
             }
-            this.loading = false;
         },
         async GetUsers(goal, isRefresh) {
             this.loading = true;
@@ -222,7 +216,6 @@ export default {
     },
     computed: {
         logged() {
-            // console.log(this.profile.user_id, localStorage.getItem('Authorization'))
             let bool = (this.header == this.profile.user_id)
             console.log("logged:", bool, this.profile.user_id)
             if (bool === null) {
@@ -235,6 +228,8 @@ export default {
         this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
             error => { return Promise.reject(error); });
         this.$axios.get("/users/", { params: { username: this.$route.query.username } }).then(() => this.refresh()).catch(e => {
+                console.log(e.response.data.error.toString())
+                this.errormsg = e.response.data.error.toString();
             if (e.response.data.error.toString() === "User not found") {
                 this.$router.push("/error/" + "404");
             }
