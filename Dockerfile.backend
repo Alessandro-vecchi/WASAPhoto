@@ -1,3 +1,5 @@
+# AS intermediate stage 
+# break up your Dockerfile into multiple stages, each with its own set of instructions and dependencies, and to reuse the results of previous stages in later stages.
 FROM golang:1.19.1 AS builder
 
 ### Copy Go code
@@ -5,14 +7,17 @@ WORKDIR /src/
 COPY . .
 
 ### Build executables
+# the -o flag specifies the output file name and location
 RUN go build -o /app/webapi ./cmd/webapi
 
 
 ### Create final container
 FROM debian:bullseye
 
-### Inform Docker about which port is used
+### Inform Docker about which port is used. Documentation
 EXPOSE 3000 4000
+# this instruction does not actually publish the specified ports to the host machine; 
+# to do that, you would need to use the -p option when running the docker run command.
 
 ### Copy the build executable from the builder image
 WORKDIR /app/
@@ -25,3 +30,4 @@ COPY --from=builder /app/webapi ./
 
 ### Executable command
 CMD ["/app/webapi"]
+#  default command to be run when the container is started.

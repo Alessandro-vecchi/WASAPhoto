@@ -36,7 +36,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	if authtoken == "" {
 		w.WriteHeader(http.StatusUnauthorized)
-		_, _ = w.Write([]byte(`{"error": "You are not authenticated"}`))
+		_, _ = w.Write([]byte(`{"error": "You are not welcomed in WasaPhoto if you are not authenticated. Go log in!"}`))
 		return
 	}
 	user_id_A, err := rt.db.GetIdByName(name)

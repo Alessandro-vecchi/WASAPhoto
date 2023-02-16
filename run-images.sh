@@ -10,5 +10,8 @@ docker volume create databaseVolume
 docker volume create imageVolume
 docker run --rm -d -p 3000:3000 -v databaseVolume:/app/images -v imageVolume:/tmp wasaphotobe
 
-# docker run -d -p 3000:3000 wasaphotobe
 docker run --rm -d -p 80:80 wasaphotofe
+
+# -d option starts the container in detached mode (in the background), 
+# -p option publishes port 3000 of the container to port 3000 of the host machine.
+# -v option is used to mount the named volumes databaseVolume and imageVolume to the container's filesystem. 

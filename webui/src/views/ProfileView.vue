@@ -230,17 +230,17 @@ export default {
         this.$axios.get("/users/", { params: { username: this.$route.query.username } }).then(() => this.refresh()).catch(e => {
                 console.log(e.response.data.error.toString())
                 this.errormsg = e.response.data.error.toString();
-            if (e.response.data.error.toString() === "User not found") {
-                this.$router.push("/error/" + "404");
-            }
+            // if (e.response.data.error.toString() === "User not found") {
+            //     this.$router.push("/error/" + "404");
+            // }
         })
     },
 }
 </script>
 <template>
-    <div v-if="!loading" class="wrapper">
+    <div v-if="(!loading)" class="wrapper">
         <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
-        <div class="profile">
+        <div v-if="header" class="profile">
             <font-awesome-icon class="previous-page" icon="fa-solid fa-chevron-left" size="5x" @click="cancel" />
             <div v-if=!this.iAmBanned class="profile-image">
                 <Avatar :src="ppUrl" :size="180" />
@@ -292,7 +292,7 @@ export default {
             </div>
             <!--End of profile section-->
         </div>
-        <div v-if=!this.iAmBanned class="gallery">
+        <div v-if="(header&&!this.iAmBanned)" class="gallery">
             <GalleryItem v-for="obj in media" :key="obj.photoId" :photo="obj" />
         </div>
     </div>

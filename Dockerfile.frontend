@@ -1,19 +1,31 @@
+# Node.js LTS (Long Term Support) image is an official Docker image that provides a stable and supported version of Node.js for use in production environments
 FROM node:lts as builder
+### A base image contains the basic runtime environment and tools needed to run an application, such as an operating system and required libraries.
 
 ### Copy Vue.js code
 WORKDIR /app
 COPY webui webui
 
-### Build Vue.js into plain HTML/CSS/JS
+### Build Vue.js into plain HTML/CSS/JS, # build context
 WORKDIR /app/webui
-# RUN npm install
 RUN npm run build-prod
-
+# This command is a script defined in the package.json file of the webui directory that builds the Vue.js application for production.
 
 ### Create final container
 FROM nginx:stable
 
 ### Copy the (built) app from the builder image
 COPY --from=builder /app/webui/dist /usr/share/nginx/html
+# the files are being copied to the default document root directory for the Nginx web server
+# By copying the built application files to the Nginx document root directory, 
+# the Nginx web server is able to serve the application when it receives requests from clients. 
+# This allows users to interact with the application through a web browser or other HTTP client.
 
 # (CMD and EXPOSE are already present in the nginx:stable container, no need to repeat)
+### EXPOSE is used to specify which network ports should be exposed by the container. 
+# In the nginx image, the instruction EXPOSE 80 is already defined, which means that the container will listen on port 80 for incoming HTTP requests. 
+# If you don't need to modify the ports that are exposed by the container, you don't need to include an EXPOSE instruction in your Dockerfile.
+
+# By using a pre-built base image like nginx:stable, 
+# you can avoid the need to install and configure the Nginx web server software from scratch in your Dockerfile. 
+# This can save time and effort, and also ensures that you are using a version of the software that is known to be stable and reliable.
