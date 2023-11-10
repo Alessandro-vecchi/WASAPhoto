@@ -79,7 +79,9 @@ Directly from your PC, you can upload your photos, and they will be visible to e
 <!-- Demo -->
 ### Demo
 
-Here you can see a demo of the app:
+Here you can see a demo of the website:
+
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
