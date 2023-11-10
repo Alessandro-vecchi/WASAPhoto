@@ -17,9 +17,6 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/alessandro-vecchi/WASAPhoto">
-    <img src="doc/logo.png" alt="Logo" width="500">
-  </a>
 
   <h2>WASAPhoto</h2>
 
@@ -37,13 +34,7 @@
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
+    <li><a href="#demo">Demo</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#license">License</a></li>
@@ -94,10 +85,7 @@ To run the back-end:
 
 To run the front-end:
 
-- Connect an android phone in debug mode or use an emulator
-- Select the device
-- Open a terminal and write `flutter run` in the `front-end-flutter` folder
-- Make sure the Flutter SDK path is right and the Dart plugin is inserted
+- npm run dev
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
