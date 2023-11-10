@@ -127,26 +127,26 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Alessandro Vecchi - alessandro.vecchi66@gmail.com
 
-Project Link: [https://github.com/Alessandro-vecchi/UniDrive](https://github.com/Alessandro-vecchi/UniDrive)
+Project Link: [https://github.com/Alessandro-vecchi/WASAPhoto](https://github.com/Alessandro-vecchi/WASAPhoto)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/Alessandro-vecchi/UniDrive.svg?style=for-the-badge
-[contributors-url]: https://github.com/Alessandro-vecchi/UniDrive/graphs/contributors
+[contributors-shield]: https://img.shields.io/github/contributors/Alessandro-vecchi/WASAPhoto.svg?style=for-the-badge
+[contributors-url]: https://github.com/Alessandro-vecchi/WASAPhoto/graphs/contributors
 
-[forks-shield]: https://img.shields.io/github/forks/Alessandro-vecchi/UniDrive.svg?style=for-the-badge
-[forks-url]: https://github.com/Alessandro-vecchi/UniDrive/network/members
+[forks-shield]: https://img.shields.io/github/forks/Alessandro-vecchi/WASAPhoto.svg?style=for-the-badge
+[forks-url]: https://github.com/Alessandro-vecchi/WASAPhoto/network/members
 
-[stars-shield]: https://img.shields.io/github/stars/Alessandro-vecchi/UniDrive.svg?style=for-the-badge
-[stars-url]: https://github.com/Alessandro-vecchi/UniDrive/stargazers
+[stars-shield]: https://img.shields.io/github/stars/Alessandro-vecchi/WASAPhoto.svg?style=for-the-badge
+[stars-url]: https://github.com/Alessandro-vecchi/WASAPhoto/stargazers
 
-[issues-shield]: https://img.shields.io/github/issues/Alessandro-vecchi/UniDrive.svg?style=for-the-badge
-[issues-url]: https://github.com/Alessandro-vecchi/UniDrive/issues
+[issues-shield]: https://img.shields.io/github/issues/Alessandro-vecchi/WASAPhoto.svg?style=for-the-badge
+[issues-url]: https://github.com/Alessandro-vecchi/WASAPhoto/issues
 
-[license-shield]: https://img.shields.io/github/license/Alessandro-vecchi/UniDrive.svg?style=for-the-badge
-[license-url]: https://github.com/Alessandro-vecchi/UniDrive/blob/master/LICENSE.txt
+[license-shield]: https://img.shields.io/github/license/Alessandro-vecchi/WASAPhoto.svg?style=for-the-badge
+[license-url]: https://github.com/Alessandro-vecchi/WASAPhoto/blob/master/LICENSE.txt
 
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/alessandro-v-6711
